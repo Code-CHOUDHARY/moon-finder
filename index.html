@@ -3,119 +3,178 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>Moon Finder</title>
 <style>
   :root {
-    --bg: #0b1020; --panel: #141b31; --line: #263052; --text: #e8ecf8;
-    --muted: #93a0c4; --accent: #f5d77a; --dark: #2a3354; --good: #7dd3a8; --warn: #f29b7a;
+    --bg: #ffffff; --surface: #f5f6f8; --border: #e5e7eb; --text: #111827; --muted: #6b7280;
+    --accent: #2563eb; --accent-text: #ffffff; --moon-lit: #f2d16b; --moon-dark: #d9dde4;
+    --good: #15803d; --good-bg: #dcfce7; --warn: #b45309; --warn-bg: #fef3c7;
+    --sky-bg: #eef2f7; --sky-line: #cbd5e1;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1115; --surface: #1a1d23; --border: #2a2e36; --text: #f3f4f6; --muted: #9ca3af;
+    --accent: #60a5fa; --accent-text: #0b1220; --moon-lit: #f5e3a3; --moon-dark: #2c313a;
+    --good: #4ade80; --good-bg: #14301f; --warn: #fbbf24; --warn-bg: #33270d;
+    --sky-bg: #151920; --sky-line: #313845;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background: radial-gradient(1200px 600px at 50% -200px, #1b2550, var(--bg)); color: var(--text);
-    min-height: 100vh;
-  }
-  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
-  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
-  h1 { margin: 0; font-size: 1.8rem; letter-spacing: .5px; }
-  h1 span { color: var(--accent); }
-  #loc { color: var(--muted); font-size: .95rem; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
-  .card h2 { margin: 0 0 12px; font-size: .85rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 600; }
-  .center { display: flex; flex-direction: column; align-items: center; text-align: center; }
-  .big { font-size: 1.5rem; font-weight: 600; margin-top: 10px; }
-  .sub { color: var(--muted); margin-top: 4px; }
-  dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; transition: background .2s, color .2s; }
+  main { max-width: 480px; margin: 0 auto; padding: 16px 16px 40px; }
+
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  h1 { font-size: 1.15rem; margin: 0; font-weight: 700; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface);
+              color: var(--text); font-size: 1.1rem; cursor: pointer; display: grid; place-items: center; }
+
+  .hero { text-align: center; padding: 8px 0 4px; }
+  #moon { width: 190px; height: 190px; display: block; margin: 0 auto; }
+  .phase { font-size: 1.6rem; font-weight: 700; margin: 8px 0 0; }
+  .lit { color: var(--muted); margin: 0; }
+
+  .answer { margin: 20px 0 12px; padding: 16px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-align: center; }
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: .85rem; font-weight: 600; }
+  .badge.up { background: var(--good-bg); color: var(--good); }
+  .badge.down { background: var(--warn-bg); color: var(--warn); }
+  .look { font-size: 1.2rem; font-weight: 600; margin: 10px 0 2px; }
+  .look-sub { color: var(--muted); margin: 0; font-size: .95rem; }
+
+  .primary { width: 100%; padding: 16px; border: 0; border-radius: 14px; background: var(--accent); color: var(--accent-text);
+             font: inherit; font-size: 1.05rem; font-weight: 700; cursor: pointer; }
+  .primary:active { transform: scale(.99); }
+
+  .times { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px; text-align: center; }
+  .tile .label { color: var(--muted); font-size: .8rem; }
+  .tile .value { font-size: 1.15rem; font-weight: 700; }
+
+  details { margin-top: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 0 14px; }
+  summary { cursor: pointer; padding: 14px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "▾"; color: var(--muted); }
+  details[open] summary::after { content: "▴"; }
+  .details-body { padding-bottom: 14px; }
+  #sky { width: 200px; height: 200px; display: block; margin: 0 auto 12px; }
+  dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0; }
   dt { color: var(--muted); }
   dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-  .status { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: .85rem; margin-top: 10px; }
-  .up { background: rgba(125,211,168,.15); color: var(--good); }
-  .down { background: rgba(242,155,122,.15); color: var(--warn); }
-  form { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
-  label { display: flex; flex-direction: column; font-size: .8rem; color: var(--muted); gap: 4px; }
-  input { background: #0e1428; border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 8px 10px; font: inherit; width: 140px; }
-  input[type="datetime-local"] { width: 210px; }
-  button { background: var(--accent); color: #1a1a1a; border: 0; border-radius: 8px; padding: 9px 14px; font: inherit; font-weight: 600; cursor: pointer; }
-  button.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
-  #msg { color: var(--warn); font-size: .9rem; margin-top: 10px; min-height: 1.2em; }
-  footer { color: var(--muted); font-size: .8rem; margin-top: 24px; text-align: center; }
-  #cam { position: fixed; inset: 0; background: #000; z-index: 50; }
+
+  .loc-line { color: var(--muted); font-size: .9rem; margin-bottom: 10px; }
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: .8rem; color: var(--muted); }
+  label.full { grid-column: 1 / -1; }
+  input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; }
+  .row { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
+  .btn.solid { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  #msg { color: var(--warn); font-size: .9rem; margin-top: 8px; min-height: 1em; }
+  footer { color: var(--muted); font-size: .78rem; text-align: center; margin-top: 20px; }
+
+  /* Camera (always dark – it sits on top of the camera picture) */
+  #cam { position: fixed; inset: 0; background: #000; z-index: 50; color: #fff; }
   #cam[hidden] { display: none; }
   #video, #overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
   #video { object-fit: cover; }
-  #camTop { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 12px 16px; background: linear-gradient(rgba(0,0,0,.7), transparent); }
-  #camInfo { font-size: .95rem; line-height: 1.4; text-shadow: 0 1px 3px #000; }
-  #camClose { background: rgba(0,0,0,.4); color: #fff; font-size: 1.1rem; padding: 6px 12px; }
-  #camHint { position: absolute; left: 0; right: 0; bottom: 0; padding: 16px; text-align: center; font-size: .95rem; background: linear-gradient(transparent, rgba(0,0,0,.75)); text-shadow: 0 1px 3px #000; }
-  svg text { fill: var(--muted); font-size: 11px; font-family: inherit; }
+  #camTop { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+            padding: 14px 16px; background: linear-gradient(rgba(0,0,0,.7), transparent); }
+  #camInfo { font-size: .95rem; text-shadow: 0 1px 3px #000; }
+  #camClose { background: rgba(0,0,0,.45); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+  #camHint { position: absolute; left: 0; right: 0; bottom: 0; padding: 20px 16px 28px; text-align: center; font-size: 1.05rem; font-weight: 600;
+             background: linear-gradient(transparent, rgba(0,0,0,.8)); text-shadow: 0 1px 3px #000; }
+  svg text { fill: var(--muted); font-size: 12px; font-family: inherit; }
 </style>
 </head>
 <body>
 <main>
   <header>
-    <h1>🌙 Moon <span>Finder</span></h1>
-    <div id="loc">Finding your location…</div>
+    <h1>🌙 Moon Finder</h1>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch to dark mode">🌙</button>
   </header>
 
-  <div class="grid">
-    <section class="card center">
-      <h2>Phase</h2>
-      <svg id="moon" width="180" height="180" viewBox="0 0 200 200" aria-label="Moon phase"></svg>
-      <div class="big" id="phaseName">–</div>
-      <div class="sub" id="illum">–</div>
-    </section>
+  <section class="hero">
+    <svg id="moon" viewBox="0 0 200 200" role="img" aria-label="Moon phase"></svg>
+    <p class="phase" id="phaseName">Loading…</p>
+    <p class="lit" id="illum"></p>
+  </section>
 
-    <section class="card center">
-      <h2>Where to look</h2>
-      <svg id="sky" width="220" height="220" viewBox="0 0 220 220" aria-label="Sky position"></svg>
-      <div class="sub" id="direction">–</div>
-      <div class="status" id="visible">–</div>
-      <button type="button" id="camBtn" style="margin-top:14px">📷 Find it with camera</button>
-    </section>
+  <section class="answer">
+    <span class="badge" id="visible">…</span>
+    <p class="look" id="look">Finding your location…</p>
+    <p class="look-sub" id="lookSub"></p>
+  </section>
 
-    <section class="card">
-      <h2>Details</h2>
-      <dl>
-        <dt>Altitude</dt><dd id="alt">–</dd>
-        <dt>Azimuth</dt><dd id="az">–</dd>
-        <dt>Moonrise</dt><dd id="rise">–</dd>
-        <dt>Moonset</dt><dd id="set">–</dd>
-        <dt>Moon age</dt><dd id="age">–</dd>
-        <dt>Distance</dt><dd id="dist">–</dd>
-        <dt>Next full moon</dt><dd id="nextFull">–</dd>
-        <dt>Next new moon</dt><dd id="nextNew">–</dd>
-      </dl>
-    </section>
+  <button class="primary" id="camBtn" type="button">📷 Show me with the camera</button>
+
+  <div class="times">
+    <div class="tile"><div class="label">Moonrise</div><div class="value" id="rise">–</div></div>
+    <div class="tile"><div class="label">Moonset</div><div class="value" id="set">–</div></div>
+    <div class="tile"><div class="label">Next full moon</div><div class="value" id="nextFull">–</div></div>
+    <div class="tile"><div class="label">Next new moon</div><div class="value" id="nextNew">–</div></div>
   </div>
 
-  <section class="card" style="margin-top:16px">
-    <h2>Location &amp; time</h2>
-    <form id="form">
-      <label>Latitude <input id="lat" type="number" step="any" min="-90" max="90" required></label>
-      <label>Longitude <input id="lng" type="number" step="any" min="-180" max="180" required></label>
-      <label>Date &amp; time <input id="when" type="datetime-local"></label>
-      <button type="submit">Update</button>
-      <button type="button" class="ghost" id="useGps">Use my location</button>
-      <button type="button" class="ghost" id="nowBtn">Now</button>
-    </form>
-    <div id="msg"></div>
-  </section>
+  <details>
+    <summary>More details</summary>
+    <div class="details-body">
+      <svg id="sky" viewBox="0 0 220 220" role="img" aria-label="Moon position in the sky"></svg>
+      <dl>
+        <dt>Direction</dt><dd id="az">–</dd>
+        <dt>Height above horizon</dt><dd id="alt">–</dd>
+        <dt>Moon age</dt><dd id="age">–</dd>
+        <dt>Distance</dt><dd id="dist">–</dd>
+      </dl>
+    </div>
+  </details>
+
+  <details id="placeBox">
+    <summary>Change place or time</summary>
+    <div class="details-body">
+      <div class="loc-line" id="loc">–</div>
+      <form id="form">
+        <label>Latitude <input id="lat" type="number" step="any" min="-90" max="90" required inputmode="decimal"></label>
+        <label>Longitude <input id="lng" type="number" step="any" min="-180" max="180" required inputmode="decimal"></label>
+        <label class="full">Date &amp; time (leave empty for now) <input id="when" type="datetime-local"></label>
+        <div class="row">
+          <button class="btn solid" type="submit">Update</button>
+          <button class="btn" type="button" id="useGps">Use my location</button>
+          <button class="btn" type="button" id="nowBtn">Now</button>
+        </div>
+      </form>
+      <div id="msg"></div>
+    </div>
+  </details>
+
+  <footer>Times use your device's time zone. Positions are approximate (about 1°).</footer>
 
   <div id="cam" hidden>
     <video id="video" playsinline muted autoplay></video>
     <canvas id="overlay"></canvas>
     <div id="camTop">
       <div id="camInfo">Starting camera…</div>
-      <button type="button" class="ghost" id="camClose" aria-label="Close camera">✕</button>
+      <button type="button" class="icon-btn" id="camClose" aria-label="Close camera">✕</button>
     </div>
     <div id="camHint"></div>
   </div>
-
-  <footer>Times are shown in your device's time zone. Positions are approximate (within about a degree); full/new moon dates can be off by a few hours. Plenty for spotting the Moon.</footer>
 </main>
 
 <script>
+/* ---------- Theme (light by default, remembers your choice) ---------- */
+const root = document.documentElement;
+function applyTheme(t) {
+  root.dataset.theme = t;
+  const btn = document.getElementById("themeBtn");
+  btn.textContent = t === "dark" ? "☀️" : "🌙";
+  btn.setAttribute("aria-label", t === "dark" ? "Switch to light mode" : "Switch to dark mode");
+}
+let savedTheme = null;
+try { savedTheme = localStorage.getItem("mf-theme"); } catch (_) {}
+applyTheme(savedTheme === "dark" ? "dark" : "light");
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const next = root.dataset.theme === "dark" ? "light" : "dark";
+  applyTheme(next);
+  try { localStorage.setItem("mf-theme", next); } catch (_) {}
+});
+
 /* ---------- Astronomy (adapted from the SunCalc algorithms, BSD-2) ---------- */
 const PI = Math.PI, rad = PI / 180, dayMs = 86400000, J1970 = 2440588, J2000 = 2451545;
 const e = rad * 23.4397;
@@ -143,8 +202,7 @@ function moonPosition(date, lat, lng) {
   const H = siderealTime(d, lw) - c.ra;
   let h = altitudeOf(H, phi, c.dec);
   h += refraction(h);
-  // convert azimuth from "south-based" to compass bearing (0 = north, clockwise)
-  let az = (azimuthOf(H, phi, c.dec) + PI) % (2 * PI);
+  const az = (azimuthOf(H, phi, c.dec) + PI) % (2 * PI); // compass bearing, 0 = north
   return { altitude: h, azimuth: az, distance: c.dist };
 }
 function moonIllumination(date) {
@@ -179,9 +237,8 @@ function moonTimes(date, lat, lng) {
   const toDate = h => h === undefined ? null : new Date(t.valueOf() + h * 3600000);
   return { rise: toDate(rise), set: toDate(set), alwaysUp: !rise && !set && h0 > 0, alwaysDown: !rise && !set && h0 <= 0 };
 }
-// Find next moment phase crosses a target (0.5 = full, 0/1 = new)
-function nextPhase(from, target) {
-  const f = dt => { let p = moonIllumination(dt).phase - target; return ((p % 1) + 1.5) % 1 - 0.5; }; // signed distance in (-0.5, 0.5]
+function nextPhase(from, target) { // 0.5 = full, 0 = new
+  const f = dt => { const p = moonIllumination(dt).phase - target; return ((p % 1) + 1.5) % 1 - 0.5; };
   let t = from.valueOf(), prev = f(new Date(t));
   for (let i = 0; i < 24 * 32; i++) {
     const t2 = t + 3600000, cur = f(new Date(t2));
@@ -195,60 +252,61 @@ function nextPhase(from, target) {
   return null;
 }
 
-/* ---------- UI ---------- */
+/* ---------- Plain-language helpers ---------- */
 const $ = id => document.getElementById(id);
-const state = { lat: null, lng: null, when: null }; // when=null -> live "now"
+const state = { lat: null, lng: null, when: null }; // when = null means live "now"
 const PHASES = [
   [0.0339, "New Moon"], [0.216, "Waxing Crescent"], [0.284, "First Quarter"], [0.466, "Waxing Gibbous"],
   [0.534, "Full Moon"], [0.716, "Waning Gibbous"], [0.784, "Last Quarter"], [0.966, "Waning Crescent"], [1.01, "New Moon"]
 ];
 const phaseName = p => PHASES.find(([max]) => p < max)[1];
-const COMPASS = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
-const compass = deg => COMPASS[Math.round(deg / 22.5) % 16];
-const fmtTime = d => d ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—";
-const fmtDate = d => d ? d.toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
+const DIRS = ["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West"];
+const direction = deg => DIRS[Math.round(deg / 45) % 8];
+const SHORT = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+const compass = deg => SHORT[Math.round(deg / 22.5) % 16];
+function heightWords(alt) {
+  if (alt < 10) return "low, just above the horizon";
+  if (alt < 35) return "a little way up the sky";
+  if (alt < 60) return "about halfway up the sky";
+  if (alt < 80) return "high in the sky";
+  return "almost straight overhead";
+}
+const fmtTime = d => d ? d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "—";
+const fmtDay = d => d ? d.toLocaleDateString([], { day: "numeric", month: "short" }) : "—";
+const fmtDate = d => d ? d.toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "—";
 
+/* ---------- Drawing ---------- */
 function drawMoon(phase, southern) {
-  const r = 80, cx = 100, cy = 100;
-  const k = Math.cos(2 * PI * phase);           // terminator shape
-  const rx = Math.abs(k) * r;
-  const waxing = phase < 0.5;
-  const crescent = k > 0;                         // less than half lit
-  let d;
-  if (waxing) d = `M${cx},${cy - r} A${r},${r} 0 0 1 ${cx},${cy + r} A${rx},${r} 0 0 ${crescent ? 0 : 1} ${cx},${cy - r}Z`;
-  else        d = `M${cx},${cy - r} A${r},${r} 0 0 0 ${cx},${cy + r} A${rx},${r} 0 0 ${crescent ? 1 : 0} ${cx},${cy - r}Z`;
+  const r = 86, cx = 100, cy = 100;
+  const k = Math.cos(2 * PI * phase), rx = Math.abs(k) * r;
+  const waxing = phase < 0.5, crescent = k > 0;
+  const d = waxing
+    ? `M${cx},${cy - r} A${r},${r} 0 0 1 ${cx},${cy + r} A${rx},${r} 0 0 ${crescent ? 0 : 1} ${cx},${cy - r}Z`
+    : `M${cx},${cy - r} A${r},${r} 0 0 0 ${cx},${cy + r} A${rx},${r} 0 0 ${crescent ? 1 : 0} ${cx},${cy - r}Z`;
   $("moon").innerHTML = `
-    <defs><radialGradient id="glow"><stop offset="60%" stop-color="#f5d77a" stop-opacity=".25"/><stop offset="100%" stop-color="#f5d77a" stop-opacity="0"/></radialGradient></defs>
-    <circle cx="${cx}" cy="${cy}" r="98" fill="url(#glow)"/>
     <g ${southern ? `transform="translate(200,0) scale(-1,1)"` : ""}>
-      <circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--dark)"/>
-      <path d="${d}" fill="#f3e6b3"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--moon-dark)"/>
+      <path d="${d}" fill="var(--moon-lit)"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="1.5"/>
     </g>`;
 }
-
 function drawSky(altDeg, azDeg) {
-  const c = 110, R = 90;
-  const above = altDeg >= 0;
-  const dist = R * (1 - Math.max(altDeg, 0) / 90);
-  const a = azDeg * rad;
+  const c = 110, R = 90, above = altDeg >= 0;
+  const dist = R * (1 - Math.max(altDeg, 0) / 90), a = azDeg * rad;
   const x = c + dist * Math.sin(a), y = c - dist * Math.cos(a);
   const ex = c + R * Math.sin(a), ey = c - R * Math.cos(a);
   $("sky").innerHTML = `
-    <circle cx="${c}" cy="${c}" r="${R}" fill="#0e1428" stroke="var(--line)"/>
-    <circle cx="${c}" cy="${c}" r="${R * 2 / 3}" fill="none" stroke="var(--line)" stroke-dasharray="3 4"/>
-    <circle cx="${c}" cy="${c}" r="${R / 3}" fill="none" stroke="var(--line)" stroke-dasharray="3 4"/>
-    <line x1="${c}" y1="${c - R}" x2="${c}" y2="${c + R}" stroke="var(--line)"/>
-    <line x1="${c - R}" y1="${c}" x2="${c + R}" y2="${c}" stroke="var(--line)"/>
-    <text x="${c}" y="14" text-anchor="middle">N</text>
-    <text x="${c}" y="214" text-anchor="middle">S</text>
-    <text x="210" y="${c + 4}" text-anchor="middle">E</text>
-    <text x="10" y="${c + 4}" text-anchor="middle">W</text>
-    <line x1="${c}" y1="${c}" x2="${ex}" y2="${ey}" stroke="var(--accent)" stroke-opacity=".35" stroke-dasharray="4 4"/>
-    ${above
-      ? `<circle cx="${x}" cy="${y}" r="9" fill="var(--accent)"/>`
-      : `<circle cx="${ex}" cy="${ey}" r="8" fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="3 3"/>`}`;
+    <circle cx="${c}" cy="${c}" r="${R}" fill="var(--sky-bg)" stroke="var(--sky-line)"/>
+    <circle cx="${c}" cy="${c}" r="${R * 2 / 3}" fill="none" stroke="var(--sky-line)" stroke-dasharray="3 4"/>
+    <circle cx="${c}" cy="${c}" r="${R / 3}" fill="none" stroke="var(--sky-line)" stroke-dasharray="3 4"/>
+    <text x="${c}" y="14" text-anchor="middle">N</text><text x="${c}" y="216" text-anchor="middle">S</text>
+    <text x="211" y="${c + 4}" text-anchor="middle">E</text><text x="9" y="${c + 4}" text-anchor="middle">W</text>
+    <line x1="${c}" y1="${c}" x2="${ex}" y2="${ey}" stroke="var(--accent)" stroke-opacity=".4" stroke-dasharray="4 4"/>
+    ${above ? `<circle cx="${x}" cy="${y}" r="10" fill="var(--moon-lit)" stroke="var(--text)" stroke-opacity=".3"/>`
+            : `<circle cx="${ex}" cy="${ey}" r="8" fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="3 3"/>`}`;
 }
 
+/* ---------- Main view ---------- */
 function render() {
   if (state.lat === null) return;
   const now = state.when || new Date();
@@ -260,30 +318,36 @@ function render() {
   drawMoon(ill.phase, state.lat < 0);
   drawSky(altDeg, azDeg);
   $("phaseName").textContent = phaseName(ill.phase);
-  $("illum").textContent = `${(ill.fraction * 100).toFixed(1)}% illuminated`;
-  $("alt").textContent = `${altDeg.toFixed(1)}°`;
-  $("az").textContent = `${azDeg.toFixed(1)}° (${compass(azDeg)})`;
-  $("rise").textContent = times.alwaysUp ? "Up all day" : times.alwaysDown ? "Down all day" : fmtTime(times.rise);
-  $("set").textContent = times.alwaysUp ? "Up all day" : times.alwaysDown ? "Down all day" : fmtTime(times.set);
-  $("age").textContent = `${(ill.phase * 29.53).toFixed(1)} days`;
-  $("dist").textContent = `${Math.round(pos.distance).toLocaleString()} km`;
-  $("nextFull").textContent = fmtDate(nextPhase(now, 0.5));
-  $("nextNew").textContent = fmtDate(nextPhase(now, 0));
+  $("illum").textContent = `${Math.round(ill.fraction * 100)}% lit`;
 
   const vis = $("visible");
   if (altDeg >= 0) {
-    vis.className = "status up";
-    vis.textContent = "Above the horizon";
-    $("direction").textContent = `Look ${compass(azDeg)}, about ${Math.round(altDeg)}° up`;
+    vis.className = "badge up"; vis.textContent = state.when ? "Up at this time" : "Up now";
+    $("look").textContent = `Look ${direction(azDeg)}`;
+    $("lookSub").textContent = `It's ${heightWords(altDeg)}.`;
   } else {
-    vis.className = "status down";
-    vis.textContent = "Below the horizon";
-    $("direction").textContent = times.rise && times.rise > now
-      ? `Rises ${compass(azDeg)}-ish at ${fmtTime(times.rise)}`
-      : `Currently ${Math.round(-altDeg)}° below the ${compass(azDeg)} horizon`;
+    vis.className = "badge down"; vis.textContent = state.when ? "Not up at this time" : "Not up right now";
+    if (times.rise && times.rise > now) {
+      $("look").textContent = `Rises at ${fmtTime(times.rise)}`;
+      $("lookSub").textContent = `It will come up in the ${direction(moonPosition(times.rise, state.lat, state.lng).azimuth / rad)}.`;
+    } else {
+      $("look").textContent = "Below the horizon";
+      $("lookSub").textContent = "Check the rise time below, or come back later.";
+    }
   }
-  $("loc").textContent = `${Math.abs(state.lat).toFixed(3)}°${state.lat >= 0 ? "N" : "S"}, ${Math.abs(state.lng).toFixed(3)}°${state.lng >= 0 ? "E" : "W"}` +
-    (state.when ? ` · ${fmtDate(state.when)}` : " · live");
+
+  const upAll = times.alwaysUp ? "Up all day" : null, downAll = times.alwaysDown ? "Not today" : null;
+  $("rise").textContent = upAll || downAll || fmtTime(times.rise);
+  $("set").textContent = upAll || downAll || fmtTime(times.set);
+  $("nextFull").textContent = fmtDay(nextPhase(now, 0.5));
+  $("nextNew").textContent = fmtDay(nextPhase(now, 0));
+
+  $("az").textContent = `${direction(azDeg)} (${Math.round(azDeg)}°)`;
+  $("alt").textContent = `${altDeg.toFixed(1)}°`;
+  $("age").textContent = `${(ill.phase * 29.53).toFixed(1)} days`;
+  $("dist").textContent = `${Math.round(pos.distance).toLocaleString()} km`;
+  $("loc").textContent = `Showing ${Math.abs(state.lat).toFixed(2)}°${state.lat >= 0 ? "N" : "S"}, ${Math.abs(state.lng).toFixed(2)}°${state.lng >= 0 ? "E" : "W"}` +
+    (state.when ? ` at ${fmtDate(state.when)}` : " · right now");
 }
 
 function setLocation(lat, lng) {
@@ -291,23 +355,22 @@ function setLocation(lat, lng) {
   $("lat").value = lat.toFixed(4); $("lng").value = lng.toFixed(4);
   render();
 }
-
 function locate() {
   $("msg").textContent = "";
-  if (!navigator.geolocation) { $("msg").textContent = "Location isn't available in this browser. Enter latitude and longitude below."; return fallback(); }
-  $("loc").textContent = "Finding your location…";
+  if (!navigator.geolocation) { $("msg").textContent = "Location isn't available here. Type your latitude and longitude."; $("placeBox").open = true; return fallback(); }
+  $("look").textContent = "Finding your location…";
   navigator.geolocation.getCurrentPosition(
     p => setLocation(p.coords.latitude, p.coords.longitude),
-    err => { $("msg").textContent = `Couldn't get your location (${err.message}). Enter coordinates below.`; fallback(); },
+    () => { $("msg").textContent = "Couldn't get your location, so this shows New Delhi. Type your own latitude and longitude above."; $("placeBox").open = true; fallback(); },
     { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
   );
 }
-function fallback() { if (state.lat === null) setLocation(28.6139, 77.2090); } // default: New Delhi
+function fallback() { if (state.lat === null) setLocation(28.6139, 77.2090); } // New Delhi
 
 $("form").addEventListener("submit", ev => {
   ev.preventDefault();
   const lat = parseFloat($("lat").value), lng = parseFloat($("lng").value);
-  if (!(lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)) { $("msg").textContent = "Please enter a valid latitude (−90 to 90) and longitude (−180 to 180)."; return; }
+  if (!(lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)) { $("msg").textContent = "Latitude must be −90 to 90 and longitude −180 to 180."; return; }
   $("msg").textContent = "";
   const w = $("when").value;
   state.when = w ? new Date(w) : null;
@@ -322,11 +385,10 @@ const wrap180 = x => ((x + 540) % 360) - 180;
 
 function onOrient(ev) {
   let heading = null;
-  if (typeof ev.webkitCompassHeading === "number") heading = ev.webkitCompassHeading;           // iOS
-  else if (ev.absolute && ev.alpha !== null) heading = (360 - ev.alpha) % 360;                  // Android
+  if (typeof ev.webkitCompassHeading === "number") heading = ev.webkitCompassHeading;      // iPhone
+  else if (ev.absolute && ev.alpha !== null) heading = (360 - ev.alpha) % 360;             // Android
   if (heading === null || ev.beta === null) return;
-  const pitch = ev.beta - 90;  // phone upright in portrait: beta 90 = camera at the horizon
-  // light smoothing (on the circle for heading)
+  const pitch = ev.beta - 90; // phone upright in portrait: camera level with the horizon
   if (cam.heading === null) { cam.heading = heading; cam.pitch = pitch; }
   else {
     cam.heading = (cam.heading + wrap180(heading - cam.heading) * 0.2 + 360) % 360;
@@ -339,25 +401,23 @@ async function openCamera() {
   if (state.lat === null) { $("msg").textContent = "Set a location first."; return; }
   $("cam").hidden = false;
   $("camInfo").textContent = "Starting camera…";
-  // iOS needs explicit permission for motion sensors, from a tap
   try {
     if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
       await DeviceOrientationEvent.requestPermission();
     }
-  } catch (_) { /* ignored: falls back to guidance only */ }
+  } catch (_) { /* falls back to written directions */ }
   window.addEventListener("deviceorientationabsolute", onOrient);
   window.addEventListener("deviceorientation", onOrient);
   try {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("Camera not supported in this browser");
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("not supported in this browser");
     cam.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
     $("video").srcObject = cam.stream;
   } catch (err) {
-    $("camInfo").textContent = `Camera unavailable: ${err.message}. The guide below still works.`;
+    $("camInfo").textContent = `Camera unavailable (${err.message}). Directions below still work.`;
   }
-  cam.heading = cam.pitch = null; cam.sensors = false;
+  cam.heading = cam.pitch = null; cam.sensors = false; cam.moon = null;
   cam.raf = requestAnimationFrame(drawOverlay);
 }
-
 function closeCamera() {
   cancelAnimationFrame(cam.raf);
   window.removeEventListener("deviceorientationabsolute", onOrient);
@@ -376,7 +436,6 @@ function drawOverlay() {
   g.setTransform(dpr, 0, 0, dpr, 0, 0);
   g.clearRect(0, 0, W, H);
 
-  // Moon position, refreshed every 5 s
   const now = state.when || new Date();
   if (!cam.moon || Date.now() - cam.moonAt > 5000) {
     const p = moonPosition(now, state.lat, state.lng);
@@ -384,16 +443,17 @@ function drawOverlay() {
     cam.moonAt = Date.now();
   }
   const { alt, az, ill } = cam.moon;
-  const where = `Moon: ${compass(az)} (${az.toFixed(0)}°), ${alt.toFixed(0)}° ${alt >= 0 ? "above" : "below"} horizon · ${phaseName(ill.phase)}, ${(ill.fraction * 100).toFixed(0)}% lit`;
-  if (!$("camInfo").textContent.startsWith("Camera unavailable")) $("camInfo").textContent = where;
+  if (!$("camInfo").textContent.startsWith("Camera unavailable")) {
+    $("camInfo").textContent = `${phaseName(ill.phase)} · ${direction(az)} · ${alt >= 0 ? heightWords(alt) : "below the horizon"}`;
+  }
 
-  // crosshair
-  g.strokeStyle = "rgba(255,255,255,.5)"; g.lineWidth = 1;
+  g.strokeStyle = "rgba(255,255,255,.6)"; g.lineWidth = 1.5;
   g.beginPath(); g.moveTo(W / 2 - 12, H / 2); g.lineTo(W / 2 + 12, H / 2); g.moveTo(W / 2, H / 2 - 12); g.lineTo(W / 2, H / 2 + 12); g.stroke();
 
   if (!cam.sensors) {
-    $("camHint").textContent = `No motion sensors detected (normal on laptops). Point the camera ${compass(az)}, ` +
-      (alt >= 0 ? `about ${Math.round(alt)}° above the horizon.` : `but the Moon is below the horizon right now.`);
+    $("camHint").textContent = alt >= 0
+      ? `Face ${direction(az)} and look ${heightWords(alt).replace(/^it's /, "")} (about ${Math.round(alt)}° up).`
+      : `The Moon is below the horizon right now, toward the ${direction(az)}.`;
     return;
   }
 
@@ -403,26 +463,23 @@ function drawOverlay() {
   const onScreen = Math.abs(dAz) < hfov / 2 && Math.abs(dAlt) < vfov / 2;
 
   if (onScreen) {
-    // target ring + label
-    g.strokeStyle = "#f5d77a"; g.lineWidth = 3;
-    g.beginPath(); g.arc(x, y, 34, 0, 2 * PI); g.stroke();
-    g.fillStyle = "rgba(245,215,122,.25)"; g.beginPath(); g.arc(x, y, 34, 0, 2 * PI); g.fill();
-    g.fillStyle = "#f5d77a"; g.font = "600 14px system-ui, sans-serif"; g.textAlign = "center";
-    g.fillText(alt >= 0 ? "Moon" : "Moon (below horizon)", x, y + 54);
-    $("camHint").textContent = alt >= 0 ? "The Moon is inside the ring 🌙" : "That's where the Moon is, but it's below the horizon right now.";
+    g.strokeStyle = "#ffd76a"; g.lineWidth = 3;
+    g.beginPath(); g.arc(x, y, 36, 0, 2 * PI); g.stroke();
+    g.fillStyle = "rgba(255,215,106,.2)"; g.beginPath(); g.arc(x, y, 36, 0, 2 * PI); g.fill();
+    g.fillStyle = "#ffd76a"; g.font = "600 15px system-ui, sans-serif"; g.textAlign = "center";
+    g.fillText(alt >= 0 ? "Moon" : "Moon (below horizon)", x, y + 58);
+    $("camHint").textContent = alt >= 0 ? "There it is — inside the circle 🌙" : "That's where it is, but it's below the horizon now.";
   } else {
-    // arrow at the edge pointing toward the Moon
     const ang = Math.atan2(y - H / 2, x - W / 2);
     const r = Math.min(W, H) / 2 - 50;
-    const ax = W / 2 + Math.cos(ang) * r, ay = H / 2 + Math.sin(ang) * r;
-    g.save(); g.translate(ax, ay); g.rotate(ang);
-    g.fillStyle = "#f5d77a";
-    g.beginPath(); g.moveTo(26, 0); g.lineTo(-14, -18); g.lineTo(-6, 0); g.lineTo(-14, 18); g.closePath(); g.fill();
+    g.save(); g.translate(W / 2 + Math.cos(ang) * r, H / 2 + Math.sin(ang) * r); g.rotate(ang);
+    g.fillStyle = "#ffd76a";
+    g.beginPath(); g.moveTo(28, 0); g.lineTo(-14, -20); g.lineTo(-6, 0); g.lineTo(-14, 20); g.closePath(); g.fill();
     g.restore();
-    const turn = Math.abs(dAz) >= 5 ? `turn ${dAz > 0 ? "right" : "left"} ${Math.round(Math.abs(dAz))}°` : "";
-    const tilt = Math.abs(dAlt) >= 5 ? `tilt ${dAlt > 0 ? "up" : "down"} ${Math.round(Math.abs(dAlt))}°` : "";
-    $("camHint").textContent = [turn, tilt].filter(Boolean).join(" and ").replace(/^./, c => c.toUpperCase()) +
-      (alt < 0 ? " (the Moon is below the horizon now)" : "") + " · hold your phone upright";
+    const turn = Math.abs(dAz) >= 5 ? `turn ${dAz > 0 ? "right" : "left"}` : "";
+    const tilt = Math.abs(dAlt) >= 5 ? `tilt ${dAlt > 0 ? "up" : "down"}` : "";
+    $("camHint").textContent = ([turn, tilt].filter(Boolean).join(" and ").replace(/^./, c => c.toUpperCase()) || "Almost there") +
+      (alt < 0 ? " (it's below the horizon now)" : "") + " · hold your phone upright";
   }
 }
 
