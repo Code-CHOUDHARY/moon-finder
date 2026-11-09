@@ -1,40 +1,70 @@
-# 🌙 Moon Finder
+# Moon Finder 2.0 — festival moonrise times for India
 
-Find the Moon in your sky — its phase, when it rises and sets, and exactly where to point your phone.
+A static website that answers *"chand kab niklega?"* for every major Indian festival, in **English and Hindi**, for **100 cities**.
 
-**Live:** https://code-choudhary.github.io/moon-finder/
-
-## Features
-
-- **Phase** – drawn to match the real Moon (mirrored for the southern hemisphere), with % illuminated and moon age
-- **Where to look** – compass direction and height above the horizon, plotted on a small sky map
-- **Rise and set times** for today, plus the next full moon and new moon
-- **Camera finder** – opens your rear camera and puts a ring on the Moon's position as you move your phone; when it's off screen, an arrow and "turn right 40°, tilt up 20°" hints guide you to it
-- **Any place, any time** – uses your device location, or type in latitude/longitude and a date/time
-
-## Usage
-
-Open the live link on your phone, allow location, then tap **📷 Find it with camera** and allow camera and motion access. Hold the phone upright in portrait.
-
-On a laptop (no compass or tilt sensors) the camera view shows written directions instead of a tracking marker.
-
-> The camera and motion sensors only work over **https** (like the GitHub Pages link above) — not when opening the file directly from your phone's storage.
-
-## Run locally
-
-It's a single, dependency-free file. Download `index.html` and open it in a browser — no build step or server needed.
+- ~1,900 pages generated from templates: festivals, festival × city, city moonrise pages, yearly Purnima / Amavasya / Ekadashi / Sankashti / Chandra Darshan lists, monthly moon calendars, guides and legal pages.
+- Festive night-sky design with a colour "skin" per festival (Karva Chauth red-gold, Eid emerald, Diwali gold…), phone-first, light/dark mode.
+- Live **camera finder** (`/moon-finder/`) — the original Moon Finder app, restyled.
+- Rebuilt automatically every morning so "today" pages and countdowns stay current.
 
 ## How it works
 
-- Moon and Sun positions use the algorithms from [SunCalc](https://github.com/mourner/suncalc) (BSD-2-Clause), adapted inline.
-- Positions are accurate to about a degree; full/new moon times can be off by a few hours.
-- The camera view combines `getUserMedia` (rear camera) with `DeviceOrientationEvent` (compass heading and tilt), assuming a ~60° horizontal field of view.
-- Nothing is sent anywhere: location, camera and sensor data stay in your browser.
+| File | What it does |
+| --- | --- |
+| `build.js` | Generates everything into `dist/` |
+| `src/astro.js` | Astronomy (via [astronomy-engine](https://github.com/cosinekitty/astronomy), MIT): rise/set, tithi, lunar months with Adhika Maas, eclipses, Islamic crescent prediction |
+| `src/festivals.js` | Festival rules + English/Hindi content, FAQs and colour skins — **edit this to add or change festivals** |
+| `src/cities.js` | The 100 cities (first 60 get festival × city pages) |
+| `src/data.js` | Works out every festival date and city time |
+| `src/pages.js`, `src/static.js`, `src/ui.js`, `src/i18n.js` | Page templates, shared layout, translations |
+| `assets/` | CSS, small site script, camera-finder script, icon, share image |
 
-## Browser support
+Festival-day rules (tithi prevailing at sunrise / midday / pradosh / moonrise) follow common North Indian panchang practice. Checked against published dates for 2025–2026: Karva Chauth, Diwali, Holi, Raksha Bandhan, Ganesh Chaturthi, Sharad Purnima, Guru Purnima, Eid al-Fitr and Bakrid all match, and the Karva Chauth 2025 moonrise for Delhi (8:13 PM) and Mumbai (8:55 PM) matches published times. **Before each festival season, spot-check the year's dates against a trusted panchang.** Islamic dates are predictions; committees announce the final date.
 
-| | Phase & sky map | Camera finder |
-|---|---|---|
-| Android Chrome | ✅ | ✅ |
-| iPhone Safari | ✅ | ✅ (asks for motion permission) |
-| Desktop browsers | ✅ | Camera + written directions only |
+## Run it locally
+
+```bash
+npm install
+npm run preview        # builds for http://localhost:8080 and serves dist/
+```
+
+`BUILD_DATE=2027-10-01 node build.js` builds the site as if it were that day (useful for testing).
+
+## Deploy (GitHub Pages, free)
+
+1. Push this folder to the `main` branch of the `moon-finder` repo. (The old single `index.html` at the root is no longer used — its code now lives in `assets/finder.js` — so delete it.)
+2. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+3. The workflow in `.github/workflows/deploy.yml` builds and publishes on every push and every morning at 05:45 IST. Run it once by hand from the **Actions** tab.
+
+### When you buy the domain (e.g. moonfinder.in)
+
+1. Repo **Settings → Secrets and variables → Actions → Variables** → add `SITE_URL` = `https://moonfinder.in`.
+2. **Settings → Pages → Custom domain** → `moonfinder.in`, and tick **Enforce HTTPS**.
+3. At your domain registrar, add DNS records: four `A` records for `@` pointing to `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`, and a `CNAME` for `www` pointing to `code-choudhary.github.io`.
+4. Re-run the workflow. The build writes a `CNAME` file automatically.
+
+(Cloudflare Pages also works: build command `npm ci && node build.js`, output folder `dist`, same environment variables. Add a daily Deploy Hook if you go this way.)
+
+## Optional settings (repo Variables — none are secret, all optional)
+
+| Variable | Example | Effect |
+| --- | --- | --- |
+| `SITE_URL` | `https://moonfinder.in` | Canonical URLs, sitemap, CNAME |
+| `ADSENSE_CLIENT` | `ca-pub-1234567890123456` | Loads AdSense (Auto ads) and writes `ads.txt` |
+| `ADSENSE_SLOT` | `1234567890` | Also places manual responsive ad units below the answer card and mid-page |
+| `GA_ID` | `G-XXXXXXX` | Google Analytics 4 |
+| `CF_BEACON_TOKEN` | `abc123…` | Cloudflare Web Analytics |
+| `GSC_VERIFY` | `xyz…` | Google Search Console HTML-tag verification |
+| `CONTACT_EMAIL` | `hello@moonfinder.in` | Shown on Contact/About/Privacy (otherwise links to GitHub issues) |
+
+Keep real secrets (API tokens etc.) out of the code; none are needed for this site.
+
+## After launch
+
+1. Add the site to Google Search Console and submit `/sitemap.xml`.
+2. Apply to AdSense once the domain has been live for a few weeks with traffic. Ads never appear above the moon time or in the camera view.
+3. Before each big festival (6 weeks ahead), check that page's dates and share it on WhatsApp/Instagram.
+
+## Credits
+
+Astronomy Engine (MIT) by Don Cross. Live finder maths adapted from SunCalc (BSD-2-Clause) by Vladimir Agafonkin. City coordinates are approximate city centres.

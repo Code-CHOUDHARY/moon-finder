@@ -1,180 +1,5 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<title>Moon Finder</title>
-<style>
-  :root {
-    --bg: #ffffff; --surface: #f5f6f8; --border: #e5e7eb; --text: #111827; --muted: #6b7280;
-    --accent: #2563eb; --accent-text: #ffffff; --moon-lit: #f2d16b; --moon-dark: #d9dde4;
-    --good: #15803d; --good-bg: #dcfce7; --warn: #b45309; --warn-bg: #fef3c7;
-    --sky-bg: #eef2f7; --sky-line: #cbd5e1;
-  }
-  :root[data-theme="dark"] {
-    --bg: #0f1115; --surface: #1a1d23; --border: #2a2e36; --text: #f3f4f6; --muted: #9ca3af;
-    --accent: #60a5fa; --accent-text: #0b1220; --moon-lit: #f5e3a3; --moon-dark: #2c313a;
-    --good: #4ade80; --good-bg: #14301f; --warn: #fbbf24; --warn-bg: #33270d;
-    --sky-bg: #151920; --sky-line: #313845;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--text); }
-  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; transition: background .2s, color .2s; }
-  main { max-width: 480px; margin: 0 auto; padding: 16px 16px 40px; }
-
-  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  h1 { font-size: 1.15rem; margin: 0; font-weight: 700; }
-  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface);
-              color: var(--text); font-size: 1.1rem; cursor: pointer; display: grid; place-items: center; }
-
-  .hero { text-align: center; padding: 8px 0 4px; }
-  #moon { width: 190px; height: 190px; display: block; margin: 0 auto; }
-  .phase { font-size: 1.6rem; font-weight: 700; margin: 8px 0 0; }
-  .lit { color: var(--muted); margin: 0; }
-
-  .answer { margin: 20px 0 12px; padding: 16px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-align: center; }
-  .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: .85rem; font-weight: 600; }
-  .badge.up { background: var(--good-bg); color: var(--good); }
-  .badge.down { background: var(--warn-bg); color: var(--warn); }
-  .look { font-size: 1.2rem; font-weight: 600; margin: 10px 0 2px; }
-  .look-sub { color: var(--muted); margin: 0; font-size: .95rem; }
-
-  .primary { width: 100%; padding: 16px; border: 0; border-radius: 14px; background: var(--accent); color: var(--accent-text);
-             font: inherit; font-size: 1.05rem; font-weight: 700; cursor: pointer; }
-  .primary:active { transform: scale(.99); }
-
-  .times { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px; text-align: center; }
-  .tile .label { color: var(--muted); font-size: .8rem; }
-  .tile .value { font-size: 1.15rem; font-weight: 700; }
-
-  details { margin-top: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 0 14px; }
-  summary { cursor: pointer; padding: 14px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
-  summary::-webkit-details-marker { display: none; }
-  summary::after { content: "▾"; color: var(--muted); }
-  details[open] summary::after { content: "▴"; }
-  .details-body { padding-bottom: 14px; }
-  #sky { width: 200px; height: 200px; display: block; margin: 0 auto 12px; }
-  dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0; }
-  dt { color: var(--muted); }
-  dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-
-  .loc-line { color: var(--muted); font-size: .9rem; margin-bottom: 10px; }
-  form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  label { display: flex; flex-direction: column; gap: 4px; font-size: .8rem; color: var(--muted); }
-  label.full { grid-column: 1 / -1; }
-  input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; }
-  .row { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn { flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
-  .btn.solid { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-  #msg { color: var(--warn); font-size: .9rem; margin-top: 8px; min-height: 1em; }
-  footer { color: var(--muted); font-size: .78rem; text-align: center; margin-top: 20px; }
-
-  /* Camera (always dark – it sits on top of the camera picture) */
-  #cam { position: fixed; inset: 0; background: #000; z-index: 50; color: #fff; }
-  #cam[hidden] { display: none; }
-  #video, #overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
-  #video { object-fit: cover; }
-  #camTop { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
-            padding: 14px 16px; background: linear-gradient(rgba(0,0,0,.7), transparent); }
-  #camInfo { font-size: .95rem; text-shadow: 0 1px 3px #000; }
-  #camClose { background: rgba(0,0,0,.45); color: #fff; border: 1px solid rgba(255,255,255,.3); }
-  #camHint { position: absolute; left: 0; right: 0; bottom: 0; padding: 20px 16px 28px; text-align: center; font-size: 1.05rem; font-weight: 600;
-             background: linear-gradient(transparent, rgba(0,0,0,.8)); text-shadow: 0 1px 3px #000; }
-  svg text { fill: var(--muted); font-size: 12px; font-family: inherit; }
-</style>
-</head>
-<body>
-<main>
-  <header>
-    <h1>🌙 Moon Finder</h1>
-    <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch to dark mode">🌙</button>
-  </header>
-
-  <section class="hero">
-    <svg id="moon" viewBox="0 0 200 200" role="img" aria-label="Moon phase"></svg>
-    <p class="phase" id="phaseName">Loading…</p>
-    <p class="lit" id="illum"></p>
-  </section>
-
-  <section class="answer">
-    <span class="badge" id="visible">…</span>
-    <p class="look" id="look">Finding your location…</p>
-    <p class="look-sub" id="lookSub"></p>
-  </section>
-
-  <button class="primary" id="camBtn" type="button">📷 Show me with the camera</button>
-
-  <div class="times">
-    <div class="tile"><div class="label">Moonrise</div><div class="value" id="rise">–</div></div>
-    <div class="tile"><div class="label">Moonset</div><div class="value" id="set">–</div></div>
-    <div class="tile"><div class="label">Next full moon</div><div class="value" id="nextFull">–</div></div>
-    <div class="tile"><div class="label">Next new moon</div><div class="value" id="nextNew">–</div></div>
-  </div>
-
-  <details>
-    <summary>More details</summary>
-    <div class="details-body">
-      <svg id="sky" viewBox="0 0 220 220" role="img" aria-label="Moon position in the sky"></svg>
-      <dl>
-        <dt>Direction</dt><dd id="az">–</dd>
-        <dt>Height above horizon</dt><dd id="alt">–</dd>
-        <dt>Moon age</dt><dd id="age">–</dd>
-        <dt>Distance</dt><dd id="dist">–</dd>
-      </dl>
-    </div>
-  </details>
-
-  <details id="placeBox">
-    <summary>Change place or time</summary>
-    <div class="details-body">
-      <div class="loc-line" id="loc">–</div>
-      <form id="form">
-        <label>Latitude <input id="lat" type="number" step="any" min="-90" max="90" required inputmode="decimal"></label>
-        <label>Longitude <input id="lng" type="number" step="any" min="-180" max="180" required inputmode="decimal"></label>
-        <label class="full">Date &amp; time (leave empty for now) <input id="when" type="datetime-local"></label>
-        <div class="row">
-          <button class="btn solid" type="submit">Update</button>
-          <button class="btn" type="button" id="useGps">Use my location</button>
-          <button class="btn" type="button" id="nowBtn">Now</button>
-        </div>
-      </form>
-      <div id="msg"></div>
-    </div>
-  </details>
-
-  <footer>Times use your device's time zone. Positions are approximate (about 1°).</footer>
-
-  <div id="cam" hidden>
-    <video id="video" playsinline muted autoplay></video>
-    <canvas id="overlay"></canvas>
-    <div id="camTop">
-      <div id="camInfo">Starting camera…</div>
-      <button type="button" class="icon-btn" id="camClose" aria-label="Close camera">✕</button>
-    </div>
-    <div id="camHint"></div>
-  </div>
-</main>
-
-<script>
-/* ---------- Theme (light by default, remembers your choice) ---------- */
-const root = document.documentElement;
-function applyTheme(t) {
-  root.dataset.theme = t;
-  const btn = document.getElementById("themeBtn");
-  btn.textContent = t === "dark" ? "☀️" : "🌙";
-  btn.setAttribute("aria-label", t === "dark" ? "Switch to light mode" : "Switch to dark mode");
-}
-let savedTheme = null;
-try { savedTheme = localStorage.getItem("mf-theme"); } catch (_) {}
-applyTheme(savedTheme === "dark" ? "dark" : "light");
-document.getElementById("themeBtn").addEventListener("click", () => {
-  const next = root.dataset.theme === "dark" ? "light" : "dark";
-  applyTheme(next);
-  try { localStorage.setItem("mf-theme", next); } catch (_) {}
-});
-
+/* Moon Finder live tool. Astronomy adapted from SunCalc (BSD-2-Clause, (c) Vladimir Agafonkin). */
+'use strict';
 /* ---------- Astronomy (adapted from the SunCalc algorithms, BSD-2) ---------- */
 const PI = Math.PI, rad = PI / 180, dayMs = 86400000, J1970 = 2440588, J2000 = 2451545;
 const e = rad * 23.4397;
@@ -287,7 +112,7 @@ function drawMoon(phase, southern) {
     <g ${southern ? `transform="translate(200,0) scale(-1,1)"` : ""}>
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--moon-dark)"/>
       <path d="${d}" fill="var(--moon-lit)"/>
-      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--line)" stroke-width="1.5"/>
     </g>`;
 }
 function drawSky(altDeg, azDeg) {
@@ -296,13 +121,13 @@ function drawSky(altDeg, azDeg) {
   const x = c + dist * Math.sin(a), y = c - dist * Math.cos(a);
   const ex = c + R * Math.sin(a), ey = c - R * Math.cos(a);
   $("sky").innerHTML = `
-    <circle cx="${c}" cy="${c}" r="${R}" fill="var(--sky-bg)" stroke="var(--sky-line)"/>
-    <circle cx="${c}" cy="${c}" r="${R * 2 / 3}" fill="none" stroke="var(--sky-line)" stroke-dasharray="3 4"/>
-    <circle cx="${c}" cy="${c}" r="${R / 3}" fill="none" stroke="var(--sky-line)" stroke-dasharray="3 4"/>
+    <circle cx="${c}" cy="${c}" r="${R}" fill="var(--surface-2)" stroke="var(--line)"/>
+    <circle cx="${c}" cy="${c}" r="${R * 2 / 3}" fill="none" stroke="var(--line)" stroke-dasharray="3 4"/>
+    <circle cx="${c}" cy="${c}" r="${R / 3}" fill="none" stroke="var(--line)" stroke-dasharray="3 4"/>
     <text x="${c}" y="14" text-anchor="middle">N</text><text x="${c}" y="216" text-anchor="middle">S</text>
     <text x="211" y="${c + 4}" text-anchor="middle">E</text><text x="9" y="${c + 4}" text-anchor="middle">W</text>
     <line x1="${c}" y1="${c}" x2="${ex}" y2="${ey}" stroke="var(--accent)" stroke-opacity=".4" stroke-dasharray="4 4"/>
-    ${above ? `<circle cx="${x}" cy="${y}" r="10" fill="var(--moon-lit)" stroke="var(--text)" stroke-opacity=".3"/>`
+    ${above ? `<circle cx="${x}" cy="${y}" r="10" fill="var(--moon-lit)" stroke="var(--ink)" stroke-opacity=".3"/>`
             : `<circle cx="${ex}" cy="${ey}" r="8" fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="3 3"/>`}`;
 }
 
@@ -322,11 +147,11 @@ function render() {
 
   const vis = $("visible");
   if (altDeg >= 0) {
-    vis.className = "badge up"; vis.textContent = state.when ? "Up at this time" : "Up now";
+    vis.className = "chip good"; vis.textContent = state.when ? "Up at this time" : "Up now";
     $("look").textContent = `Look ${direction(azDeg)}`;
     $("lookSub").textContent = `It's ${heightWords(altDeg)}.`;
   } else {
-    vis.className = "badge down"; vis.textContent = state.when ? "Not up at this time" : "Not up right now";
+    vis.className = "chip warn"; vis.textContent = state.when ? "Not up at this time" : "Not up right now";
     if (times.rise && times.rise > now) {
       $("look").textContent = `Rises at ${fmtTime(times.rise)}`;
       $("lookSub").textContent = `It will come up in the ${direction(moonPosition(times.rise, state.lat, state.lng).azimuth / rad)}.`;
@@ -488,7 +313,8 @@ $("camClose").addEventListener("click", closeCamera);
 document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("cam").hidden) closeCamera(); });
 
 setInterval(() => { if (!state.when) render(); }, 60000);
-locate();
-</script>
-</body>
-</html>
+(function init() {
+  const q = new URLSearchParams(location.search);
+  const lat = parseFloat(q.get("lat")), lng = parseFloat(q.get("lng"));
+  if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) setLocation(lat, lng); else locate();
+})();
