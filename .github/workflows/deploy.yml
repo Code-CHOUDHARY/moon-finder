@@ -32,7 +32,7 @@ jobs:
         run: node build.js
         env:
           # Set these under Settings → Secrets and variables → Actions → Variables. All are optional.
-          SITE_URL: ${{ vars.SITE_URL || 'https://code-choudhary.github.io/moon-finder' }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://fullmoonfinder.com' }}
           ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
           ADSENSE_SLOT: ${{ vars.ADSENSE_SLOT }}
           GA_ID: ${{ vars.GA_ID }}
