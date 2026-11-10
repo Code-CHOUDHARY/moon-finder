@@ -4,6 +4,7 @@ const S = require('./astro');
 const { T, fmtTime, fmtDate, fmtShort, fmtDateTime, tithiName, pakshaName, MONTH_EN, MONTH_HI, WD_EN, WD_HI } = require('./i18n');
 const U = require('./ui');
 const { cityTimes } = require('./data');
+const { SHOP, shopUrl } = require('./shop');
 const { esc, url, abs, page, moonSvg, phaseKey, motif, skin, countdown, adSlot, breadcrumbs, faqHtml, faqLd, shareButtons } = U;
 
 let C; // context, set by init()
@@ -136,6 +137,16 @@ function cityPicker(lang, target, current) {
 <button class="btn ghost" type="button" data-near="${esc(url(lang, target.path({ slug: '__CITY__' })))}" data-top="${target.top ? 1 : 0}">📍 ${esc(t.nearMe)}</button></div>`;
 }
 
+// Affiliate shopping links (only when an Amazon Associates tag is configured).
+function shopBlock(f, lang) {
+  const tag = U.cfg().amazonTag, items = SHOP[f.slug];
+  if (!tag || !items) return '';
+  const hi = lang === 'hi';
+  return `<section class="section"><h2>${hi ? 'त्योहार की खरीदारी' : 'Festival shopping'}</h2>
+<div class="shop">${items.map(([en, h, q]) => `<a class="card shop-item" href="${esc(shopUrl(q, tag))}" target="_blank" rel="sponsored nofollow noopener">${esc(hi ? h : en)} <span aria-hidden="true">→</span></a>`).join('')}</div>
+<p class="muted small">${hi ? 'ये Amazon के एफ़िलिएट लिंक हैं। Amazon एसोसिएट के रूप में हम योग्य खरीदारी से कमाई करते हैं, आपके लिए कीमत वही रहती है।' : 'These are Amazon affiliate links. As an Amazon Associate we earn from qualifying purchases, at no extra cost to you.'}</p></section>`;
+}
+
 /* ===================== Festival page ===================== */
 function festivalPage(f, lang) {
   const t = T[lang];
@@ -171,6 +182,7 @@ ${cities.map(c => `<tr><td>${cityPages ? `<a href="${url(lang, fcpath(f, c))}">$
 
   body += `<section class="section prose"><h2>${esc(t.about)}</h2><p class="lead">${esc(nm(f.intro, lang))}</p>
 <h3>${esc(t.rituals)}</h3><ul class="ritual">${f.rituals[lang].map(r => `<li>${esc(r)}</li>`).join('')}</ul></section>`;
+  body += shopBlock(f, lang);
   body += adSlot();
 
   if (f.type !== 'series') body += allDatesTable(f, lang);
@@ -270,6 +282,7 @@ ${near.map(c => `<tr><td><a href="${url(lang, fcpath(f, c))}">${esc(nm(c.name, l
 
   body += `<section class="section prose"><h2>${esc(t.about)}</h2><p>${esc(nm(f.intro, lang))}</p><h3>${esc(t.rituals)}</h3><ul class="ritual">${f.rituals[lang].map(r => `<li>${esc(r)}</li>`).join('')}</ul>
 <p class="muted small">${lang === 'hi' ? `${cn} (${esc(city.state)}) के निर्देशांक: ${city.lat.toFixed(2)}°N, ${city.lng.toFixed(2)}°E। समतल क्षितिज मानकर गणना; ऊँची इमारतों या पहाड़ों के पीछे चाँद कुछ मिनट बाद दिख सकता है।` : `Calculated for ${cn}, ${city.state} (${city.lat.toFixed(2)}°N, ${city.lng.toFixed(2)}°E) with a flat horizon. Behind buildings or hills the moon can appear a few minutes later.`}</p></section>`;
+  body += shopBlock(f, lang);
   body += `<section class="section"><h2>${esc(t.faqs)}</h2>${faqHtml(f.faqs[lang])}</section>`;
   body += shareButtons(t.whatsappText(fName, cn, `${A.big} (${A.date})`), abs(lang, fcpath(f, city)), lang);
   body += `<div class="btn-row"><a class="btn" href="${url('en', '/moon-finder/')}?lat=${city.lat}&lng=${city.lng}">📷 ${esc(t.findMoon)}</a></div>`;

@@ -86,6 +86,7 @@ function page({ lang = 'en', path, title, desc, body, alt, ld = [], noindex = fa
   const ads = CFG.adsClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${esc(CFG.adsClient)}" crossorigin="anonymous"></script>` : '';
   const ga = CFG.gaId ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(CFG.gaId)}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${esc(CFG.gaId)}');</script>` : '';
   const cf = CFG.cfToken ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"${esc(CFG.cfToken)}"}'></script>` : '';
+  const adsMeta = CFG.adsClient ? `<meta name="google-adsense-account" content="${esc(CFG.adsClient)}">` : '';
   const verify = CFG.gscVerify ? `<meta name="google-site-verification" content="${esc(CFG.gscVerify)}">` : '';
   return `<!doctype html>
 <html lang="${lang}" data-theme="light">
@@ -106,7 +107,7 @@ ${hreflang}
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Yatra+One&display=swap">
 <link rel="stylesheet" href="${asset('style.css')}">
 <script>try{var s=localStorage.getItem('mf-theme');if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>
-${verify}${ads}${ga}
+${verify}${adsMeta}${ads}${ga}
 ${ld.map(x => `<script type="application/ld+json">${JSON.stringify(x).replace(/</g, '\\u003c')}</script>`).join('\n')}
 </head>
 <body${skinName ? ` style="${skinStyle(skinName)}"` : ''}>

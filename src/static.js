@@ -67,6 +67,7 @@ function legalPages() {
 <li><strong>Preferences:</strong> your light/dark theme choice is stored in your browser's local storage.</li>
 <li><strong>Analytics:</strong> we may use privacy-friendly analytics (such as Google Analytics or Cloudflare Web Analytics) to count visits and see which pages are useful. These tools may collect your IP address, browser type and pages viewed.</li></ul>
 <h2>Advertising and cookies</h2><p>We may show ads served by Google AdSense. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this and other websites. Google's use of advertising cookies enables it and its partners to serve ads based on your visits to this site and/or other sites on the Internet. You can opt out of personalised advertising by visiting <a href="https://www.google.com/settings/ads">Google Ads Settings</a>, or opt out of some third-party vendors' cookies at <a href="https://www.aboutads.info/choices/">www.aboutads.info</a>. See <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from sites that use its services</a>.</p>
+<h2>Affiliate links</h2><p>Some festival pages include links to products on Amazon.in. Moon Finder is a participant in the Amazon Associates Programme, an affiliate advertising programme designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.in. If you buy through these links we may earn a small commission at no extra cost to you. Amazon may set cookies when you click such a link.</p>
 <h2>Your choices</h2><p>You can block or delete cookies in your browser settings, deny location and camera access, and use the site without them (you can always pick your city manually).</p>
 <h2>Children</h2><p>This site is a general-audience reference and does not knowingly collect personal information from children.</p>
 <h2>Changes and contact</h2><p>We may update this policy; the date above shows the latest version. Questions: ${contact}.</p>`],
@@ -75,6 +76,7 @@ function legalPages() {
 <li>Hindu festival dates follow common North Indian panchang rules. Regional calendars and traditions (Amanta/Purnimanta, Smarta/Vaishnava, local muhurat rules such as Bhadra) can differ.</li>
 <li>Islamic dates are astronomical predictions for India. Official dates depend on moon sighting and are announced by local committees.</li>
 <li>For religious observances, please consult your local panchang, priest or moon-sighting committee.</li></ul>
+<p><strong>Affiliate disclosure:</strong> some pages contain affiliate links to Amazon.in. As an Amazon Associate we earn from qualifying purchases. Product suggestions are general and we do not review or guarantee individual products.</p>
 <p>We make no warranty about accuracy or completeness and are not responsible for decisions made using this information.</p>`],
   ].map(([s, t, h]) => [s, legal(s, t, h)]);
 }

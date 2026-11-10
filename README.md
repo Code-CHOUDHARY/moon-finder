@@ -32,6 +32,7 @@ npm run preview        # builds for http://localhost:8080 and serves dist/
 
 ## Deploy (GitHub Pages, free)
 
+0. Move `deploy.yml` from the project root into `.github/workflows/deploy.yml` (create the two folders).
 1. Push this folder to the `main` branch of the `moon-finder` repo. (The old single `index.html` at the root is no longer used — its code now lives in `assets/finder.js` — so delete it.)
 2. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 3. The workflow in `.github/workflows/deploy.yml` builds and publishes on every push and every morning at 05:45 IST. Run it once by hand from the **Actions** tab.
@@ -45,19 +46,20 @@ npm run preview        # builds for http://localhost:8080 and serves dist/
 
 (Cloudflare Pages also works: build command `npm ci && node build.js`, output folder `dist`, same environment variables. Add a daily Deploy Hook if you go this way.)
 
-## Optional settings (repo Variables — none are secret, all optional)
+## Monetisation settings — `site.config.json`
 
-| Variable | Example | Effect |
+Edit `site.config.json` in the repo and push; the next build picks the values up. These are public IDs, never put passwords or secret tokens here. (Repo Variables with the upper-case names below still work and take priority.)
+
+| Key (Variable) | Example | Effect |
 | --- | --- | --- |
-| `SITE_URL` | `https://moonfinder.in` | Canonical URLs, sitemap, CNAME |
-| `ADSENSE_CLIENT` | `ca-pub-1234567890123456` | Loads AdSense (Auto ads) and writes `ads.txt` |
-| `ADSENSE_SLOT` | `1234567890` | Also places manual responsive ad units below the answer card and mid-page |
-| `GA_ID` | `G-XXXXXXX` | Google Analytics 4 |
-| `CF_BEACON_TOKEN` | `abc123…` | Cloudflare Web Analytics |
-| `GSC_VERIFY` | `xyz…` | Google Search Console HTML-tag verification |
-| `CONTACT_EMAIL` | `hello@moonfinder.in` | Shown on Contact/About/Privacy (otherwise links to GitHub issues) |
-
-Keep real secrets (API tokens etc.) out of the code; none are needed for this site.
+| `siteUrl` (`SITE_URL`) | `https://fullmoonfinder.com` | Canonical URLs, sitemap, CNAME |
+| `adsenseClient` (`ADSENSE_CLIENT`) | `ca-pub-1234567890123456` | AdSense site-verification meta tag + Auto ads script + `ads.txt` |
+| `adsenseSlot` (`ADSENSE_SLOT`) | `1234567890` | Manual responsive ad units below the answer card and mid-page |
+| `amazonTag` (`AMAZON_TAG`) | `fullmoonfind-21` | "Festival shopping" Amazon.in affiliate links on festival pages, with disclosure |
+| `gaId` (`GA_ID`) | `G-XXXXXXX` | Google Analytics 4 |
+| `googleSiteVerification` (`GSC_VERIFY`) | `abc…` | Google Search Console HTML-tag verification |
+| `cloudflareBeaconToken` (`CF_BEACON_TOKEN`) | `abc…` | Cloudflare Web Analytics |
+| `contactEmail` (`CONTACT_EMAIL`) | `hello@fullmoonfinder.com` | Shown on Contact/About/Privacy |
 
 ## After launch
 

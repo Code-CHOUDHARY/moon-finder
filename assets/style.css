@@ -182,3 +182,9 @@ dl.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0
 dl.kv dt { color: var(--muted); } dl.kv dd { margin: 0; text-align: right; }
 .prose { max-width: 700px; }
 .prose h2 { margin-top: 1.2em; }
+
+/* Affiliate shopping */
+.shop { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); margin-bottom: 8px; }
+.shop-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); font-weight: 600; padding: 14px 16px; }
+.shop-item span { color: var(--accent); }
+.shop-item:hover { border-color: var(--accent); }

@@ -11,8 +11,16 @@ const P = require('./src/pages');
 const ST = require('./src/static');
 
 const t0 = Date.now();
-const env = process.env;
-const siteUrl = new URL((env.SITE_URL || 'https://code-choudhary.github.io/moon-finder').replace(/\/+$/, '') + '/');
+// Settings: environment variables win; otherwise site.config.json (public IDs only — never put secrets there).
+const fileCfg = fs.existsSync(path.join(__dirname, 'site.config.json')) ? JSON.parse(fs.readFileSync(path.join(__dirname, 'site.config.json'), 'utf8')) : {};
+const pick = (envName, key) => (process.env[envName] || fileCfg[key] || '').trim();
+const env = {
+  SITE_URL: pick('SITE_URL', 'siteUrl'), BUILD_DATE: process.env.BUILD_DATE, REPO_URL: process.env.REPO_URL,
+  ADSENSE_CLIENT: pick('ADSENSE_CLIENT', 'adsenseClient'), ADSENSE_SLOT: pick('ADSENSE_SLOT', 'adsenseSlot'),
+  GA_ID: pick('GA_ID', 'gaId'), CF_BEACON_TOKEN: pick('CF_BEACON_TOKEN', 'cloudflareBeaconToken'), GSC_VERIFY: pick('GSC_VERIFY', 'googleSiteVerification'),
+  CONTACT_EMAIL: pick('CONTACT_EMAIL', 'contactEmail'), AMAZON_TAG: pick('AMAZON_TAG', 'amazonTag'),
+};
+const siteUrl = new URL((env.SITE_URL || 'https://fullmoonfinder.com').replace(/\/+$/, '') + '/');
 const now = env.BUILD_DATE ? new Date(env.BUILD_DATE + 'T06:00:00+05:30') : new Date();
 const today = S.dayKey(now);
 const y0 = Number(today.slice(0, 4));
@@ -21,7 +29,7 @@ const config = {
   base: siteUrl.pathname.replace(/\/$/, ''),
   adsClient: env.ADSENSE_CLIENT || '', adsSlot: env.ADSENSE_SLOT || '',
   gaId: env.GA_ID || '', cfToken: env.CF_BEACON_TOKEN || '', gscVerify: env.GSC_VERIFY || '',
-  contactEmail: env.CONTACT_EMAIL || '', repoUrl: env.REPO_URL || 'https://github.com/Code-CHOUDHARY/moon-finder',
+  contactEmail: env.CONTACT_EMAIL || '', amazonTag: env.AMAZON_TAG || '', repoUrl: env.REPO_URL || 'https://github.com/Code-CHOUDHARY/moon-finder',
   policyDate: '9 November 2026',
   version: today.replace(/-/g, ''),
   buildLabel: today,
