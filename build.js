@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const S = require('./src/astro');
 const { computeAll, FESTIVALS } = require('./src/data');
-const { CITIES } = require('./src/cities');
+const { CITIES, ALIASES } = require('./src/cities');
 const U = require('./src/ui');
 const P = require('./src/pages');
 const ST = require('./src/static');
@@ -52,7 +52,7 @@ const from = new Date(`${y0}-01-01T00:00:00+05:30`), to = new Date(`${y0 + 1}-12
 const data = computeAll(from, to);
 const monthList = [];
 for (const y of [y0, y0 + 1]) for (let m = 0; m < 12; m++) monthList.push([String(y), m]);
-P.init({ today, now, occ: data.occ, months: data.months, festivals: FESTIVALS, cities: CITIES, years: [String(y0), String(y0 + 1)], monthList });
+P.init({ today, now, occ: data.occ, months: data.months, festivals: FESTIVALS, cities: CITIES, aliases: ALIASES, years: [String(y0), String(y0 + 1)], monthList });
 console.log(`Data ready in ${Date.now() - t0} ms (today ${today})`);
 
 // ---------- Pages ----------
@@ -80,7 +80,8 @@ write('/404.html', ST.notFound(), { index: false });
 const A = path.join(OUT, 'assets');
 fs.mkdirSync(A, { recursive: true });
 for (const f of ['style.css', 'finder.js', 'icon.svg', 'og.png']) if (fs.existsSync(path.join(__dirname, 'assets', f))) fs.copyFileSync(path.join(__dirname, 'assets', f), path.join(A, f));
-const cityJs = 'window.MF_CITIES=' + JSON.stringify(CITIES.map(c => [c.slug, c.lat, c.lng, c.top ? 1 : 0])) + ';\n';
+// Every place for the city picker and 'near me': [slug, lat, lng, hasFestivalPages, English, Hindi, state]; aliases: [English, Hindi, state, slug]
+const cityJs = 'window.MF_CITIES=' + JSON.stringify(CITIES.map(c => [c.slug, c.lat, c.lng, c.top ? 1 : 0, c.name.en, c.name.hi, c.state])) + ';\nwindow.MF_ALIASES=' + JSON.stringify(ALIASES.map(a => [a.name.en, a.name.hi, a.state, a.slug])) + ';\n';
 fs.writeFileSync(path.join(A, 'app.js'), cityJs + fs.readFileSync(path.join(__dirname, 'assets', 'app.src.js'), 'utf8'));
 
 // ---------- Site files ----------

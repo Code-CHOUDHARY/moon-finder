@@ -2,7 +2,7 @@
 
 A static website that answers *"chand kab niklega?"* for every major Indian festival, in **English and Hindi**, for **100 cities**.
 
-- ~2,200 pages generated from templates (56 festivals, including South Indian festivals for Tamil Nadu, Kerala, Karnataka, Andhra Pradesh and Telangana): festivals, festival × city, city moonrise pages, yearly Purnima / Amavasya / Ekadashi / Sankashti / Chandra Darshan lists, monthly moon calendars, guides and legal pages.
+- ~25,700 pages generated from templates (every district of India, 56 festivals, including South Indian festivals for Tamil Nadu, Kerala, Karnataka, Andhra Pradesh and Telangana): festivals, festival × city, city moonrise pages, yearly Purnima / Amavasya / Ekadashi / Sankashti / Chandra Darshan lists, monthly moon calendars, guides and legal pages.
 - Festive night-sky design with a colour "skin" per festival (Karva Chauth red-gold, Eid emerald, Diwali gold…), phone-first, light/dark mode.
 - Live **camera finder** (`/moon-finder/`) — the original Moon Finder app, restyled.
 - Rebuilt automatically every morning so "today" pages and countdowns stay current.
@@ -15,7 +15,8 @@ A static website that answers *"chand kab niklega?"* for every major Indian fest
 | `src/astro.js` | Astronomy (via [astronomy-engine](https://github.com/cosinekitty/astronomy), MIT): rise/set, tithi, lunar months with Adhika Maas, eclipses, Islamic crescent prediction |
 | `src/festivals.js` | Festival rules + English/Hindi content, FAQs and colour skins — **edit this to add or change festivals** |
 | `src/festivals-south.js` | South Indian festivals (Pongal, Vishu, Onam, Karthigai Deepam, Ugadi, Varalakshmi Vratam…) plus Maha Shivaratri, Ram Navami, Janmashtami, Navaratri and Dussehra |
-| `src/cities.js` | The 100 cities (first 60 get festival × city pages) |
+| `src/cities.js` | The original 100 cities (first 60 are "major": shown in festival tables) merged with every district; all places get festival × city pages |
+| `src/districts.js` | All 791 districts of India (English, Hindi, state, HQ coordinates) from Wikidata, checked against per-state counts. Districts whose name matches one of the 100 cities (Mumbai City, Bengaluru Urban…) point to that city's page |
 | `src/data.js` | Works out every festival date and city time |
 | `src/pages.js`, `src/static.js`, `src/ui.js`, `src/i18n.js` | Page templates, shared layout, translations |
 | `assets/` | CSS, small site script, camera-finder script, icon, share image |

@@ -106,5 +106,40 @@ const RAW = [
   ['agartala', 'Agartala', 'अगरतला', 'Tripura', 23.8315, 91.2868],
   ['port-blair', 'Sri Vijaya Puram (Port Blair)', 'श्री विजयपुरम (पोर्ट ब्लेयर)', 'Andaman and Nicobar', 11.6234, 92.7265],
 ];
-const CITIES = RAW.map(([slug, en, hi, state, lat, lng], i) => ({ slug, name: { en, hi }, state, lat, lng, top: i < 60 }));
-module.exports = { CITIES };
+// The original 100 cities. `major` (first 60) = shown in festival tables and the no-JS city picker.
+// Every place gets festival × city pages (`top`).
+const CITIES = RAW.map(([slug, en, hi, state, lat, lng], i) => ({ slug, name: { en, hi }, state, lat, lng, top: true, major: i < 60 }));
+
+/* ---------- Every district of India (src/districts.js) ----------
+   A district whose name matches a nearby existing city (within 15 km, e.g. "Mumbai City", "Bengaluru Urban",
+   "Kanpur Nagar") becomes an alias that points to that city's page instead of a duplicate page. */
+const { DISTRICTS } = require('./districts');
+const STATE_FIX = { 'Andaman and Nicobar Islands': 'Andaman and Nicobar' };
+const MANUAL_ALIAS = { 'Chhatrapati Sambhajinagar|Maharashtra': 'aurangabad' }; // renamed city, same place
+const slugify = s => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const core = s => slugify(s).replace(/-(urban|city|nagar|metropolitan|suburban|district)$/g, '').replace(/-/g, '');
+const km = (a, b) => {
+  const r = Math.PI / 180, dLat = (b.lat - a.lat) * r, dLng = (b.lng - a.lng) * r;
+  const x = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLng / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(x));
+};
+const ALIASES = []; // { name: {en, hi}, state, slug } – districts that point to an existing city page
+const BASE = CITIES.slice(); // match only against the original 100 cities
+const used = new Set(CITIES.map(c => c.slug));
+for (const [en, hi, st, lat, lng] of DISTRICTS) {
+  const state = STATE_FIX[st] || st, p = { lat, lng };
+  const manual = MANUAL_ALIAS[en + '|' + state];
+  const match = manual ? BASE.find(c => c.slug === manual)
+    : BASE.find(c => km(p, c) < 15 && (core(en).includes(core(c.name.en)) || core(c.name.en).includes(core(en))));
+  if (match) {
+    // Same name as the city (e.g. Chennai district → Chennai): the city entry already covers it.
+    if (slugify(en) !== slugify(match.name.en)) ALIASES.push({ name: { en, hi }, state, slug: match.slug });
+    continue;
+  }
+  let slug = slugify(en), name = { en, hi };
+  // Same name as another place (e.g. Aurangabad in Bihar and Maharashtra): add the state to the slug and the name.
+  if (used.has(slug)) { slug = `${slug}-${slugify(state)}`; name = { en: `${en} (${state})`, hi: `${hi} (${state})` }; }
+  used.add(slug);
+  CITIES.push({ slug, name, state, lat, lng, top: true, major: false, district: true });
+}
+module.exports = { CITIES, ALIASES };

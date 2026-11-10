@@ -35,8 +35,30 @@
   }
   if (cds.length) { tick(); setInterval(tick, 30000); }
 
-  // City select navigation
+  // City select: fill in every district and city (grouped by state) from MF_CITIES / MF_ALIASES, then navigate on change.
+  var ALIASES = window.MF_ALIASES || [];
   document.querySelectorAll('select[data-nav]').forEach(function (s) {
+    var tpl = s.getAttribute('data-tpl');
+    if (tpl && CITIES.length) {
+      var hi = s.getAttribute('data-lang') === 'hi', cur = s.getAttribute('data-current'), first = s.options[0];
+      var byState = {};
+      CITIES.forEach(function (c) { (byState[c[6]] = byState[c[6]] || []).push([hi ? c[5] : c[4], c[0]]); });
+      ALIASES.forEach(function (a) { (byState[a[2]] = byState[a[2]] || []).push([hi ? a[1] : a[0], a[3]]); });
+      var frag = document.createDocumentFragment();
+      frag.appendChild(first);
+      Object.keys(byState).sort().forEach(function (st) {
+        var g = document.createElement('optgroup'); g.label = st;
+        byState[st].sort(function (a, b) { return a[0].localeCompare(b[0], hi ? 'hi' : 'en'); }).forEach(function (p) {
+          var o = document.createElement('option');
+          o.value = tpl.replace('__CITY__', p[1]); o.textContent = p[0];
+          if (p[1] === cur && !s.querySelector('option[selected-done]')) { o.selected = true; o.setAttribute('selected-done', ''); }
+          g.appendChild(o);
+        });
+        frag.appendChild(g);
+      });
+      s.innerHTML = ''; s.appendChild(frag);
+      if (!cur) s.selectedIndex = 0;
+    }
     s.addEventListener('change', function () { if (s.value) location.href = s.value; });
   });
 

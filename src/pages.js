@@ -147,13 +147,28 @@ ${angle !== undefined ? moonSvg(angle) : ''}
 </div></section>`;
 }
 
+// City picker. The HTML lists only the major cities (works without JavaScript); assets/app.js then fills in every
+// district, grouped by state, from one shared file, so ~800 options are not repeated on every page.
 function cityPicker(lang, target, current) {
   const t = T[lang];
-  const list = target.top ? C.cities.filter(c => c.top) : C.cities;
+  const tpl = url(lang, target.path({ slug: '__CITY__' }));
+  const list = C.cities.filter(c => c.major || (current && c.slug === current.slug));
   const opts = list.slice().sort((a, b) => nm(a.name, lang).localeCompare(nm(b.name, lang), lang)).map(c => `<option value="${url(lang, target.path(c))}"${current && current.slug === c.slug ? ' selected' : ''}>${esc(nm(c.name, lang))}</option>`).join('');
-  return `<div class="picker"><select aria-label="${esc(t.pickCity)}" data-nav><option value="">${esc(t.pickCity)}</option>${opts}</select>
-<button class="btn ghost" type="button" data-near="${esc(url(lang, target.path({ slug: '__CITY__' })))}" data-top="${target.top ? 1 : 0}">📍 ${esc(t.nearMe)}</button></div>`;
+  return `<div class="picker"><select aria-label="${esc(t.pickCity)}" data-nav data-tpl="${esc(tpl)}" data-lang="${lang}" data-current="${current ? esc(current.slug) : ''}"><option value="">${esc(t.pickCity)}</option>${opts}</select>
+<button class="btn ghost" type="button" data-near="${esc(tpl)}" data-top="1">📍 ${esc(t.nearMe)}</button></div>`;
 }
+// Every place (cities + districts, plus districts that share a city's page) grouped by state.
+function placesByState() {
+  const by = {};
+  for (const c of C.cities) (by[c.state] = by[c.state] || []).push({ name: c.name, slug: c.slug });
+  for (const a of C.aliases) (by[a.state] = by[a.state] || []).push({ name: a.name, slug: a.slug, alias: true });
+  return by;
+}
+function stateLinks(lang, path, open = false) {
+  const by = placesByState();
+  return Object.keys(by).sort().map(st => `<details class="faq"${open ? ' open' : ''}><summary>${esc(st)} (${by[st].length})</summary><div class="pills">${by[st].slice().sort((a, b) => nm(a.name, lang).localeCompare(nm(b.name, lang), lang)).map(c => `<a href="${url(lang, path({ slug: c.slug }))}">${esc(nm(c.name, lang))}</a>`).join('')}</div></details>`).join('');
+}
+const placeCount = () => C.cities.length + C.aliases.length;
 
 // Affiliate shopping links (only when an Amazon Associates tag is configured).
 function shopBlock(f, lang) {
@@ -183,7 +198,7 @@ function festivalPage(f, lang) {
 
   // City table
   if (o && f.key !== 'date' && f.key !== 'night' && f.key !== 'sankranti') {
-    const cities = cityPages ? C.cities.filter(c => c.top) : C.cities.slice(0, 20);
+    const cities = cityPages ? C.cities.filter(c => c.major) : C.cities.slice(0, 20);
     body += `<section class="section"><h2>${esc(f.key === 'moonrise' || f.key === 'tithi' ? t.topCities : `${cellHeader(f, lang)} – ${t.majorCities}`)}</h2>
 <p class="muted small">${esc(fmtDate(o.key, lang))} · ${esc(t.allTimesIST)}</p>
 <input class="filter" type="search" placeholder="${esc(t.filterCities)}" data-filter="#ct">
@@ -191,6 +206,8 @@ function festivalPage(f, lang) {
 ${cities.map(c => `<tr><td>${cityPages ? `<a href="${url(lang, fcpath(f, c))}">${esc(nm(c.name, lang))}</a>` : esc(nm(c.name, lang))}</td><td class="t">${cell(f, o, c, lang)}</td></tr>`).join('')}
 </tbody></table></div></section>`;
   }
+
+  if (o && cityPages) body += `<section class="section"><h2>${lang === 'hi' ? 'हर ज़िले का समय' : 'Every district'}</h2><p class="muted small">${lang === 'hi' ? `भारत के सभी ${placeCount()} ज़िले और शहर, राज्य के अनुसार।` : `All ${placeCount()} districts and cities of India, by state.`}</p>${stateLinks(lang, c => fcpath(f, c))}</section>`;
 
   // Eclipse details
   if (f.type === 'eclipse' && o) body += eclipseDetails(o.eclipse, lang);
@@ -345,13 +362,10 @@ ${ups.map(({ f, o }) => { const link = hasCityPages(f) && city.top ? url(lang, f
 
 function citiesIndex(lang) {
   const t = T[lang];
-  const byState = {};
-  for (const c of C.cities) (byState[c.state] = byState[c.state] || []).push(c);
   let body = hero({ lang, eyebrow: t.navCities, h1: t.citiesTitle, sub: t.tagline, angle: S.phaseAngle(S.istAt(C.today, 20)), picker: cityPicker(lang, { top: false, path: c => cpath(c) }) });
-  body += `<div class="wrap">${adSlot()}`;
-  for (const st of Object.keys(byState).sort()) body += `<h2>${esc(st)}</h2><div class="pills">${byState[st].map(c => `<a href="${url(lang, cpath(c))}">${esc(nm(c.name, lang))}</a>`).join('')}</div>`;
+  body += `<div class="wrap">${adSlot()}<p class="muted">${lang === 'hi' ? `भारत के सभी ${placeCount()} ज़िले और शहर, राज्य के अनुसार।` : `All ${placeCount()} districts and cities of India, by state.`}</p>${stateLinks(lang, c => cpath(c))}`;
   body += `</div>`;
-  return page({ lang, path: '/moonrise/', title: `${t.citiesTitle} – ${t.siteName}`, desc: t.descCity(lang === 'hi' ? 'भारत के 100 शहरों' : '100 Indian cities'), body, navActive: 'cities' });
+  return page({ lang, path: '/moonrise/', title: `${t.citiesTitle} – ${t.siteName}`, desc: t.descCity(lang === 'hi' ? `भारत के सभी ${placeCount()} ज़िलों और शहरों` : `all ${placeCount()} districts and cities of India`), body, navActive: 'cities' });
 }
 
 /* ===================== Home ===================== */
@@ -375,10 +389,10 @@ function home(lang) {
   body += `<section class="section"><h2>${esc(t.calendarTitle)}</h2><div class="pills">
 ${['purnima', 'amavasya', 'ekadashi', 'sankashti-chaturthi'].map(s => { const f = C.festivals.find(x => x.slug === s); return `<a href="${url(lang, `/calendar/${s}-${yr}/`)}">${esc(nm(f.name, lang))} ${yr}</a>`; }).join('')}
 <a href="${url(lang, monthPath(C.today.slice(0, 4), Number(C.today.slice(5, 7)) - 1))}">${esc(t.monthlyCal)}</a></div></section>`;
-  body += `<section class="section prose"><h2>${lang === 'hi' ? 'मून फ़ाइंडर क्या है?' : 'What is Moon Finder?'}</h2><p>${lang === 'hi' ? 'मून फ़ाइंडर भारत के 100 शहरों के लिए चंद्रोदय, चंद्रास्त और त्योहारों पर चाँद का समय बताता है – करवा चौथ, संकष्टी चतुर्थी, शरद पूर्णिमा, ईद का चाँद, चंद्र ग्रहण और भी बहुत कुछ। कैमरा फ़ाइंडर से आप फ़ोन को आसमान की ओर करके चाँद ढूँढ सकते हैं।' : 'Moon Finder gives moonrise, moonset and festival moon times for 100 Indian cities – Karva Chauth, Sankashti Chaturthi, Sharad Purnima, the Eid moon, lunar eclipses and more. The camera finder points you to the moon when you hold your phone up to the sky.'}</p>
+  body += `<section class="section prose"><h2>${lang === 'hi' ? 'मून फ़ाइंडर क्या है?' : 'What is Moon Finder?'}</h2><p>${lang === 'hi' ? 'मून फ़ाइंडर भारत के हर ज़िले के लिए चंद्रोदय, चंद्रास्त और त्योहारों पर चाँद का समय बताता है – करवा चौथ, संकष्टी चतुर्थी, शरद पूर्णिमा, ईद का चाँद, चंद्र ग्रहण और भी बहुत कुछ। कैमरा फ़ाइंडर से आप फ़ोन को आसमान की ओर करके चाँद ढूँढ सकते हैं।' : 'Moon Finder gives moonrise, moonset and festival moon times for every district of India – Karva Chauth, Sankashti Chaturthi, Sharad Purnima, the Eid moon, lunar eclipses and more. The camera finder points you to the moon when you hold your phone up to the sky.'}</p>
 <p><a href="${url('en', '/learn/')}">${esc(t.learn)} →</a></p></section>`;
   body += `</div>`;
-  return page({ lang, path: '/', title: `${t.siteName} – ${t.tagline}`, desc: lang === 'hi' ? 'करवा चौथ, संकष्टी, पूर्णिमा, ईद और चंद्र ग्रहण पर आपके शहर में चाँद कब निकलेगा। भारत के 100 शहरों के लिए सटीक चंद्रोदय समय।' : 'When will the moon rise in your city on Karva Chauth, Sankashti, Purnima, Eid and eclipse nights? Accurate moonrise times for 100 Indian cities.', body, navActive: 'today',
+  return page({ lang, path: '/', title: `${t.siteName} – ${t.tagline}`, desc: lang === 'hi' ? 'करवा चौथ, संकष्टी, पूर्णिमा, ईद और चंद्र ग्रहण पर आपके शहर में चाँद कब निकलेगा। भारत के हर ज़िले के लिए सटीक चंद्रोदय समय।' : 'When will the moon rise in your city on Karva Chauth, Sankashti, Purnima, Eid and eclipse nights? Accurate moonrise times for every district of India.', body, navActive: 'today',
     ld: [{ '@context': 'https://schema.org', '@type': 'WebSite', name: t.siteName, url: abs(lang, '/'), inLanguage: lang === 'hi' ? 'hi-IN' : 'en-IN' }] });
 }
 
