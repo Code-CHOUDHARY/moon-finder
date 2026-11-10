@@ -2,7 +2,7 @@
 
 A static website that answers *"chand kab niklega?"* for every major Indian festival, in **English and Hindi**, for **100 cities**.
 
-- ~25,700 pages generated from templates (every district of India, 56 festivals, including South Indian festivals for Tamil Nadu, Kerala, Karnataka, Andhra Pradesh and Telangana): festivals, festival × city, city moonrise pages, yearly Purnima / Amavasya / Ekadashi / Sankashti / Chandra Darshan lists, monthly moon calendars, guides and legal pages.
+- ~27,400 pages generated from templates (every district of India, 56 festivals, including South Indian festivals for Tamil Nadu, Kerala, Karnataka, Andhra Pradesh and Telangana): festivals, festival × city, city moonrise pages, yearly Purnima / Amavasya / Ekadashi / Sankashti / Chandra Darshan lists, monthly moon calendars (all-India and one per state, with that state's festivals), guides and legal pages.
 - Festive night-sky design with a colour "skin" per festival (Karva Chauth red-gold, Eid emerald, Diwali gold…), phone-first, light/dark mode.
 - Live **camera finder** (`/moon-finder/`) — the original Moon Finder app, restyled.
 - Rebuilt automatically every morning so "today" pages and countdowns stay current.

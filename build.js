@@ -68,6 +68,7 @@ for (const lang of ['en', 'hi']) {
   }
   for (const c of CITIES) write(P.cpath(c), P.cityPage(c, lang), { lang });
   for (const [y, m] of monthList) write(P.monthPath(y, m), P.monthPage(y, m, lang), { lang });
+  for (const st of P.states()) for (const [y, m] of monthList) write(P.stateMonthPath(st, y, m), P.monthPage(y, m, lang, st), { lang });
   console.log(`${lang}: pages done (${Date.now() - t0} ms)`);
 }
 write('/learn/', ST.learnIndex());

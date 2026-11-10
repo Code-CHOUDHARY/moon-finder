@@ -350,8 +350,14 @@ function cityPage(city, lang) {
 ${days.map(d => { const sr = S.sunrise(d, city); const T0 = S.tithiAt(sr); return `<tr${d === key ? ' class="hl"' : ''}><td>${esc(fmtDate(d, lang, { year: false }))}</td><td class="t">${esc(fmtTime(S.moonriseWithinDay(d, city), lang))}</td><td>${esc(fmtTime(S.moonsetWithinDay(d, city), lang))}</td><td>${esc(pakshaName(T0, lang) + ' ' + tithiName(T0, lang))}</td></tr>`; }).join('')}
 </tbody></table></div><p class="muted small">${esc(t.allTimesIST)}. ${lang === 'hi' ? '"—" का मतलब है कि उस तारीख को चाँद उदय या अस्त नहीं होता (यह आधी रात के पार चला जाता है)।' : '"—" means the moon does not rise or set on that calendar date (the event moves past midnight).'}</p></section>`;
 
+  // WhatsApp share: today's moonrise for this place (the site is rebuilt every morning, so the text stays current)
+  const shareText = lang === 'hi'
+    ? `🌙 ${cn} में आज (${fmtDate(key, lang, { year: false })}) चंद्रोदय: ${fmtTime(rise, lang)} · चंद्रास्त: ${fmtTime(set, lang)} · ${t[phaseKey(angle)]}, ${ill}% ${t.lit}। अगले 7 दिन का समय:`
+    : `🌙 Moonrise in ${cn} today (${fmtDate(key, lang, { year: false })}): ${fmtTime(rise, lang)} · Moonset: ${fmtTime(set, lang)} · ${t[phaseKey(angle)]}, ${ill}% ${t.lit}. Next 7 days:`;
+  body += shareButtons(shareText, abs(lang, cpath(city)), lang);
+
   // Festivals in this city
-  const ups = upcomingAll().filter(x => x.f.key !== 'date' && x.f.key !== 'night').slice(0, 10);
+  const ups = upcomingAll().filter(x => x.f.key !== 'date' && x.f.key !== 'night' && (!x.f.states || x.f.states.includes(city.state))).slice(0, 10);
   body += `<section class="section"><h2>${esc(t.festivalsInCity)} ${esc(cn)}</h2><div class="table-wrap"><table><thead><tr><th>${esc(t.navFestivals)}</th><th>${esc(t.date)}</th><th>${esc(t.time)}</th></tr></thead><tbody>
 ${ups.map(({ f, o }) => { const link = hasCityPages(f) && city.top ? url(lang, fcpath(f, city)) : url(lang, fpath(f)); return `<tr><td><a href="${link}">${esc(occLabel(f, o, lang))}</a></td><td>${esc(fmtDate(o.holiKey || o.key, lang, { year: false }))}</td><td class="t">${f.key === 'eclipse' ? cell(f, o, city, lang) : `${esc(cellHeader(f, lang))}: ${cell(f, o, city, lang)}`}</td></tr>`; }).join('')}
 </tbody></table></div></section>`;
@@ -426,18 +432,42 @@ ${list.map(o => `<tr${o === nextOcc(f) ? ' class="hl"' : ''}><td>${esc(fmtDate(o
 
 const monthSlug = m => MONTH_EN[m].toLowerCase();
 const monthPath = (y, m) => `/moon-calendar/${y}/${monthSlug(m)}/`;
-function monthPage(y, m, lang) {
+
+/* ---------- State calendars: moonrise/tithi for the state capital, festivals observed in that state ---------- */
+const STATE_HI = { 'Andaman and Nicobar': 'अंडमान और निकोबार', 'Andhra Pradesh': 'आंध्र प्रदेश', 'Arunachal Pradesh': 'अरुणाचल प्रदेश', Assam: 'असम', Bihar: 'बिहार', Chandigarh: 'चंडीगढ़', Chhattisgarh: 'छत्तीसगढ़', 'Dadra and Nagar Haveli and Daman and Diu': 'दादरा और नगर हवेली और दमन और दीव', Delhi: 'दिल्ली', Goa: 'गोवा', Gujarat: 'गुजरात', Haryana: 'हरियाणा', 'Himachal Pradesh': 'हिमाचल प्रदेश', 'Jammu and Kashmir': 'जम्मू और कश्मीर', Jharkhand: 'झारखंड', Karnataka: 'कर्नाटक', Kerala: 'केरल', Ladakh: 'लद्दाख', Lakshadweep: 'लक्षद्वीप', 'Madhya Pradesh': 'मध्य प्रदेश', Maharashtra: 'महाराष्ट्र', Manipur: 'मणिपुर', Meghalaya: 'मेघालय', Mizoram: 'मिज़ोरम', Nagaland: 'नागालैंड', Odisha: 'ओडिशा', Puducherry: 'पुडुचेरी', Punjab: 'पंजाब', Rajasthan: 'राजस्थान', Sikkim: 'सिक्किम', 'Tamil Nadu': 'तमिलनाडु', Telangana: 'तेलंगाना', Tripura: 'त्रिपुरा', 'Uttar Pradesh': 'उत्तर प्रदेश', Uttarakhand: 'उत्तराखंड', 'West Bengal': 'पश्चिम बंगाल' };
+// Reference city for each state's calendar (capital, or the nearest place in the list).
+const STATE_CITY = { 'Andaman and Nicobar': 'port-blair', 'Andhra Pradesh': 'vijayawada', 'Arunachal Pradesh': 'papum-pare', Assam: 'guwahati', Bihar: 'patna', Chandigarh: 'chandigarh', Chhattisgarh: 'raipur', 'Dadra and Nagar Haveli and Daman and Diu': 'daman', Delhi: 'delhi', Goa: 'panaji', Gujarat: 'gandhinagar', Haryana: 'panchkula', 'Himachal Pradesh': 'shimla', 'Jammu and Kashmir': 'srinagar', Jharkhand: 'ranchi', Karnataka: 'bengaluru', Kerala: 'thiruvananthapuram', Ladakh: 'leh', Lakshadweep: 'lakshadweep', 'Madhya Pradesh': 'bhopal', Maharashtra: 'mumbai', Manipur: 'imphal', Meghalaya: 'shillong', Mizoram: 'aizawl', Nagaland: 'kohima', Odisha: 'bhubaneswar', Puducherry: 'puducherry', Punjab: 'chandigarh', Rajasthan: 'jaipur', Sikkim: 'gangtok', 'Tamil Nadu': 'chennai', Telangana: 'hyderabad', Tripura: 'agartala', 'Uttar Pradesh': 'lucknow', Uttarakhand: 'dehradun', 'West Bengal': 'kolkata' };
+const stateSlug = st => st.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+let STATES_CACHE = null;
+function states() {
+  if (!STATES_CACHE) STATES_CACHE = [...new Set(C.cities.map(c => c.state))].sort().map(name => ({
+    name, slug: stateSlug(name), hi: STATE_HI[name] || name,
+    city: C.cities.find(c => c.slug === STATE_CITY[name]) || C.cities.find(c => c.state === name),
+  }));
+  return STATES_CACHE;
+}
+const stateName = (st, lang) => lang === 'hi' ? st.hi : st.name;
+const stateMonthPath = (st, y, m) => `/moon-calendar/${st.slug}/${y}/${monthSlug(m)}/`;
+// Is festival f observed in state st? (no `states` = all India)
+const inState = (f, st) => !st || !f.states || f.states.includes(st.name);
+
+function monthPage(y, m, lang, st = null) {
   const t = T[lang];
   const mName = (lang === 'hi' ? MONTH_HI : MONTH_EN)[m];
   const first = `${y}-${String(m + 1).padStart(2, '0')}-01`;
   const nDays = new Date(Date.UTC(Number(y), m + 1, 0)).getUTCDate();
   const startWd = S.weekday(first);
-  const city = DELHI();
+  const city = st ? st.city : DELHI();
+  const cn = nm(city.name, lang);
+  const path = (yy, mm) => st ? stateMonthPath(st, yy, mm) : monthPath(yy, mm);
   const festByDay = {};
-  for (const f of C.festivals) for (const o of C.occ[f.slug] || []) {
-    if (['ekadashi', 'chandra-darshan'].includes(f.series)) continue;
-    const k = o.holiKey || o.key;
-    (festByDay[k] = festByDay[k] || []).push(occLabel(f, o, lang));
+  for (const f of C.festivals) {
+    if (!inState(f, st)) continue;
+    for (const o of C.occ[f.slug] || []) {
+      if (['ekadashi', 'chandra-darshan'].includes(f.series)) continue;
+      const k = o.holiKey || o.key;
+      (festByDay[k] = festByDay[k] || []).push(occLabel(f, o, lang));
+    }
   }
   let cells = Array.from({ length: startWd }, () => '<div class="c blank"></div>').join('');
   for (let d = 1; d <= nDays; d++) {
@@ -452,13 +482,23 @@ function monthPage(y, m, lang) {
   const next = m === 11 ? [String(Number(y) + 1), 0] : [y, m + 1];
   const inRange = (yy, mm) => C.monthList.some(([a, b]) => a === yy && b === mm);
   const wd = (lang === 'hi' ? WD_HI : WD_EN).map(w => w.slice(0, lang === 'hi' ? 2 : 3));
-  let body = hero({ lang, crumbs: breadcrumbs([[t.navCalendar, url(lang, '/calendar/')], [`${mName} ${y}`]]), eyebrow: t.monthlyCal, h1: t.titleMonth(mName, y), angle: S.phaseAngle(S.istAt(first, 20)) });
+  const where = st ? stateName(st, lang) : (lang === 'hi' ? 'भारत' : 'India');
+  const h1 = st ? (lang === 'hi' ? `${t.titleMonth(mName, y).split(' – ')[0]} – ${where}` : `${t.titleMonth(mName, y).split(' – ')[0]} – ${where}`) : t.titleMonth(mName, y);
+  const crumbs = breadcrumbs([[t.navCalendar, url(lang, '/calendar/')], ...(st ? [[where, url(lang, stateMonthPath(st, y, m))]] : []), [`${mName} ${y}`]]);
+  // State switcher: same month, any state (or all India)
+  const opts = [`<option value="${url(lang, monthPath(y, m))}"${st ? '' : ' selected'}>${lang === 'hi' ? 'पूरा भारत (दिल्ली)' : 'All India (Delhi)'}</option>`]
+    .concat(states().map(s2 => `<option value="${url(lang, stateMonthPath(s2, y, m))}"${st && st.slug === s2.slug ? ' selected' : ''}>${esc(stateName(s2, lang))}</option>`)).join('');
+  const switcher = `<div class="picker"><select aria-label="${lang === 'hi' ? 'राज्य चुनें' : 'Choose your state'}" data-nav>${opts}</select></div>`;
+  let body = hero({ lang, crumbs, eyebrow: t.monthlyCal, h1, sub: st ? (lang === 'hi' ? `${cn} के समय · ${where} के त्योहार` : `Times for ${cn} · festivals observed in ${where}`) : '', angle: S.phaseAngle(S.istAt(first, 20)), picker: switcher });
   body += `<div class="wrap">${adSlot()}
-<div class="btn-row">${inRange(...prev) ? `<a class="btn ghost" href="${url(lang, monthPath(...prev))}">← ${esc((lang === 'hi' ? MONTH_HI : MONTH_EN)[prev[1]])}</a>` : ''}${inRange(...next) ? `<a class="btn ghost" href="${url(lang, monthPath(...next))}">${esc((lang === 'hi' ? MONTH_HI : MONTH_EN)[next[1]])} →</a>` : ''}</div>
+<div class="btn-row">${inRange(...prev) ? `<a class="btn ghost" href="${url(lang, path(...prev))}">← ${esc((lang === 'hi' ? MONTH_HI : MONTH_EN)[prev[1]])}</a>` : ''}${inRange(...next) ? `<a class="btn ghost" href="${url(lang, path(...next))}">${esc((lang === 'hi' ? MONTH_HI : MONTH_EN)[next[1]])} →</a>` : ''}</div>
 <div class="mgrid">${wd.map(w => `<div class="h">${esc(w)}</div>`).join('')}${cells}</div>
-${monthFestList.length ? `<h2>${esc(t.navFestivals)} – ${esc(mName)} ${y}</h2><div class="table-wrap"><table><tbody>${monthFestList.map(([k, n]) => `<tr><td>${esc(fmtDate(k, lang, { year: false }))}</td><td>${esc(n)}</td></tr>`).join('')}</tbody></table></div>` : ''}
-<p class="muted small" style="margin-top:10px">${lang === 'hi' ? 'हर दिन: रात 8 बजे चाँद का आकार, सूर्योदय पर तिथि, दिल्ली में चंद्रोदय।' : 'Each day shows the moon\'s shape at 8 PM, the tithi at sunrise and moonrise in Delhi.'}</p></div>`;
-  return page({ lang, path: monthPath(y, m), title: t.titleMonth(mName, y), desc: lang === 'hi' ? `${mName} ${y} के हर दिन की चंद्र कला, तिथि, चंद्रोदय और त्योहार।` : `Moon phase, tithi, moonrise and festivals for every day of ${mName} ${y}.`, body, navActive: 'calendar' });
+${monthFestList.length ? `<h2>${esc(t.navFestivals)} – ${esc(mName)} ${y}${st ? ' · ' + esc(where) : ''}</h2><div class="table-wrap"><table><tbody>${monthFestList.map(([k, n]) => `<tr><td>${esc(fmtDate(k, lang, { year: false }))}</td><td>${esc(n)}</td></tr>`).join('')}</tbody></table></div>` : ''}
+<p class="muted small" style="margin-top:10px">${lang === 'hi' ? `हर दिन: रात 8 बजे चाँद का आकार, सूर्योदय पर तिथि, ${cn} में चंद्रोदय।` : `Each day shows the moon's shape at 8 PM, the tithi at sunrise and moonrise in ${cn}.`}</p></div>`;
+  const title = st ? (lang === 'hi' ? `${where} चंद्र कैलेंडर ${mName} ${y} – तिथि, चंद्रोदय और त्योहार` : `${where} Moon Calendar ${mName} ${y} – Tithi, Moonrise & Festivals`) : t.titleMonth(mName, y);
+  const desc = st ? (lang === 'hi' ? `${mName} ${y} के हर दिन की चंद्र कला, तिथि, ${cn} में चंद्रोदय और ${where} के त्योहार।` : `Moon phase, tithi, moonrise in ${cn} and ${where} festivals for every day of ${mName} ${y}.`)
+    : (lang === 'hi' ? `${mName} ${y} के हर दिन की चंद्र कला, तिथि, चंद्रोदय और त्योहार।` : `Moon phase, tithi, moonrise and festivals for every day of ${mName} ${y}.`);
+  return page({ lang, path: path(y, m), title, desc, body, navActive: 'calendar' });
 }
 
 function calendarIndex(lang) {
@@ -467,8 +507,9 @@ function calendarIndex(lang) {
   const series = C.festivals.filter(f => f.type === 'series');
   let body = hero({ lang, eyebrow: t.navCalendar, h1: t.calendarTitle, angle: S.phaseAngle(S.istAt(C.today, 20)) });
   body += `<div class="wrap">${adSlot()}<h2>${esc(t.yearly)}</h2>${years.map(y => `<h3>${y}</h3><div class="pills">${series.map(f => `<a href="${url(lang, `/calendar/${f.slug}-${y}/`)}">${esc(nm(f.name, lang))} ${y}</a>`).join('')}</div>`).join('')}
+<h2>${lang === 'hi' ? 'राज्य के अनुसार चंद्र कैलेंडर' : 'Moon calendar by state'}</h2><p class="muted small">${lang === 'hi' ? 'हर राज्य की राजधानी के समय और उस राज्य के त्योहार।' : 'Times for each state capital, with the festivals observed in that state.'}</p><div class="pills">${states().map(st => `<a href="${url(lang, stateMonthPath(st, C.today.slice(0, 4), Number(C.today.slice(5, 7)) - 1))}">${esc(stateName(st, lang))}</a>`).join('')}</div>
 <h2>${esc(t.monthlyCal)}</h2>${years.map(y => `<h3>${y}</h3><div class="pills">${C.monthList.filter(([a]) => a === y).map(([a, b]) => `<a href="${url(lang, monthPath(a, b))}">${esc((lang === 'hi' ? MONTH_HI : MONTH_EN)[b])}</a>`).join('')}</div>`).join('')}</div>`;
   return page({ lang, path: '/calendar/', title: `${t.calendarTitle} | ${t.siteName}`, desc: lang === 'hi' ? 'पूर्णिमा, अमावस्या, एकादशी, संकष्टी की वार्षिक सूचियाँ और मासिक चंद्र कैलेंडर।' : 'Yearly lists of Purnima, Amavasya, Ekadashi and Sankashti dates, plus monthly moon calendars.', body, navActive: 'calendar' });
 }
 
-module.exports = { init, festivalPage, festCityPage, cityPage, citiesIndex, home, festivalsIndex, seriesYearPage, monthPage, monthPath, calendarIndex, hasCityPages, fpath, fcpath, cpath, nextOcc };
+module.exports = { init, festivalPage, festCityPage, cityPage, citiesIndex, home, festivalsIndex, seriesYearPage, monthPage, monthPath, calendarIndex, hasCityPages, fpath, fcpath, cpath, nextOcc, states, stateMonthPath };

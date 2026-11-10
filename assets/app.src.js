@@ -35,31 +35,65 @@
   }
   if (cds.length) { tick(); setInterval(tick, 30000); }
 
-  // City select: fill in every district and city (grouped by state) from MF_CITIES / MF_ALIASES, then navigate on change.
+  // City search: replaces the city <select> with a box where you can type any part of a city, district or state name
+  // (English or Hindi). The <select> stays as a fallback when JavaScript is off.
   var ALIASES = window.MF_ALIASES || [];
+  var norm = function (x) { return (x || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ऀ-ॿ]+/g, ' ').trim(); };
+  var PLACES = CITIES.map(function (c) { return { slug: c[0], en: c[4], hi: c[5], st: c[6] }; })
+    .concat(ALIASES.map(function (a) { return { slug: a[3], en: a[0], hi: a[1], st: a[2] }; }));
+  PLACES.forEach(function (p) { p.key = norm(p.en) + ' | ' + norm(p.hi) + ' | ' + norm(p.st); p.n = norm(p.en); p.nh = norm(p.hi); });
+  function search(q) {
+    q = norm(q); if (!q) return [];
+    var words = q.split(' '), out = [];
+    PLACES.forEach(function (p) {
+      if (!words.every(function (w) { return p.key.indexOf(w) >= 0; })) return;
+      // rank: name starts with query, a word in the name starts with it, name contains it, only state matches
+      var score = (p.n.indexOf(q) === 0 || p.nh.indexOf(q) === 0) ? 0 : (' ' + p.n).indexOf(' ' + q) >= 0 || (' ' + p.nh).indexOf(' ' + q) >= 0 ? 1 : (p.n.indexOf(q) >= 0 || p.nh.indexOf(q) >= 0) ? 2 : 3;
+      out.push([score, p]);
+    });
+    out.sort(function (a, b) { return a[0] - b[0] || a[1].en.localeCompare(b[1].en); });
+    return out.slice(0, 12).map(function (x) { return x[1]; });
+  }
   document.querySelectorAll('select[data-nav]').forEach(function (s) {
     var tpl = s.getAttribute('data-tpl');
-    if (tpl && CITIES.length) {
-      var hi = s.getAttribute('data-lang') === 'hi', cur = s.getAttribute('data-current'), first = s.options[0];
-      var byState = {};
-      CITIES.forEach(function (c) { (byState[c[6]] = byState[c[6]] || []).push([hi ? c[5] : c[4], c[0]]); });
-      ALIASES.forEach(function (a) { (byState[a[2]] = byState[a[2]] || []).push([hi ? a[1] : a[0], a[3]]); });
-      var frag = document.createDocumentFragment();
-      frag.appendChild(first);
-      Object.keys(byState).sort().forEach(function (st) {
-        var g = document.createElement('optgroup'); g.label = st;
-        byState[st].sort(function (a, b) { return a[0].localeCompare(b[0], hi ? 'hi' : 'en'); }).forEach(function (p) {
-          var o = document.createElement('option');
-          o.value = tpl.replace('__CITY__', p[1]); o.textContent = p[0];
-          if (p[1] === cur && !s.querySelector('option[selected-done]')) { o.selected = true; o.setAttribute('selected-done', ''); }
-          g.appendChild(o);
-        });
-        frag.appendChild(g);
+    if (!tpl || !PLACES.length) { s.addEventListener('change', function () { if (s.value) location.href = s.value; }); return; }
+    var hi = s.getAttribute('data-lang') === 'hi', cur = s.getAttribute('data-current');
+    var curPlace = PLACES.filter(function (p) { return p.slug === cur; })[0];
+    var box = document.createElement('div'); box.className = 'citysearch';
+    var inp = document.createElement('input');
+    inp.type = 'search'; inp.autocomplete = 'off'; inp.setAttribute('role', 'combobox'); inp.setAttribute('aria-expanded', 'false');
+    inp.setAttribute('aria-label', s.getAttribute('aria-label') || 'City');
+    inp.placeholder = curPlace ? (hi ? curPlace.hi : curPlace.en) + (hi ? ' · दूसरा शहर या ज़िला खोजें' : ' · search another city or district') : (hi ? 'अपना शहर या ज़िला लिखें…' : 'Type your city or district…');
+    var list = document.createElement('ul'); list.className = 'cs-list'; list.setAttribute('role', 'listbox'); list.hidden = true;
+    box.appendChild(inp); box.appendChild(list);
+    s.parentNode.insertBefore(box, s); s.hidden = true;
+    var items = [], active = -1;
+    function render() {
+      items = search(inp.value); active = items.length ? 0 : -1;
+      list.innerHTML = '';
+      if (!inp.value.trim()) { list.hidden = true; inp.setAttribute('aria-expanded', 'false'); return; }
+      if (!items.length) { var li0 = document.createElement('li'); li0.className = 'cs-empty'; li0.textContent = hi ? 'कोई शहर नहीं मिला' : 'No matching city or district'; list.appendChild(li0); }
+      items.forEach(function (p, i) {
+        var li = document.createElement('li'); li.setAttribute('role', 'option'); li.className = i === active ? 'on' : '';
+        var b = document.createElement('b'); b.textContent = hi ? p.hi : p.en;
+        var sm = document.createElement('small'); sm.textContent = (hi ? p.en + ' · ' : '') + p.st;
+        li.appendChild(b); li.appendChild(sm);
+        li.addEventListener('mousedown', function (e) { e.preventDefault(); go(p); });
+        list.appendChild(li);
       });
-      s.innerHTML = ''; s.appendChild(frag);
-      if (!cur) s.selectedIndex = 0;
+      list.hidden = false; inp.setAttribute('aria-expanded', 'true');
     }
-    s.addEventListener('change', function () { if (s.value) location.href = s.value; });
+    function go(p) { location.href = tpl.replace('__CITY__', p.slug); }
+    function mark() { Array.prototype.forEach.call(list.children, function (li, i) { li.className = i === active ? 'on' : ''; if (i === active) li.scrollIntoView({ block: 'nearest' }); }); }
+    inp.addEventListener('input', render);
+    inp.addEventListener('focus', render);
+    inp.addEventListener('blur', function () { setTimeout(function () { list.hidden = true; inp.setAttribute('aria-expanded', 'false'); }, 150); });
+    inp.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' && items.length) { active = (active + 1) % items.length; mark(); e.preventDefault(); }
+      else if (e.key === 'ArrowUp' && items.length) { active = (active - 1 + items.length) % items.length; mark(); e.preventDefault(); }
+      else if (e.key === 'Enter' && active >= 0) { go(items[active]); e.preventDefault(); }
+      else if (e.key === 'Escape') { list.hidden = true; }
+    });
   });
 
   // Nearest city

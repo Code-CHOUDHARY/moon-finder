@@ -4,13 +4,14 @@
 // Nakshatras: 0 Ashwini … 26 Revati.
 // style = regional rule for solar months: 'tamil' (sankranti before sunset), 'kerala' (before 3/5 of daytime),
 //         'sunrise' (first sunrise after the sankranti – Vishu).
+// states = where the festival is mainly observed (state calendars and city pages); no `states` = all of India.
 // Rules were checked against Drik Panchang (New Delhi) and state holiday lists for 2026 and 2027.
 'use strict';
 
 module.exports = function addSouth(add) {
   /* ======================= Solar new months ======================= */
   add({
-    slug: 'bhogi', type: 'sankranti', sign: 9, style: 'tamil', offset: -1, key: 'sankranti', skin: 'pongal', priority: 3, city: 'chennai',
+    slug: 'bhogi', states: ['Tamil Nadu', 'Andhra Pradesh', 'Telangana', 'Karnataka', 'Puducherry'], type: 'sankranti', sign: 9, style: 'tamil', offset: -1, key: 'sankranti', skin: 'pongal', priority: 3, city: 'chennai',
     name: { en: 'Bhogi', hi: 'भोगी' },
     alt: { en: 'Bhogi Pandigai · Bhogi Panduga', hi: 'भोगी पंडिगई · भोगी पंडुगा' },
     lunar: { en: 'Last day of Margazhi (Dhanu) · Tamil Nadu, Andhra Pradesh, Telangana, Karnataka', hi: 'मार्गऴि (धनु) मास का अंतिम दिन · तमिलनाडु, आंध्र प्रदेश, तेलंगाना, कर्नाटक' },
@@ -48,7 +49,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'mattu-pongal', type: 'sankranti', sign: 9, style: 'tamil', offset: 1, key: 'sankranti', skin: 'pongal', priority: 3, city: 'chennai',
+    slug: 'mattu-pongal', states: ['Tamil Nadu', 'Andhra Pradesh', 'Telangana', 'Puducherry'], type: 'sankranti', sign: 9, style: 'tamil', offset: 1, key: 'sankranti', skin: 'pongal', priority: 3, city: 'chennai',
     name: { en: 'Mattu Pongal & Kanuma', hi: 'माट्टु पोंगल और कनुमा' },
     lunar: { en: 'Thai 2, the day after Pongal · Tamil Nadu, Andhra Pradesh, Telangana', hi: 'थाई 2, पोंगल के अगले दिन · तमिलनाडु, आंध्र प्रदेश, तेलंगाना' },
     intro: {
@@ -66,7 +67,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'tamil-new-year', type: 'sankranti', sign: 0, style: 'tamil', offset: 0, key: 'sankranti', skin: 'pongal', priority: 2, city: 'chennai',
+    slug: 'tamil-new-year', states: ['Tamil Nadu', 'Puducherry'], type: 'sankranti', sign: 0, style: 'tamil', offset: 0, key: 'sankranti', skin: 'pongal', priority: 2, city: 'chennai',
     name: { en: 'Tamil New Year (Puthandu)', hi: 'तमिल नव वर्ष (पुत्तांडु)' },
     alt: { en: 'Chithirai 1 · Varusha Pirappu', hi: 'चित्तिरै 1 · वरुष पिरप्पु' },
     lunar: { en: 'Chithirai 1 – Sun enters sidereal Mesha (Aries) · Tamil Nadu', hi: 'चित्तिरै 1 – सूर्य का निरयण मेष राशि में प्रवेश · तमिलनाडु' },
@@ -85,7 +86,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'vishu', type: 'sankranti', sign: 0, style: 'sunrise', offset: 0, key: 'sankranti', skin: 'onam', priority: 2, city: 'kochi',
+    slug: 'vishu', states: ['Kerala', 'Puducherry'], type: 'sankranti', sign: 0, style: 'sunrise', offset: 0, key: 'sankranti', skin: 'onam', priority: 2, city: 'kochi',
     name: { en: 'Vishu', hi: 'विशु' },
     alt: { en: 'Medam 1 · Kerala New Year (spring)', hi: 'मेडम 1 · केरल का वसंत नव वर्ष' },
     lunar: { en: 'First sunrise after the Sun enters sidereal Mesha (Medam) · Kerala', hi: 'सूर्य के निरयण मेष (मेडम) में प्रवेश के बाद पहला सूर्योदय · केरल' },
@@ -104,7 +105,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'aadi-perukku', type: 'sankranti', sign: 3, style: 'tamil', offset: 17, key: 'sankranti', skin: 'onam', priority: 3, city: 'tiruchirappalli',
+    slug: 'aadi-perukku', states: ['Tamil Nadu', 'Puducherry'], type: 'sankranti', sign: 3, style: 'tamil', offset: 17, key: 'sankranti', skin: 'onam', priority: 3, city: 'tiruchirappalli',
     name: { en: 'Aadi Perukku', hi: 'आडि पेरुक्कु' },
     alt: { en: 'Aadi 18', hi: 'आडि 18' },
     lunar: { en: '18th day of the Tamil month Aadi (Karkata) · Tamil Nadu', hi: 'तमिल मास आडि (कर्क) का 18वाँ दिन · तमिलनाडु' },
@@ -124,7 +125,7 @@ module.exports = function addSouth(add) {
 
   /* ======================= Nakshatra festivals ======================= */
   add({
-    slug: 'thai-poosam', type: 'nakshatra-solar', nakshatra: 7, sign: 9, style: 'tamil', rule: 'sunset', key: 'tithi', skin: 'murugan', priority: 2, city: 'madurai',
+    slug: 'thai-poosam', states: ['Tamil Nadu', 'Kerala', 'Puducherry'], type: 'nakshatra-solar', nakshatra: 7, sign: 9, style: 'tamil', rule: 'sunset', key: 'tithi', skin: 'murugan', priority: 2, city: 'madurai',
     name: { en: 'Thai Poosam', hi: 'थाई पूसम' },
     alt: { en: 'Thaipusam', hi: 'थैपूसम' },
     lunar: { en: 'Pushya (Poosam) star in the Tamil month Thai · Tamil Nadu, Kerala', hi: 'तमिल मास थाई में पुष्य (पूसम) नक्षत्र · तमिलनाडु, केरल' },
@@ -143,7 +144,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'masi-magam', type: 'nakshatra-solar', nakshatra: 9, sign: 10, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'purnima', priority: 3, city: 'chennai',
+    slug: 'masi-magam', states: ['Tamil Nadu', 'Puducherry'], type: 'nakshatra-solar', nakshatra: 9, sign: 10, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'purnima', priority: 3, city: 'chennai',
     name: { en: 'Masi Magam', hi: 'मासि मगम' },
     lunar: { en: 'Magha (Magam) star in the Tamil month Masi · Tamil Nadu, Puducherry', hi: 'तमिल मास मासि में मघा (मगम) नक्षत्र · तमिलनाडु, पुडुचेरी' },
     intro: {
@@ -155,7 +156,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'attukal-pongala', type: 'nakshatra-solar', nakshatra: 10, sign: 10, style: 'kerala', rule: 'daytime', key: 'tithi', skin: 'pongal', priority: 3, city: 'thiruvananthapuram',
+    slug: 'attukal-pongala', states: ['Kerala'], type: 'nakshatra-solar', nakshatra: 10, sign: 10, style: 'kerala', rule: 'daytime', key: 'tithi', skin: 'pongal', priority: 3, city: 'thiruvananthapuram',
     name: { en: 'Attukal Pongala', hi: 'अट्टुकाल पोंगाला' },
     lunar: { en: 'Pooram star in the Malayalam month Kumbham · Kerala (Thiruvananthapuram)', hi: 'मलयालम मास कुंभम में पूरम नक्षत्र · केरल (तिरुवनंतपुरम)' },
     intro: {
@@ -167,7 +168,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'panguni-uthiram', type: 'nakshatra-solar', nakshatra: 11, sign: 11, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'murugan', priority: 3, city: 'madurai',
+    slug: 'panguni-uthiram', states: ['Tamil Nadu', 'Kerala', 'Puducherry'], type: 'nakshatra-solar', nakshatra: 11, sign: 11, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'murugan', priority: 3, city: 'madurai',
     name: { en: 'Panguni Uthiram', hi: 'पंगुनि उत्तिरम' },
     lunar: { en: 'Uttara Phalguni (Uthiram) star in the Tamil month Panguni · Tamil Nadu, Kerala', hi: 'तमिल मास पंगुनि में उत्तरा फाल्गुनी (उत्तिरम) नक्षत्र · तमिलनाडु, केरल' },
     intro: {
@@ -179,7 +180,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'vaikasi-visakam', type: 'nakshatra-solar', nakshatra: 15, sign: 1, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'murugan', priority: 3, city: 'madurai',
+    slug: 'vaikasi-visakam', states: ['Tamil Nadu', 'Puducherry'], type: 'nakshatra-solar', nakshatra: 15, sign: 1, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'murugan', priority: 3, city: 'madurai',
     name: { en: 'Vaikasi Visakam', hi: 'वैकासि विशाकम' },
     lunar: { en: 'Vishakha (Visakam) star in the Tamil month Vaikasi · Tamil Nadu', hi: 'तमिल मास वैकासि में विशाखा (विशाकम) नक्षत्र · तमिलनाडु' },
     intro: {
@@ -191,7 +192,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'onam', type: 'nakshatra-solar', nakshatra: 21, sign: 4, style: 'kerala', rule: 'sunrise', key: 'tithi', skin: 'onam', priority: 2, city: 'kochi',
+    slug: 'onam', states: ['Kerala', 'Puducherry'], type: 'nakshatra-solar', nakshatra: 21, sign: 4, style: 'kerala', rule: 'sunrise', key: 'tithi', skin: 'onam', priority: 2, city: 'kochi',
     name: { en: 'Onam (Thiruvonam)', hi: 'ओणम (तिरुवोणम)' },
     alt: { en: 'Kerala\'s harvest festival', hi: 'केरल का फ़सल उत्सव' },
     lunar: { en: 'Thiruvonam (Shravana) star in the Malayalam month Chingam · Kerala', hi: 'मलयालम मास चिंगम में तिरुवोणम (श्रवण) नक्षत्र · केरल' },
@@ -210,7 +211,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'karthigai-deepam', type: 'nakshatra-solar', nakshatra: 2, sign: 7, style: 'tamil', rule: 'sunrise', key: 'moonrise', skin: 'deepam', priority: 2, city: 'chennai',
+    slug: 'karthigai-deepam', states: ['Tamil Nadu', 'Kerala', 'Puducherry'], type: 'nakshatra-solar', nakshatra: 2, sign: 7, style: 'tamil', rule: 'sunrise', key: 'moonrise', skin: 'deepam', priority: 2, city: 'chennai',
     name: { en: 'Karthigai Deepam', hi: 'कार्तिगै दीपम' },
     alt: { en: 'Thiruvannamalai Maha Deepam', hi: 'तिरुवन्नामलै महा दीपम' },
     lunar: { en: 'Krittika (Karthigai) star in the Tamil month Karthigai · Tamil Nadu, Kerala', hi: 'तमिल मास कार्तिगै में कृत्तिका (कार्तिगै) नक्षत्र · तमिलनाडु, केरल' },
@@ -229,7 +230,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'arudra-darshan', type: 'nakshatra-solar', nakshatra: 5, sign: 8, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'shiva', priority: 3, city: 'chennai',
+    slug: 'arudra-darshan', states: ['Tamil Nadu', 'Kerala', 'Puducherry'], type: 'nakshatra-solar', nakshatra: 5, sign: 8, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'shiva', priority: 3, city: 'chennai',
     name: { en: 'Arudra Darshan', hi: 'आरुद्रा दर्शन' },
     alt: { en: 'Thiruvathirai · Thiruvathira', hi: 'तिरुवादिरै · तिरुवातिरा' },
     lunar: { en: 'Ardra (Thiruvathirai) star in the Tamil month Margazhi · Tamil Nadu, Kerala', hi: 'तमिल मास मार्गऴि में आर्द्रा (तिरुवादिरै) नक्षत्र · तमिलनाडु, केरल' },
@@ -243,7 +244,7 @@ module.exports = function addSouth(add) {
 
   /* ======================= Tithi in a solar month ======================= */
   add({
-    slug: 'chitra-pournami', type: 'tithi-solar', tithi: 15, sign: 0, style: 'tamil', rule: 'sunrise', key: 'moonrise', skin: 'purnima', priority: 3, city: 'madurai',
+    slug: 'chitra-pournami', states: ['Tamil Nadu', 'Puducherry'], type: 'tithi-solar', tithi: 15, sign: 0, style: 'tamil', rule: 'sunrise', key: 'moonrise', skin: 'purnima', priority: 3, city: 'madurai',
     name: { en: 'Chitra Pournami', hi: 'चित्रा पौर्णमी' },
     alt: { en: 'Chithirai Pournami', hi: 'चित्तिरै पौर्णमी' },
     lunar: { en: 'Full moon in the Tamil month Chithirai · Tamil Nadu', hi: 'तमिल मास चित्तिरै की पूर्णिमा · तमिलनाडु' },
@@ -256,7 +257,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'aadi-amavasai', type: 'tithi-solar', tithi: 30, sign: 3, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'diwali', priority: 3, city: 'chennai',
+    slug: 'aadi-amavasai', states: ['Tamil Nadu', 'Kerala', 'Puducherry'], type: 'tithi-solar', tithi: 30, sign: 3, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'diwali', priority: 3, city: 'chennai',
     name: { en: 'Aadi Amavasai', hi: 'आडि अमावसै' },
     alt: { en: 'Karkidaka Vavu (Kerala)', hi: 'कर्किडक वावु (केरल)' },
     lunar: { en: 'New moon in the Tamil month Aadi (Karkata) · Tamil Nadu, Kerala', hi: 'तमिल मास आडि (कर्क) की अमावस्या · तमिलनाडु, केरल' },
@@ -269,7 +270,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'skanda-sashti', type: 'tithi-solar', tithi: 6, sign: 6, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'murugan', priority: 3, city: 'chennai',
+    slug: 'skanda-sashti', states: ['Tamil Nadu', 'Puducherry'], type: 'tithi-solar', tithi: 6, sign: 6, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'murugan', priority: 3, city: 'chennai',
     name: { en: 'Skanda Sashti (Soora Samharam)', hi: 'स्कंद षष्ठी (सूर सम्हारम)' },
     lunar: { en: 'Shukla Shashthi in the Tamil month Aippasi · Tamil Nadu', hi: 'तमिल मास ऐप्पसि की शुक्ल षष्ठी · तमिलनाडु' },
     intro: {
@@ -281,7 +282,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'vaikunta-ekadasi', type: 'tithi-solar', tithi: 11, sign: 8, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'purnima', priority: 2, city: 'chennai',
+    slug: 'vaikunta-ekadasi', states: ['Tamil Nadu', 'Kerala', 'Karnataka', 'Andhra Pradesh', 'Telangana', 'Puducherry'], type: 'tithi-solar', tithi: 11, sign: 8, style: 'tamil', rule: 'sunrise', key: 'tithi', skin: 'purnima', priority: 2, city: 'chennai',
     name: { en: 'Vaikunta Ekadasi', hi: 'वैकुंठ एकादशी' },
     alt: { en: 'Mukkoti Ekadasi', hi: 'मुक्कोटि एकादशी' },
     lunar: { en: 'Shukla Ekadashi in the solar month Dhanu (Margazhi) · All of South India', hi: 'सौर मास धनु (मार्गऴि) की शुक्ल एकादशी · पूरा दक्षिण भारत' },
@@ -307,7 +308,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'ugadi', type: 'hindu', month: 0, tithi: 1, rule: 'sunrise', key: 'tithi', skin: 'teej', priority: 2, city: 'hyderabad',
+    slug: 'ugadi', states: ['Andhra Pradesh', 'Telangana', 'Karnataka'], type: 'hindu', month: 0, tithi: 1, rule: 'sunrise', key: 'tithi', skin: 'teej', priority: 2, city: 'hyderabad',
     name: { en: 'Ugadi', hi: 'उगादि' },
     alt: { en: 'Yugadi · Telugu & Kannada New Year (Gudi Padwa in Maharashtra)', hi: 'युगादि · तेलुगु और कन्नड़ नव वर्ष (महाराष्ट्र में गुड़ी पड़वा)' },
     lunar: { en: 'Chaitra Shukla Pratipada · Andhra Pradesh, Telangana, Karnataka', hi: 'चैत्र शुक्ल प्रतिपदा · आंध्र प्रदेश, तेलंगाना, कर्नाटक' },
@@ -333,7 +334,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'varalakshmi-vratam', type: 'weekday-before', month: 4, tithi: 15, rule: 'sunrise', weekday: 5, key: 'tithi', skin: 'rakhi', priority: 2, city: 'bengaluru',
+    slug: 'varalakshmi-vratam', states: ['Karnataka', 'Andhra Pradesh', 'Telangana', 'Tamil Nadu', 'Puducherry'], type: 'weekday-before', month: 4, tithi: 15, rule: 'sunrise', weekday: 5, key: 'tithi', skin: 'rakhi', priority: 2, city: 'bengaluru',
     name: { en: 'Varalakshmi Vratam', hi: 'वरलक्ष्मी व्रत' },
     alt: { en: 'Varamahalakshmi', hi: 'वरमहालक्ष्मी' },
     lunar: { en: 'The Friday on or before Shravana Purnima · Karnataka, Andhra Pradesh, Telangana, Tamil Nadu', hi: 'श्रावण पूर्णिमा को या उससे पहले का शुक्रवार · कर्नाटक, आंध्र प्रदेश, तेलंगाना, तमिलनाडु' },
@@ -372,7 +373,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'ayudha-puja', type: 'hindu', month: 6, tithi: 9, rule: 'sunrise', key: 'tithi', skin: 'karva', priority: 2, city: 'chennai',
+    slug: 'ayudha-puja', states: ['Tamil Nadu', 'Kerala', 'Karnataka', 'Andhra Pradesh', 'Telangana', 'Puducherry'], type: 'hindu', month: 6, tithi: 9, rule: 'sunrise', key: 'tithi', skin: 'karva', priority: 2, city: 'chennai',
     name: { en: 'Saraswati & Ayudha Puja', hi: 'सरस्वती और आयुध पूजा' },
     alt: { en: 'Maha Navami · Ayutha Poojai', hi: 'महानवमी · आयुध पूजै' },
     lunar: { en: 'Ashvin Shukla Navami · Tamil Nadu, Karnataka, Kerala, Andhra Pradesh, Telangana', hi: 'आश्विन शुक्ल नवमी · तमिलनाडु, कर्नाटक, केरल, आंध्र प्रदेश, तेलंगाना' },
@@ -398,7 +399,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'naraka-chaturdashi', type: 'hindu', month: 6, tithi: 29, rule: 'sunrise', key: 'tithi', skin: 'diwali', priority: 2, city: 'chennai',
+    slug: 'naraka-chaturdashi', states: ['Tamil Nadu', 'Kerala', 'Karnataka', 'Andhra Pradesh', 'Telangana', 'Puducherry'], type: 'hindu', month: 6, tithi: 29, rule: 'sunrise', key: 'tithi', skin: 'diwali', priority: 2, city: 'chennai',
     name: { en: 'Deepavali (Naraka Chaturdashi)', hi: 'दीपावली (नरक चतुर्दशी)' },
     alt: { en: 'South Indian Deepavali · Choti Diwali', hi: 'दक्षिण भारतीय दीपावली · छोटी दिवाली' },
     lunar: { en: 'Ashvin Krishna Chaturdashi (Amanta) · Tamil Nadu, Karnataka, Kerala, Andhra Pradesh, Telangana', hi: 'आश्विन कृष्ण चतुर्दशी (अमांत) · तमिलनाडु, कर्नाटक, केरल, आंध्र प्रदेश, तेलंगाना' },
@@ -411,7 +412,7 @@ module.exports = function addSouth(add) {
   });
 
   add({
-    slug: 'subrahmanya-shashti', type: 'hindu', month: 8, tithi: 6, rule: 'sunrise', key: 'tithi', skin: 'murugan', priority: 3, city: 'bengaluru',
+    slug: 'subrahmanya-shashti', states: ['Karnataka', 'Andhra Pradesh', 'Telangana'], type: 'hindu', month: 8, tithi: 6, rule: 'sunrise', key: 'tithi', skin: 'murugan', priority: 3, city: 'bengaluru',
     name: { en: 'Subrahmanya Shashti', hi: 'सुब्रह्मण्य षष्ठी' },
     alt: { en: 'Kukke Subrahmanya Champa Shashti', hi: 'कुक्के सुब्रह्मण्य चंपा षष्ठी' },
     lunar: { en: 'Margashirsha Shukla Shashthi · Karnataka, Andhra Pradesh, Telangana', hi: 'मार्गशीर्ष शुक्ल षष्ठी · कर्नाटक, आंध्र प्रदेश, तेलंगाना' },

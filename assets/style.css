@@ -85,6 +85,14 @@ p { margin: 0 0 1em; }
 /* City picker */
 .picker { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 .picker select, .picker input { flex: 1 1 200px; min-width: 0; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255, 211, 110, .45); background: rgba(16, 10, 40, .55); color: #fff; font: inherit; }
+.citysearch { position: relative; flex: 1 1 240px; min-width: 0; }
+.citysearch input { width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255, 211, 110, .45); background: rgba(16, 10, 40, .55); color: #fff; font: inherit; }
+.citysearch input::placeholder { color: rgba(255, 255, 255, .75); }
+.cs-list { position: relative; z-index: 30; margin: 6px 0 0; padding: 6px; list-style: none; max-height: 320px; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 12px 30px rgba(0, 0, 0, .25); }
+.cs-list li { padding: 9px 12px; border-radius: 10px; cursor: pointer; color: var(--ink); display: flex; flex-direction: column; line-height: 1.25; }
+.cs-list li small { color: var(--muted); font-size: .8rem; }
+.cs-list li.on, .cs-list li:hover { background: var(--surface-2); }
+.cs-list li.cs-empty { cursor: default; color: var(--muted); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 18px; border-radius: 14px; border: 0; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-ink); font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; }
 .btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
 .hero .btn.ghost { border-color: rgba(255, 211, 110, .45); color: #FFE7BD; }
