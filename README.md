@@ -2,7 +2,7 @@
 
 A static website that answers *"chand kab niklega?"* for every major Indian festival, in **English and Hindi**, for **100 cities**.
 
-- ~1,900 pages generated from templates: festivals, festival × city, city moonrise pages, yearly Purnima / Amavasya / Ekadashi / Sankashti / Chandra Darshan lists, monthly moon calendars, guides and legal pages.
+- ~2,200 pages generated from templates (56 festivals, including South Indian festivals for Tamil Nadu, Kerala, Karnataka, Andhra Pradesh and Telangana): festivals, festival × city, city moonrise pages, yearly Purnima / Amavasya / Ekadashi / Sankashti / Chandra Darshan lists, monthly moon calendars, guides and legal pages.
 - Festive night-sky design with a colour "skin" per festival (Karva Chauth red-gold, Eid emerald, Diwali gold…), phone-first, light/dark mode.
 - Live **camera finder** (`/moon-finder/`) — the original Moon Finder app, restyled.
 - Rebuilt automatically every morning so "today" pages and countdowns stay current.
@@ -14,12 +14,15 @@ A static website that answers *"chand kab niklega?"* for every major Indian fest
 | `build.js` | Generates everything into `dist/` |
 | `src/astro.js` | Astronomy (via [astronomy-engine](https://github.com/cosinekitty/astronomy), MIT): rise/set, tithi, lunar months with Adhika Maas, eclipses, Islamic crescent prediction |
 | `src/festivals.js` | Festival rules + English/Hindi content, FAQs and colour skins — **edit this to add or change festivals** |
+| `src/festivals-south.js` | South Indian festivals (Pongal, Vishu, Onam, Karthigai Deepam, Ugadi, Varalakshmi Vratam…) plus Maha Shivaratri, Ram Navami, Janmashtami, Navaratri and Dussehra |
 | `src/cities.js` | The 100 cities (first 60 get festival × city pages) |
 | `src/data.js` | Works out every festival date and city time |
 | `src/pages.js`, `src/static.js`, `src/ui.js`, `src/i18n.js` | Page templates, shared layout, translations |
 | `assets/` | CSS, small site script, camera-finder script, icon, share image |
 
 Festival-day rules (tithi prevailing at sunrise / midday / pradosh / moonrise) follow common North Indian panchang practice. Checked against published dates for 2025–2026: Karva Chauth, Diwali, Holi, Raksha Bandhan, Ganesh Chaturthi, Sharad Purnima, Guru Purnima, Eid al-Fitr and Bakrid all match, and the Karva Chauth 2025 moonrise for Delhi (8:13 PM) and Mumbai (8:55 PM) matches published times. **Before each festival season, spot-check the year's dates against a trusted panchang.** Islamic dates are predictions; committees announce the final date.
+
+South Indian festivals use three more kinds of rule: **solar months** (Sun entering a sidereal sign, Lahiri ayanamsa — Pongal, Tamil New Year and Aadi Perukku count the day if the entry is before sunset; Vishu takes the first sunrise after it), **a nakshatra inside a solar month** (Thai Poosam, Onam, Karthigai Deepam, Arudra Darshan…), and **a tithi inside a solar month** (Vaikunta Ekadasi, Chitra Pournami, Skanda Sashti…). All 28 new festivals were checked against Drik Panchang (New Delhi) and state holiday lists for 2026 and 2027 and match. Temple festivals such as Attukal Pongala are announced by the temple each year.
 
 ## Run it locally
 

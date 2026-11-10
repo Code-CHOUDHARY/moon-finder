@@ -139,6 +139,7 @@ add({
 add({
   slug: 'ganesh-chaturthi', type: 'hindu', month: 5, tithi: 4, rule: 'midday', key: 'avoid', skin: 'ganesh', priority: 2,
   name: { en: 'Ganesh Chaturthi', hi: 'गणेश चतुर्थी' },
+  alt: { en: 'Vinayaka Chaturthi · Vinayaka Chavithi · Vinayagar Chathurthi', hi: 'विनायक चतुर्थी · विनायक चविति · विनायगर चतुर्थी' },
   lunar: { en: 'Bhadrapada Shukla Chaturthi', hi: 'भाद्रपद शुक्ल चतुर्थी' },
   intro: {
     en: 'Ganesh Chaturthi celebrates the birth of Lord Ganesha with home and community idols, and ends with visarjan after up to ten days. By tradition, seeing the moon on this night is avoided (it is said to bring false blame, "mithya dosh"), so people want to know until when the moon stays in the sky.',
@@ -430,6 +431,9 @@ add({
   faqs: { en: [['Which night is Shab-e-Barat?', 'It begins at sunset on the evening before the date shown above.']], hi: [['शब-ए-बारात कौन सी रात है?', 'यह ऊपर दी गई तारीख से पहले वाली शाम सूर्यास्त से शुरू होती है।']] },
 });
 
+/* ========================= South Indian & more (see festivals-south.js) ========================= */
+require('./festivals-south')(add);
+
 /* ---------- Ekadashi names ---------- */
 const EK_SHUKLA = [['Kamada', 'कामदा'], ['Mohini', 'मोहिनी'], ['Nirjala', 'निर्जला'], ['Devshayani', 'देवशयनी'], ['Shravana Putrada', 'श्रावण पुत्रदा'], ['Parivartini', 'परिवर्तिनी'], ['Papankusha', 'पापांकुशा'], ['Dev Uthani (Prabodhini)', 'देवउठनी (प्रबोधिनी)'], ['Mokshada', 'मोक्षदा'], ['Pausha Putrada', 'पौष पुत्रदा'], ['Jaya', 'जया'], ['Amalaki', 'आमलकी']];
 // Krishna Ekadashi named by Purnimanta month (= Amanta month + 1)
@@ -450,6 +454,11 @@ const SKINS = {
   holi: { a: '#C2187A', b: '#2BB5E8', motif: 'gulal' },
   rakhi: { a: '#C2410C', b: '#FACC15', motif: 'rakhi' },
   teej: { a: '#1F7A3A', b: '#E9D44C', motif: 'leaf' },
+  pongal: { a: '#9A4A0B', b: '#F6C744', motif: 'pot' },
+  onam: { a: '#1E6B34', b: '#F7B500', motif: 'pookalam' },
+  deepam: { a: '#5A1E0A', b: '#FFB627', motif: 'diya' },
+  murugan: { a: '#8B1E3F', b: '#F59E0B', motif: 'vel' },
+  shiva: { a: '#1E2A5A', b: '#A9BCFF', motif: 'fullmoon' },
 };
 
 module.exports = { FESTIVALS: F, ekadashiName, SKINS };

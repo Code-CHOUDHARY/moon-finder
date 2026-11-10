@@ -47,6 +47,59 @@ function occurrences(fest, months, from, to) {
       const key = S.addDays(s.day1, fest.hday - 1);
       if (inRange(key)) out.push({ key, day1: s.day1, sightingEvening: s.sightingEvening, check: s.check, hijriYear: s.hijriYear });
     }
+  } else if (fest.type === 'tithi-solar') {
+    // A tithi that must fall inside a given solar month (e.g. Vaikunta Ekadasi = Shukla Ekadashi in Margazhi).
+    for (const m of months) {
+      const p = S.pickDay(m, fest.tithi, fest.rule);
+      if (inRange(p.key) && S.solarMonthOfDay(p.key, fest.style) === fest.sign) out.push({ key: p.key, tithiStart: p.start, tithiEnd: p.end, month: m });
+    }
+  } else if (fest.type === 'nakshatra-solar') {
+    // A nakshatra (star) inside a given solar month (e.g. Onam = Thiruvonam in Chingam). The day is the one where the
+    // star prevails at the rule instant, or for rule 'daytime' the day whose daylight it covers most.
+    const N = fest.nakshatra;
+    const daylightOverlap = (k, span) => {
+      const a = S.sunrise(k, S.DELHI).getTime(), b = S.sunset(k, S.DELHI).getTime();
+      return Math.max(0, Math.min(b, span.end.getTime()) - Math.max(a, span.start.getTime()));
+    };
+    let prev = false;
+    for (let k = S.addDays(S.dayKey(from), -2); k <= S.dayKey(to); k = S.addDays(k, 1)) {
+      let hit = false, at = null;
+      if (S.solarMonthOfDay(k, fest.style) === fest.sign) {
+        if (fest.rule === 'daytime') {
+          for (const r of ['sunrise', 'midday', 'sunset']) if (S.nakshatraAt(S.ruleAt(r, k)) === N) { hit = true; at = S.ruleAt(r, k); break; }
+          if (hit) { // two days can touch the star in daylight: keep the one with more daylight under it
+            const span = S.nakshatraSpan(at), next = S.addDays(k, 1);
+            if (daylightOverlap(next, span) > daylightOverlap(k, span)) { hit = false; }
+          }
+        } else {
+          at = S.ruleAt(fest.rule, k);
+          hit = S.nakshatraAt(at) === N;
+        }
+      }
+      if (hit && !prev && inRange(k)) {
+        const span = S.nakshatraSpan(at);
+        out.push({ key: k, nakStart: span.start, nakEnd: span.end, nakshatra: N });
+      }
+      prev = hit;
+    }
+  } else if (fest.type === 'sankranti') {
+    // Solar new month (e.g. Pongal = 1st of Thai); `offset` shifts to neighbouring days (Bhogi -1, Mattu Pongal +1).
+    let t = new Date(from.getTime() - 40 * S.DAY_MS);
+    for (;;) {
+      const s = S.solarMonthStart(fest.sign, t, fest.style);
+      if (!s.sankranti || s.sankranti > new Date(to.getTime() + 40 * S.DAY_MS)) break;
+      const key = S.addDays(s.day1, fest.offset || 0);
+      if (inRange(key)) out.push({ key, sankranti: s.sankranti, day1: s.day1 });
+      t = new Date(s.sankranti.getTime() + 300 * S.DAY_MS);
+    }
+  } else if (fest.type === 'weekday-before') {
+    // e.g. Varalakshmi Vratam = the Friday on or before Shravana Purnima.
+    for (const m of months) if (m.index === fest.month && !m.adhika) {
+      const p = S.pickDay(m, fest.tithi, fest.rule);
+      let k = p.key;
+      while (S.weekday(k) !== fest.weekday) k = S.addDays(k, -1);
+      if (inRange(k)) out.push({ key: k, refKey: p.key, month: m });
+    }
   } else if (fest.type === 'eclipse') {
     for (const e of S.lunarEclipses(from, new Date(to.getTime() + 2 * 365 * S.DAY_MS))) out.push({ key: S.dayKey(e.peak), eclipse: e });
   }
@@ -90,4 +143,4 @@ function computeAll(from, to) {
   return { months, occ: result };
 }
 
-module.exports = { computeAll, cityTimes, FESTIVALS };
+module.exports = { computeAll, cityTimes, FESTIVALS, occurrences };

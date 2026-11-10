@@ -89,8 +89,63 @@ function ruleInstant(rule, key) {
     case 'sunset': return sunset(key, DELHI);
     case 'pradosh': return new Date(sunset(key, DELHI).getTime() + 48 * 60000);
     case 'moonrise': return moonrise(key, DELHI, 12) || istAt(key, 23, 59);
+    // Nishita: middle of the night that follows this day (Maha Shivaratri, Krishna Janmashtami).
+    case 'midnight': { const a = sunset(key, DELHI), b = sunrise(addDays(key, 1), DELHI); return new Date((a.getTime() + b.getTime()) / 2); }
+    // Aparahna: fourth fifth of daytime (Vijayadashami).
+    case 'aparahna': { const a = sunrise(key, DELHI), b = sunset(key, DELHI); return new Date(a.getTime() + (b - a) * 0.7); }
     default: throw new Error('rule ' + rule);
   }
+}
+const ruleCache = new Map();
+const ruleAt = (rule, key) => { const k = rule + key; if (!ruleCache.has(k)) ruleCache.set(k, ruleInstant(rule, key)); return ruleCache.get(k); };
+
+/* ---------------- Nakshatra & solar (sidereal) months — South Indian festivals ---------------- */
+const NAK_SPAN = 360 / 27;
+const siderealMoon = d => ((A.EclipticGeoMoon(A.MakeTime(d)).lon - ayanamsa(d)) % 360 + 360) % 360;
+const nakshatraAt = d => Math.floor(siderealMoon(d) / NAK_SPAN); // 0 Ashwini … 26 Revati
+const sunSign = d => Math.floor(siderealSun(d) / 30); // 0 Mesha … 11 Meena
+// Next instant after `from` when angle fn (deg, increasing) passes `target`.
+function nextAngle(fn, target, from, stepH, maxDays) {
+  const g = t => ((fn(new Date(t)) - target) % 360 + 540) % 360 - 180;
+  let t = from.getTime(), prev = g(t);
+  for (let i = 0; i < maxDays * 24 / stepH; i++) {
+    const t2 = t + stepH * 3600000, cur = g(t2);
+    if (prev < 0 && cur >= 0 && cur - prev < 90) {
+      let lo = t, hi = t2;
+      for (let k = 0; k < 30; k++) { const mid = (lo + hi) / 2; if (g(mid) < 0) lo = mid; else hi = mid; }
+      return new Date(hi);
+    }
+    t = t2; prev = cur;
+  }
+  return null;
+}
+// Start and end of the nakshatra running at instant d.
+function nakshatraSpan(d) {
+  const n = nakshatraAt(d);
+  return { n, start: nextAngle(siderealMoon, n * NAK_SPAN, new Date(d.getTime() - 1.3 * DAY_MS), 1, 2), end: nextAngle(siderealMoon, ((n + 1) * NAK_SPAN) % 360, d, 1, 2) };
+}
+// Sankranti: Sun entering sidereal sign `sign` after `from`.
+const sankranti = (sign, from) => nextAngle(siderealSun, sign * 30, from, 6, 400);
+// Solar-month day rules. Tamil: a sankranti before sunset makes that day the 1st of the new month.
+// Kerala: the cut-off is the end of the third fifth of daytime (madhyahna).
+// Vishu style: the first sunrise after the sankranti (Vishukkani is seen at that dawn).
+function solarCutoff(key, style) {
+  if (style === 'kerala') { const a = sunrise(key, DELHI), b = sunset(key, DELHI); return new Date(a.getTime() + (b - a) * 0.6); }
+  if (style === 'sunrise') return sunrise(key, DELHI);
+  return sunset(key, DELHI);
+}
+const signCache = new Map();
+// Solar month (sidereal sign) a civil day belongs to under the given regional rule.
+function solarMonthOfDay(key, style = 'tamil') {
+  const k = style + key;
+  if (!signCache.has(k)) signCache.set(k, sunSign(solarCutoff(key, style)));
+  return signCache.get(k);
+}
+// Civil day that is the 1st of solar month `sign`, for the sankranti after `from`.
+function solarMonthStart(sign, from, style = 'tamil') {
+  const t = sankranti(sign, from);
+  const k = dayKey(t);
+  return { day1: t < solarCutoff(k, style) ? k : addDays(k, 1), sankranti: t };
 }
 // Pick the civil day for tithi T (1..30) in lunar month m under the given rule.
 function pickDay(m, T, rule) {
@@ -99,7 +154,7 @@ function pickDay(m, T, rule) {
   for (let k = dayKey(s); k <= dayKey(e); k = addDays(k, 1)) days.push(k);
   let best = null, bestDist = Infinity;
   for (const k of days) {
-    const x = ruleInstant(rule, k);
+    const x = ruleAt(rule, k);
     if (x >= s && x < e) return { key: k, start: s, end: e };
     const dist = x < s ? s - x : x - e;
     if (dist < bestDist) { bestDist = dist; best = k; }
@@ -167,4 +222,5 @@ module.exports = {
   sunrise, sunset, moonrise, moonset, moonriseWithinDay, moonsetWithinDay,
   phaseAngle, illumination, tithiAt, moonAltAz, elongation, nextPhase,
   lunarMonths, pickDay, lunarEclipses, islamicMonthStarts, crescentCheck, hijri, MONTHS, MONTHS_HI,
+  ruleAt, siderealSun, siderealMoon, nakshatraAt, nakshatraSpan, sunSign, sankranti, solarMonthOfDay, solarMonthStart,
 };

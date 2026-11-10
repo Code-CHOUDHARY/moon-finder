@@ -18,6 +18,17 @@ const fpath = f => `/${f.slug}/`;
 const fcpath = (f, c) => `/${f.slug}/${c.slug}/`;
 const cpath = c => `/moonrise/${c.slug}/`;
 const DELHI = () => C.cities[0];
+// Festivals can name a home city (e.g. Chennai for Pongal) used for the headline time; Delhi otherwise.
+const cityFor = f => (f && f.city && C.cities.find(c => c.slug === f.city)) || DELHI();
+const NAK_EN = ['Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha', 'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati'];
+const NAK_HI = ['अश्विनी', 'भरणी', 'कृत्तिका', 'रोहिणी', 'मृगशिरा', 'आर्द्रा', 'पुनर्वसु', 'पुष्य', 'आश्लेषा', 'मघा', 'पूर्वा फाल्गुनी', 'उत्तरा फाल्गुनी', 'हस्त', 'चित्रा', 'स्वाति', 'विशाखा', 'अनुराधा', 'ज्येष्ठा', 'मूल', 'पूर्वाषाढ़ा', 'उत्तराषाढ़ा', 'श्रवण', 'धनिष्ठा', 'शतभिषा', 'पूर्वा भाद्रपद', 'उत्तरा भाद्रपद', 'रेवती'];
+const SIGN_EN = ['Mesha (Aries)', 'Vrishabha (Taurus)', 'Mithuna (Gemini)', 'Karka (Cancer)', 'Simha (Leo)', 'Kanya (Virgo)', 'Tula (Libra)', 'Vrishchika (Scorpio)', 'Dhanu (Sagittarius)', 'Makara (Capricorn)', 'Kumbha (Aquarius)', 'Meena (Pisces)'];
+const SIGN_HI = ['मेष', 'वृषभ', 'मिथुन', 'कर्क', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुंभ', 'मीन'];
+const nakLine = (f, o, lang) => `${(lang === 'hi' ? NAK_HI : NAK_EN)[f.nakshatra]} ${lang === 'hi' ? 'नक्षत्र' : 'nakshatra'}: ${fmtDateTime(o.nakStart, lang)} → ${fmtDateTime(o.nakEnd, lang)}`;
+const sankrantiLine = (f, o, lang) => `${lang === 'hi' ? `सूर्य का निरयण ${SIGN_HI[f.sign]} में प्रवेश` : `Sun enters sidereal ${SIGN_EN[f.sign]}`}: ${fmtDateTime(o.sankranti, lang)}`;
+const refLine = (o, lang) => `${lang === 'hi' ? 'श्रावण पूर्णिमा' : 'Shravana Purnima'}: ${fmtDate(o.refKey, lang, { year: false })}`;
+// Extra facts for South Indian rule types (shown under the answer and in date tables)
+const extraNote = (f, o, lang) => o.nakStart ? nakLine(f, o, lang) : o.sankranti ? sankrantiLine(f, o, lang) : o.refKey ? refLine(o, lang) : '';
 
 // cache city times
 const ctCache = new Map();
@@ -86,11 +97,18 @@ function answer(f, o, city, lang) {
       A.target = s;
       break;
     }
+    case 'sankranti':
+      A.label = lang === 'hi' ? 'तारीख' : 'Date'; A.big = fmtDate(o.key, lang, { year: false });
+      A.big = fmtDate(o.key, lang); A.date = `${t.sunrise} (${cn}): ${fmtTime(x.primary, lang)}`;
+      A.target = S.istMidnight(o.key);
+      break;
     case 'date': case 'night':
       A.label = nm(f.lunar, lang); A.big = fmtDate(o.key, lang, { year: false });
       A.meta.push(`${t.predicted}. ${f.key === 'night' ? (lang === 'hi' ? 'रात शुरू: ' : 'Night begins: ') + fmtDate(S.addDays(o.key, -1), lang) + ' ' + t.afterSunset : ''}`);
       break;
   }
+  const extra = extraNote(f, o, lang);
+  if (extra) A.meta.push(extra);
   return A;
 }
 // Short value for tables
@@ -104,7 +122,7 @@ function cell(f, o, city, lang) {
 }
 const cellHeader = (f, lang) => {
   const t = T[lang];
-  return { moonrise: t.moonrise, tithi: t.moonrise, avoid: t.moonset, holi: t.sunset, amavasya: t.sunset, crescent: `${t.sunset} → ${t.moonset}`, eclipse: lang === 'hi' ? 'दृश्यता' : 'Visibility' }[f.key] || t.time;
+  return { moonrise: t.moonrise, tithi: t.moonrise, sankranti: t.sunrise, avoid: t.moonset, holi: t.sunset, amavasya: t.sunset, crescent: `${t.sunset} → ${t.moonset}`, eclipse: lang === 'hi' ? 'दृश्यता' : 'Visibility' }[f.key] || t.time;
 };
 
 function hero({ f, lang, crumbs, eyebrow, h1, sub, A, angle, picker, extraBtn = '' }) {
@@ -151,7 +169,7 @@ function shopBlock(f, lang) {
 function festivalPage(f, lang) {
   const t = T[lang];
   const o = nextOcc(f);
-  const city = DELHI();
+  const city = cityFor(f);
   const fName = nm(f.name, lang);
   const yr = o ? year(o.holiKey || o.key) : '';
   const A = o ? answer(f, o, city, lang) : null;
@@ -164,7 +182,7 @@ function festivalPage(f, lang) {
   body += adSlot();
 
   // City table
-  if (o && f.key !== 'date' && f.key !== 'night') {
+  if (o && f.key !== 'date' && f.key !== 'night' && f.key !== 'sankranti') {
     const cities = cityPages ? C.cities.filter(c => c.top) : C.cities.slice(0, 20);
     body += `<section class="section"><h2>${esc(f.key === 'moonrise' || f.key === 'tithi' ? t.topCities : `${cellHeader(f, lang)} – ${t.majorCities}`)}</h2>
 <p class="muted small">${esc(fmtDate(o.key, lang))} · ${esc(t.allTimesIST)}</p>
@@ -224,7 +242,7 @@ function allDatesTable(f, lang) {
   const list = C.occ[f.slug] || [];
   if (!list.length) return f.type === 'eclipse' ? `<p>${esc(t.noEclipse)}</p>` : '';
   return `<section class="section"><h2>${esc(t.allDates)}</h2><div class="table-wrap"><table><thead><tr><th>${esc(t.date)}</th><th>${esc(t.notes)}</th></tr></thead><tbody>
-${list.map(o => `<tr${o === nextOcc(f) ? ' class="hl"' : ''}><td>${esc(fmtDate(f.type === 'holi' ? o.holiKey : o.key, lang))}</td><td>${esc(f.type === 'eclipse' ? `${T[lang].eclipseKind[o.eclipse.kind]} · ${fmtTime(o.eclipse.peak, lang)}` : f.type === 'holi' ? `${t.holikaDahan}: ${fmtDate(o.key, lang, { year: false })}` : f.type === 'islamic' ? `${t.predicted} · ${t.sightingEvening}: ${fmtDate(o.sightingEvening, lang, { year: false })}` : o.tithiStart ? `${tithiName(f.tithi, lang)}: ${fmtDateTime(o.tithiStart, lang)} → ${fmtDateTime(o.tithiEnd, lang)}` : '')}</td></tr>`).join('')}
+${list.map(o => `<tr${o === nextOcc(f) ? ' class="hl"' : ''}><td>${esc(fmtDate(f.type === 'holi' ? o.holiKey : o.key, lang))}</td><td>${esc(f.type === 'eclipse' ? `${T[lang].eclipseKind[o.eclipse.kind]} · ${fmtTime(o.eclipse.peak, lang)}` : f.type === 'holi' ? `${t.holikaDahan}: ${fmtDate(o.key, lang, { year: false })}` : f.type === 'islamic' ? `${t.predicted} · ${t.sightingEvening}: ${fmtDate(o.sightingEvening, lang, { year: false })}` : extraNote(f, o, lang) ? extraNote(f, o, lang) : o.tithiStart ? `${tithiName(f.tithi, lang)}: ${fmtDateTime(o.tithiStart, lang)} → ${fmtDateTime(o.tithiEnd, lang)}` : '')}</td></tr>`).join('')}
 </tbody></table></div></section>`;
 }
 
@@ -344,7 +362,7 @@ function home(lang) {
   const city = DELHI();
   const angle = S.phaseAngle(S.istAt(C.today, 20));
   const rise = S.moonriseWithinDay(C.today, city);
-  const A = nx ? answer(nx.f, nx.o, city, lang) : null;
+  const A = nx ? answer(nx.f, nx.o, cityFor(nx.f), lang) : null;
   if (A) A.label = `${t.nextFestival}: ${occLabel(nx.f, nx.o, lang)} · ${A.label}`;
   let body = hero({ f: nx && nx.f, lang, eyebrow: `${t[phaseKey(angle)]} · ${Math.round(S.illumination(S.istAt(C.today, 20)) * 100)}% ${t.lit} · ${t.moonrise} ${nm(city.name, lang)} ${fmtTime(rise, lang)}`, h1: t.tagline, A, angle,
     picker: cityPicker(lang, { top: false, path: c => cpath(c) }),

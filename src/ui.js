@@ -47,6 +47,12 @@ const MOTIFS = {
   gulal: `<svg viewBox="0 0 100 100"><circle cx="34" cy="40" r="22" fill="#FF4FA3"/><circle cx="64" cy="36" r="18" fill="#2BB5E8"/><circle cx="56" cy="66" r="20" fill="#FFD23F"/><circle cx="30" cy="70" r="12" fill="#6CD36C"/></svg>`,
   rakhi: `<svg viewBox="0 0 100 100"><path d="M0 50 H100" stroke="#FACC15" stroke-width="5"/><circle cx="50" cy="50" r="20" fill="#E8590C"/>${Array.from({ length: 8 }, (_, i) => `<circle cx="${50 + 26 * Math.cos(i * Math.PI / 4)}" cy="${50 + 26 * Math.sin(i * Math.PI / 4)}" r="8" fill="#FACC15"/>`).join('')}<circle cx="50" cy="50" r="8" fill="#FFF"/></svg>`,
   leaf: `<svg viewBox="0 0 100 100"><path d="M20 90 C20 40 50 15 90 10 C85 55 60 85 20 90Z" fill="#4CAF50"/><path d="M22 88 C40 60 60 40 86 14" stroke="#1F6B2B" stroke-width="3" fill="none"/></svg>`,
+  // Pongal pot boiling over, with a sugarcane stick
+  pot: `<svg viewBox="0 0 100 100"><path d="M82 92 L70 8" stroke="#3E9B4F" stroke-width="6" stroke-linecap="round"/><path d="M73 30 l-8 -6 M76 52 l-8 -6" stroke="#2E7D3A" stroke-width="3"/><ellipse cx="44" cy="34" rx="22" ry="8" fill="#FFF7E0"/><path d="M28 30 q-4 -10 6 -12 q4 -10 14 -4 q10 -6 14 6 q6 4 0 10z" fill="#FFF7E0"/><path d="M20 40 H68 C74 64 64 88 44 88 C24 88 14 64 20 40Z" fill="#C8642A"/><path d="M20 48 H68" stroke="#F6C744" stroke-width="5"/><circle cx="44" cy="66" r="6" fill="#F6C744"/></svg>`,
+  // Pookalam: concentric flower rings
+  pookalam: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#F7B500"/>${Array.from({ length: 12 }, (_, i) => `<circle cx="${50 + 34 * Math.cos(i * Math.PI / 6)}" cy="${50 + 34 * Math.sin(i * Math.PI / 6)}" r="7" fill="#E8590C"/>`).join('')}<circle cx="50" cy="50" r="24" fill="#FFF3CC"/>${Array.from({ length: 8 }, (_, i) => `<circle cx="${50 + 14 * Math.cos(i * Math.PI / 4)}" cy="${50 + 14 * Math.sin(i * Math.PI / 4)}" r="5" fill="#C2187A"/>`).join('')}<circle cx="50" cy="50" r="6" fill="#1E6B34"/></svg>`,
+  // Vel (Murugan's spear)
+  vel: `<svg viewBox="0 0 100 100"><path d="M50 6 C66 24 66 40 50 52 C34 40 34 24 50 6Z" fill="#FFD36E"/><path d="M50 16 C58 28 58 36 50 44 C42 36 42 28 50 16Z" fill="#E2621B"/><rect x="46" y="50" width="8" height="46" rx="3" fill="#FFD36E"/><rect x="40" y="54" width="20" height="5" rx="2" fill="#E2621B"/></svg>`,
 };
 const skin = s => SKINS[s] || SKINS.purnima;
 const skinStyle = s => `--skin-a:${skin(s).a};--skin-b:${skin(s).b}`;
