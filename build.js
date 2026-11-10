@@ -63,7 +63,7 @@ for (const lang of ['en', 'hi']) {
   write('/calendar/', P.calendarIndex(lang), { lang });
   for (const f of FESTIVALS) {
     write(P.fpath(f), P.festivalPage(f, lang), { lang });
-    if (P.hasCityPages(f) && P.nextOcc(f)) for (const c of CITIES.filter(c => c.top)) write(P.fcpath(f, c), P.festCityPage(f, c, lang), { lang });
+    if (P.hasCityPages(f) && P.nextOcc(f)) for (const c of CITIES.filter(c => P.fcOk(f, c))) write(P.fcpath(f, c), P.festCityPage(f, c, lang), { lang });
     if (f.type === 'series') for (const y of [String(y0), String(y0 + 1)]) write(`/calendar/${f.slug}-${y}/`, P.seriesYearPage(f, y, lang), { lang });
   }
   for (const c of CITIES) write(P.cpath(c), P.cityPage(c, lang), { lang });
@@ -82,7 +82,7 @@ const A = path.join(OUT, 'assets');
 fs.mkdirSync(A, { recursive: true });
 for (const f of ['style.css', 'finder.js', 'icon.svg', 'og.png']) if (fs.existsSync(path.join(__dirname, 'assets', f))) fs.copyFileSync(path.join(__dirname, 'assets', f), path.join(A, f));
 // Every place for the city picker and 'near me': [slug, lat, lng, hasFestivalPages, English, Hindi, state]; aliases: [English, Hindi, state, slug]
-const cityJs = 'window.MF_CITIES=' + JSON.stringify(CITIES.map(c => [c.slug, c.lat, c.lng, c.top ? 1 : 0, c.name.en, c.name.hi, c.state])) + ';\nwindow.MF_ALIASES=' + JSON.stringify(ALIASES.map(a => [a.name.en, a.name.hi, a.state, a.slug])) + ';\n';
+const cityJs = 'window.MF_CITIES=' + JSON.stringify(CITIES.map(c => [c.slug, c.lat, c.lng, c.top ? 1 : 0, c.name.en, c.name.hi, c.state, c.major ? 1 : 0])) + ';\nwindow.MF_ALIASES=' + JSON.stringify(ALIASES.map(a => [a.name.en, a.name.hi, a.state, a.slug])) + ';\n';
 fs.writeFileSync(path.join(A, 'app.js'), cityJs + fs.readFileSync(path.join(__dirname, 'assets', 'app.src.js'), 'utf8'));
 
 // ---------- Site files ----------

@@ -16,6 +16,9 @@ const CITY_KEYS = ['moonrise', 'avoid', 'holi', 'crescent', 'eclipse'];
 const hasCityPages = f => !f.noCityPages && CITY_KEYS.includes(f.key);
 const fpath = f => `/${f.slug}/`;
 const fcpath = (f, c) => `/${f.slug}/${c.slug}/`;
+// Regional festivals (with a `states` list) only get city pages inside those states, plus the major cities.
+const cityBySlug = slug => C.cities.find(c => c.slug === slug);
+const fcOk = (f, c) => { if (!hasCityPages(f)) return false; if (!f.states) return true; const x = c.state ? c : cityBySlug(c.slug); return !!x && (!!x.major || f.states.includes(x.state)); };
 const cpath = c => `/moonrise/${c.slug}/`;
 const DELHI = () => C.cities[0];
 // Festivals can name a home city (e.g. Chennai for Pongal) used for the headline time; Delhi otherwise.
@@ -151,21 +154,23 @@ ${angle !== undefined ? moonSvg(angle) : ''}
 // district, grouped by state, from one shared file, so ~800 options are not repeated on every page.
 function cityPicker(lang, target, current) {
   const t = T[lang];
+  const only = target.f && target.f.states ? ` data-states="${esc(target.f.states.join('|'))}"` : '';
   const tpl = url(lang, target.path({ slug: '__CITY__' }));
   const list = C.cities.filter(c => c.major || (current && c.slug === current.slug));
   const opts = list.slice().sort((a, b) => nm(a.name, lang).localeCompare(nm(b.name, lang), lang)).map(c => `<option value="${url(lang, target.path(c))}"${current && current.slug === c.slug ? ' selected' : ''}>${esc(nm(c.name, lang))}</option>`).join('');
-  return `<div class="picker"><select aria-label="${esc(t.pickCity)}" data-nav data-tpl="${esc(tpl)}" data-lang="${lang}" data-current="${current ? esc(current.slug) : ''}"><option value="">${esc(t.pickCity)}</option>${opts}</select>
-<button class="btn ghost" type="button" data-near="${esc(tpl)}" data-top="1">📍 ${esc(t.nearMe)}</button></div>`;
+  return `<div class="picker"><select aria-label="${esc(t.pickCity)}" data-nav data-tpl="${esc(tpl)}" data-lang="${lang}" data-current="${current ? esc(current.slug) : ''}"${only}><option value="">${esc(t.pickCity)}</option>${opts}</select>
+<button class="btn ghost" type="button" data-near="${esc(tpl)}" data-top="1"${only}>📍 ${esc(t.nearMe)}</button></div>`;
 }
 // Every place (cities + districts, plus districts that share a city's page) grouped by state.
 function placesByState() {
   const by = {};
-  for (const c of C.cities) (by[c.state] = by[c.state] || []).push({ name: c.name, slug: c.slug });
-  for (const a of C.aliases) (by[a.state] = by[a.state] || []).push({ name: a.name, slug: a.slug, alias: true });
+  for (const c of C.cities) (by[c.state] = by[c.state] || []).push({ name: c.name, slug: c.slug, state: c.state });
+  for (const a of C.aliases) (by[a.state] = by[a.state] || []).push({ name: a.name, slug: a.slug, state: a.state, alias: true });
   return by;
 }
-function stateLinks(lang, path, open = false) {
+function stateLinks(lang, path, open = false, keep = null) {
   const by = placesByState();
+  if (keep) for (const st of Object.keys(by)) { by[st] = by[st].filter(keep); if (!by[st].length) delete by[st]; }
   return Object.keys(by).sort().map(st => `<details class="faq"${open ? ' open' : ''}><summary>${esc(st)} (${by[st].length})</summary><div class="pills">${by[st].slice().sort((a, b) => nm(a.name, lang).localeCompare(nm(b.name, lang), lang)).map(c => `<a href="${url(lang, path({ slug: c.slug }))}">${esc(nm(c.name, lang))}</a>`).join('')}</div></details>`).join('');
 }
 const placeCount = () => C.cities.length + C.aliases.length;
@@ -191,7 +196,7 @@ function festivalPage(f, lang) {
   const angle = o ? S.phaseAngle(f.key === 'eclipse' ? o.eclipse.peak : S.istAt(o.key, 20)) : 180;
   const cityPages = hasCityPages(f);
   const crumbs = breadcrumbs([[t.navToday, url(lang, '/')], [t.navFestivals, url(lang, '/festivals/')], [fName]]);
-  const picker = cityPages ? cityPicker(lang, { top: true, path: c => fcpath(f, c) }) : '';
+  const picker = cityPages ? cityPicker(lang, { top: true, f, path: c => fcpath(f, c) }) : '';
   let body = hero({ f, lang, crumbs, eyebrow: nm(f.lunar, lang), h1: `${fName} ${yr}`, sub: f.alt ? nm(f.alt, lang) : '', A, angle, picker });
   body += `<div class="wrap">`;
   body += adSlot();
@@ -203,11 +208,12 @@ function festivalPage(f, lang) {
 <p class="muted small">${esc(fmtDate(o.key, lang))} · ${esc(t.allTimesIST)}</p>
 <input class="filter" type="search" placeholder="${esc(t.filterCities)}" data-filter="#ct">
 <div class="table-wrap"><table id="ct"><thead><tr><th>${esc(t.city)}</th><th>${esc(cellHeader(f, lang))}</th></tr></thead><tbody>
-${cities.map(c => `<tr><td>${cityPages ? `<a href="${url(lang, fcpath(f, c))}">${esc(nm(c.name, lang))}</a>` : esc(nm(c.name, lang))}</td><td class="t">${cell(f, o, c, lang)}</td></tr>`).join('')}
+${cities.map(c => `<tr><td>${fcOk(f, c) ? `<a href="${url(lang, fcpath(f, c))}">${esc(nm(c.name, lang))}</a>` : esc(nm(c.name, lang))}</td><td class="t">${cell(f, o, c, lang)}</td></tr>`).join('')}
 </tbody></table></div></section>`;
   }
 
-  if (o && cityPages) body += `<section class="section"><h2>${lang === 'hi' ? 'हर ज़िले का समय' : 'Every district'}</h2><p class="muted small">${lang === 'hi' ? `भारत के सभी ${placeCount()} ज़िले और शहर, राज्य के अनुसार।` : `All ${placeCount()} districts and cities of India, by state.`}</p>${stateLinks(lang, c => fcpath(f, c))}</section>`;
+  if (o && cityPages && !f.states) body += `<section class="section"><h2>${lang === 'hi' ? 'हर ज़िले का समय' : 'Every district'}</h2><p class="muted small">${lang === 'hi' ? `भारत के सभी ${placeCount()} ज़िले और शहर, राज्य के अनुसार।` : `All ${placeCount()} districts and cities of India, by state.`}</p>${stateLinks(lang, c => fcpath(f, c))}</section>`;
+  if (o && cityPages && f.states) body += `<section class="section"><h2>${lang === 'hi' ? 'हर ज़िले का समय' : 'Every district'}</h2><p class="muted small">${lang === 'hi' ? 'जिन राज्यों में यह पर्व मुख्य रूप से मनाया जाता है, वहाँ के सभी ज़िले।' : 'All districts in the states where this festival is mainly observed.'}</p>${stateLinks(lang, c => fcpath(f, c), false, p => f.states.includes(p.state || (cityBySlug(p.slug) || {}).state))}</section>`;
 
   // Eclipse details
   if (f.type === 'eclipse' && o) body += eclipseDetails(o.eclipse, lang);
@@ -299,7 +305,7 @@ function festCityPage(f, city, lang) {
   const angle = S.phaseAngle(f.key === 'eclipse' ? o.eclipse.peak : S.istAt(o.key, 20));
   const crumbs = breadcrumbs([[t.navFestivals, url(lang, '/festivals/')], [fName, url(lang, fpath(f))], [cn]]);
   const h1 = f.key === 'moonrise' || f.key === 'crescent' ? (lang === 'hi' ? `${fName} ${yr}: ${cn} में चाँद कब निकलेगा?` : `${fName} ${yr}: Moon time in ${cn}`) : `${fName} ${yr} – ${cn}`;
-  const picker = cityPicker(lang, { top: true, path: c => fcpath(f, c) }, city);
+  const picker = cityPicker(lang, { top: true, f, path: c => fcpath(f, c) }, city);
   let body = hero({ f, lang, crumbs, eyebrow: nm(f.lunar, lang), h1, A, angle, picker });
   body += `<div class="wrap">${adSlot()}`;
 
@@ -310,7 +316,7 @@ ${ups.map(x => `<tr${x === o ? ' class="hl"' : ''}><td>${esc(fmtDate(x.key, lang
 </tbody></table></div></section>`;
 
   // Nearby cities
-  const near = C.cities.filter(c => c.top && c.slug !== city.slug).map(c => ({ c, d: (c.lat - city.lat) ** 2 + ((c.lng - city.lng) * Math.cos(city.lat * Math.PI / 180)) ** 2 })).sort((a, b) => a.d - b.d).slice(0, 6).map(x => x.c);
+  const near = C.cities.filter(c => fcOk(f, c) && c.slug !== city.slug).map(c => ({ c, d: (c.lat - city.lat) ** 2 + ((c.lng - city.lng) * Math.cos(city.lat * Math.PI / 180)) ** 2 })).sort((a, b) => a.d - b.d).slice(0, 6).map(x => x.c);
   body += `<section class="section"><h2>${esc(t.nearby)}</h2><div class="table-wrap"><table><thead><tr><th>${esc(t.city)}</th><th>${esc(cellHeader(f, lang))}</th></tr></thead><tbody>
 ${near.map(c => `<tr><td><a href="${url(lang, fcpath(f, c))}">${esc(nm(c.name, lang))}</a></td><td class="t">${cell(f, o, c, lang)}</td></tr>`).join('')}
 </tbody></table></div><p style="margin-top:10px"><a href="${url(lang, fpath(f))}">${esc(t.seeAllCities)} →</a></p></section>`;
@@ -359,7 +365,7 @@ ${days.map(d => { const sr = S.sunrise(d, city); const T0 = S.tithiAt(sr); retur
   // Festivals in this city
   const ups = upcomingAll().filter(x => x.f.key !== 'date' && x.f.key !== 'night' && (!x.f.states || x.f.states.includes(city.state))).slice(0, 10);
   body += `<section class="section"><h2>${esc(t.festivalsInCity)} ${esc(cn)}</h2><div class="table-wrap"><table><thead><tr><th>${esc(t.navFestivals)}</th><th>${esc(t.date)}</th><th>${esc(t.time)}</th></tr></thead><tbody>
-${ups.map(({ f, o }) => { const link = hasCityPages(f) && city.top ? url(lang, fcpath(f, city)) : url(lang, fpath(f)); return `<tr><td><a href="${link}">${esc(occLabel(f, o, lang))}</a></td><td>${esc(fmtDate(o.holiKey || o.key, lang, { year: false }))}</td><td class="t">${f.key === 'eclipse' ? cell(f, o, city, lang) : `${esc(cellHeader(f, lang))}: ${cell(f, o, city, lang)}`}</td></tr>`; }).join('')}
+${ups.map(({ f, o }) => { const link = fcOk(f, city) ? url(lang, fcpath(f, city)) : url(lang, fpath(f)); return `<tr><td><a href="${link}">${esc(occLabel(f, o, lang))}</a></td><td>${esc(fmtDate(o.holiKey || o.key, lang, { year: false }))}</td><td class="t">${f.key === 'eclipse' ? cell(f, o, city, lang) : `${esc(cellHeader(f, lang))}: ${cell(f, o, city, lang)}`}</td></tr>`; }).join('')}
 </tbody></table></div></section>`;
   body += `<section class="section prose"><p class="muted">${lang === 'hi' ? `${cn}, ${esc(city.state)} (${city.lat.toFixed(2)}°N, ${city.lng.toFixed(2)}°E) के लिए गणना। चंद्रोदय वह समय है जब चाँद का ऊपरी किनारा समतल क्षितिज पर आता है। यह पेज रोज़ अपडेट होता है।` : `Calculated for ${cn}, ${city.state} (${city.lat.toFixed(2)}°N, ${city.lng.toFixed(2)}°E). Moonrise is when the top edge of the moon touches a flat horizon. This page is updated every day.`}</p></section>`;
   body += `</div>`;
@@ -512,4 +518,4 @@ function calendarIndex(lang) {
   return page({ lang, path: '/calendar/', title: `${t.calendarTitle} | ${t.siteName}`, desc: lang === 'hi' ? 'पूर्णिमा, अमावस्या, एकादशी, संकष्टी की वार्षिक सूचियाँ और मासिक चंद्र कैलेंडर।' : 'Yearly lists of Purnima, Amavasya, Ekadashi and Sankashti dates, plus monthly moon calendars.', body, navActive: 'calendar' });
 }
 
-module.exports = { init, festivalPage, festCityPage, cityPage, citiesIndex, home, festivalsIndex, seriesYearPage, monthPage, monthPath, calendarIndex, hasCityPages, fpath, fcpath, cpath, nextOcc, states, stateMonthPath };
+module.exports = { init, festivalPage, festCityPage, cityPage, citiesIndex, home, festivalsIndex, seriesYearPage, monthPage, monthPath, calendarIndex, hasCityPages, fcOk, fpath, fcpath, cpath, nextOcc, states, stateMonthPath };

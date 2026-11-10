@@ -9,7 +9,7 @@ const add = f => F.push(f);
 
 /* ========================= Highest priority ========================= */
 add({
-  slug: 'karva-chauth', type: 'hindu', month: 6, tithi: 19, rule: 'moonrise', key: 'moonrise', skin: 'karva', priority: 1,
+  slug: 'karva-chauth', states: ['Delhi', 'Punjab', 'Haryana', 'Chandigarh', 'Rajasthan', 'Uttar Pradesh', 'Uttarakhand', 'Himachal Pradesh', 'Jammu and Kashmir', 'Madhya Pradesh'], type: 'hindu', month: 6, tithi: 19, rule: 'moonrise', key: 'moonrise', skin: 'karva', priority: 1,
   name: { en: 'Karva Chauth', hi: 'करवा चौथ' },
   lunar: { en: 'Kartik Krishna Chaturthi (Purnimanta)', hi: 'कार्तिक कृष्ण चतुर्थी (पूर्णिमांत)' },
   intro: {
@@ -119,7 +119,7 @@ add({
 });
 
 add({
-  slug: 'ahoi-ashtami', type: 'hindu', month: 6, tithi: 23, rule: 'sunset', key: 'moonrise', skin: 'karva', priority: 2,
+  slug: 'ahoi-ashtami', states: ['Delhi', 'Punjab', 'Haryana', 'Chandigarh', 'Rajasthan', 'Uttar Pradesh', 'Uttarakhand', 'Himachal Pradesh', 'Jammu and Kashmir', 'Madhya Pradesh'], type: 'hindu', month: 6, tithi: 23, rule: 'sunset', key: 'moonrise', skin: 'karva', priority: 2,
   name: { en: 'Ahoi Ashtami', hi: 'अहोई अष्टमी' },
   lunar: { en: 'Kartik Krishna Ashtami (Purnimanta)', hi: 'कार्तिक कृष्ण अष्टमी (पूर्णिमांत)' },
   intro: {
@@ -310,7 +310,7 @@ add({
 });
 
 add({
-  slug: 'kajari-teej', type: 'hindu', month: 4, tithi: 18, rule: 'moonrise', key: 'moonrise', skin: 'teej', priority: 3,
+  slug: 'kajari-teej', states: ['Uttar Pradesh', 'Bihar', 'Madhya Pradesh', 'Rajasthan', 'Jharkhand', 'Uttarakhand'], type: 'hindu', month: 4, tithi: 18, rule: 'moonrise', key: 'moonrise', skin: 'teej', priority: 3,
   name: { en: 'Kajari Teej', hi: 'कजरी तीज' },
   alt: { en: 'Satudi Teej', hi: 'सातुड़ी तीज' },
   lunar: { en: 'Bhadrapada Krishna Tritiya (Purnimanta)', hi: 'भाद्रपद कृष्ण तृतीया (पूर्णिमांत)' },

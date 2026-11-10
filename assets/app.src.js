@@ -39,13 +39,17 @@
   // (English or Hindi). The <select> stays as a fallback when JavaScript is off.
   var ALIASES = window.MF_ALIASES || [];
   var norm = function (x) { return (x || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ऀ-ॿ]+/g, ' ').trim(); };
+  var MAJOR = {}; CITIES.forEach(function (c) { if (c[7]) MAJOR[c[0]] = 1; });
   var PLACES = CITIES.map(function (c) { return { slug: c[0], en: c[4], hi: c[5], st: c[6] }; })
     .concat(ALIASES.map(function (a) { return { slug: a[3], en: a[0], hi: a[1], st: a[2] }; }));
+  // Regional festivals list their states in data-states; only those places (plus major cities) have pages.
+  function allowed(el) { var s = el.getAttribute('data-states'); if (!s) return null; s = s.split('|'); return function (slug, st) { return MAJOR[slug] || s.indexOf(st) >= 0; }; }
   PLACES.forEach(function (p) { p.key = norm(p.en) + ' | ' + norm(p.hi) + ' | ' + norm(p.st); p.n = norm(p.en); p.nh = norm(p.hi); });
-  function search(q) {
+  function search(q, ok) {
     q = norm(q); if (!q) return [];
     var words = q.split(' '), out = [];
     PLACES.forEach(function (p) {
+      if (ok && !ok(p.slug, p.st)) return;
       if (!words.every(function (w) { return p.key.indexOf(w) >= 0; })) return;
       // rank: name starts with query, a word in the name starts with it, name contains it, only state matches
       var score = (p.n.indexOf(q) === 0 || p.nh.indexOf(q) === 0) ? 0 : (' ' + p.n).indexOf(' ' + q) >= 0 || (' ' + p.nh).indexOf(' ' + q) >= 0 ? 1 : (p.n.indexOf(q) >= 0 || p.nh.indexOf(q) >= 0) ? 2 : 3;
@@ -57,7 +61,7 @@
   document.querySelectorAll('select[data-nav]').forEach(function (s) {
     var tpl = s.getAttribute('data-tpl');
     if (!tpl || !PLACES.length) { s.addEventListener('change', function () { if (s.value) location.href = s.value; }); return; }
-    var hi = s.getAttribute('data-lang') === 'hi', cur = s.getAttribute('data-current');
+    var hi = s.getAttribute('data-lang') === 'hi', cur = s.getAttribute('data-current'), ok = allowed(s);
     var curPlace = PLACES.filter(function (p) { return p.slug === cur; })[0];
     var box = document.createElement('div'); box.className = 'citysearch';
     var inp = document.createElement('input');
@@ -69,7 +73,7 @@
     s.parentNode.insertBefore(box, s); s.hidden = true;
     var items = [], active = -1;
     function render() {
-      items = search(inp.value); active = items.length ? 0 : -1;
+      items = search(inp.value, ok); active = items.length ? 0 : -1;
       list.innerHTML = '';
       if (!inp.value.trim()) { list.hidden = true; inp.setAttribute('aria-expanded', 'false'); return; }
       if (!items.length) { var li0 = document.createElement('li'); li0.className = 'cs-empty'; li0.textContent = hi ? 'कोई शहर नहीं मिला' : 'No matching city or district'; list.appendChild(li0); }
@@ -102,9 +106,10 @@
       if (!navigator.geolocation) return;
       var label = b.textContent; b.textContent = '…';
       navigator.geolocation.getCurrentPosition(function (p) {
-        var lat = p.coords.latitude, lng = p.coords.longitude, best = null, bd = Infinity, onlyTop = b.getAttribute('data-top') === '1';
+        var lat = p.coords.latitude, lng = p.coords.longitude, best = null, bd = Infinity, onlyTop = b.getAttribute('data-top') === '1', ok = allowed(b);
         CITIES.forEach(function (c) {
           if (onlyTop && !c[3]) return;
+          if (ok && !ok(c[0], c[6])) return;
           var dx = (c[2] - lng) * Math.cos(lat * Math.PI / 180), dy = c[1] - lat, dd = dx * dx + dy * dy;
           if (dd < bd) { bd = dd; best = c; }
         });
