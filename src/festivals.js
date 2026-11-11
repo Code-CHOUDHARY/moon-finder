@@ -433,6 +433,7 @@ add({
 
 /* ========================= South Indian & more (see festivals-south.js) ========================= */
 require('./festivals-south')(add);
+require('./festivals-sun')(add);
 
 /* ---------- Ekadashi names ---------- */
 const EK_SHUKLA = [['Kamada', 'कामदा'], ['Mohini', 'मोहिनी'], ['Nirjala', 'निर्जला'], ['Devshayani', 'देवशयनी'], ['Shravana Putrada', 'श्रावण पुत्रदा'], ['Parivartini', 'परिवर्तिनी'], ['Papankusha', 'पापांकुशा'], ['Dev Uthani (Prabodhini)', 'देवउठनी (प्रबोधिनी)'], ['Mokshada', 'मोक्षदा'], ['Pausha Putrada', 'पौष पुत्रदा'], ['Jaya', 'जया'], ['Amalaki', 'आमलकी']];

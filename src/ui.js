@@ -142,6 +142,7 @@ ${body}
       <div><h3>${esc(t.more)}</h3><ul>
         <li><a href="${url(lang, '/calendar/')}">${esc(t.navCalendar)}</a></li>
         <li><a href="${url(lang, '/moon-today/')}">${lang === 'hi' ? 'आज का चाँद' : 'Moon today'}</a></li>
+        <li><a href="${url(lang, '/sun-today/')}">${lang === 'hi' ? 'सूर्योदय और सूर्यास्त' : 'Sunrise and sunset'}</a></li>
         <li><a href="${url(lang, '/tithi-today/')}">${lang === 'hi' ? 'आज की तिथि' : 'Tithi today'}</a></li>
         <li><a href="${url(lang, '/full-moon/')}">${lang === 'hi' ? 'पूर्णिमा की तारीखें' : 'Full moon dates'}</a></li>
         <li><a href="${url('en', '/solar-system/')}">${lang === 'hi' ? '3D सौर मंडल' : '3D solar system'}</a></li>

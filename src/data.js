@@ -116,6 +116,12 @@ function cityTimes(fest, occ, city) {
     case 'holi': return { primary: S.sunset(k, city), moonrise: S.moonrise(k, city, 12) };
     case 'amavasya': return { primary: S.sunset(k, city), sunrise: S.sunrise(k, city) };
     case 'tithi': return { primary: S.moonrise(k, city, 12), sunrise: S.sunrise(k, city), sunset: S.sunset(k, city) };
+    // Chhath: sunset on the Shashthi day (Sandhya Arghya), then the next sunrise (Usha Arghya)
+    case 'chhath': return { primary: S.sunset(k, city), nextSunrise: S.sunrise(S.addDays(k, 1), city), sunrise: S.sunrise(k, city) };
+    // Lohri: the bonfire is lit after sunset
+    case 'bonfire': return { primary: S.sunset(k, city), moonrise: S.moonrise(k, city, 12) };
+    // Solar new years and harvest days: sunrise and sunset frame the day
+    case 'sankranti': return { primary: S.sunrise(k, city), sunset: S.sunset(k, city) };
     case 'crescent': {
       const ev = occ.sightingEvening || k;
       const ss = S.sunset(ev, city), ms = S.moonset(ev, city, 12);

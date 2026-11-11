@@ -12,7 +12,7 @@ const init = ctx => { C = ctx; };
 
 const nm = (o, lang) => (o && (o[lang] || o.en)) || '';
 const year = key => key.slice(0, 4);
-const CITY_KEYS = ['moonrise', 'avoid', 'holi', 'crescent', 'eclipse'];
+const CITY_KEYS = ['moonrise', 'avoid', 'holi', 'crescent', 'eclipse', 'chhath', 'bonfire'];
 const hasCityPages = f => !f.noCityPages && CITY_KEYS.includes(f.key);
 const fpath = f => `/${f.slug}/`;
 const fcpath = (f, c) => `/${f.slug}/${c.slug}/`;
@@ -100,6 +100,18 @@ function answer(f, o, city, lang) {
       A.target = s;
       break;
     }
+    // Chhath: sunset on the Shashthi day (Sandhya Arghya), then the next sunrise (Usha Arghya)
+    case 'chhath':
+      A.label = `${lang === 'hi' ? 'संध्या अर्घ्य' : 'Sandhya Arghya'} – ${t.sunset} (${cn})`; A.big = fmtTime(x.primary, lang);
+      A.meta.push(`${lang === 'hi' ? 'उषा अर्घ्य' : 'Usha Arghya'} – ${t.sunrise}: ${fmtDateTime(x.nextSunrise, lang)}`);
+      if (o.tithiStart) A.meta.push(`${t.tithiStarts}: ${fmtDateTime(o.tithiStart, lang)} · ${t.tithiEnds}: ${fmtDateTime(o.tithiEnd, lang)}`);
+      break;
+    // Lohri: the bonfire is lit after sunset
+    case 'bonfire':
+      A.label = `${lang === 'hi' ? 'अलाव का समय' : 'Bonfire time'} – ${t.afterSunset} (${cn})`; A.big = fmtTime(x.primary, lang);
+      A.meta.push(`${t.sunset} ${fmtTime(x.primary, lang)} · ${t.moonrise} ${fmtTime(x.moonrise, lang)}`);
+      if (o.sankranti) A.meta.push(sankrantiLine(f, o, lang));
+      break;
     case 'sankranti':
       A.label = lang === 'hi' ? 'तारीख' : 'Date'; A.big = fmtDate(o.key, lang, { year: false });
       A.big = fmtDate(o.key, lang); A.date = `${t.sunrise} (${cn}): ${fmtTime(x.primary, lang)}`;
@@ -120,12 +132,13 @@ function cell(f, o, city, lang) {
   switch (f.key) {
     case 'eclipse': return x.status === 'visible' ? `<span class="chip good">${t.eclipseVisible}</span>` : x.status === 'partly' ? `<span class="chip warn">${t.eclipsePartly}</span>` : `<span class="chip bad">${t.eclipseNot}</span>`;
     case 'crescent': return `${fmtTime(x.primary, lang)} → ${fmtTime(x.moonset, lang)}`;
+    case 'chhath': return `${fmtTime(x.primary, lang)} → ${fmtTime(x.nextSunrise, lang)}`;
     default: return fmtTime(x.primary, lang);
   }
 }
 const cellHeader = (f, lang) => {
   const t = T[lang];
-  return { moonrise: t.moonrise, tithi: t.moonrise, sankranti: t.sunrise, avoid: t.moonset, holi: t.sunset, amavasya: t.sunset, crescent: `${t.sunset} → ${t.moonset}`, eclipse: lang === 'hi' ? 'दृश्यता' : 'Visibility' }[f.key] || t.time;
+  return { moonrise: t.moonrise, tithi: t.moonrise, sankranti: t.sunrise, chhath: `${t.sunset} → ${t.sunrise}`, bonfire: t.sunset, avoid: t.moonset, holi: t.sunset, amavasya: t.sunset, crescent: `${t.sunset} → ${t.moonset}`, eclipse: lang === 'hi' ? 'दृश्यता' : 'Visibility' }[f.key] || t.time;
 };
 
 function hero({ f, lang, crumbs, eyebrow, h1, sub, A, angle, picker, extraBtn = '' }) {
@@ -202,7 +215,7 @@ function festivalPage(f, lang) {
   body += adSlot();
 
   // City table
-  if (o && f.key !== 'date' && f.key !== 'night' && f.key !== 'sankranti') {
+  if (o && f.key !== 'date' && f.key !== 'night' && !(f.key === 'sankranti' && !cityPages)) {
     const cities = cityPages ? C.cities.filter(c => c.major) : C.cities.slice(0, 20);
     body += `<section class="section"><h2>${esc(f.key === 'moonrise' || f.key === 'tithi' ? t.topCities : `${cellHeader(f, lang)} – ${t.majorCities}`)}</h2>
 <p class="muted small">${esc(fmtDate(o.key, lang))} · ${esc(t.allTimesIST)}</p>
@@ -358,14 +371,15 @@ function cityPage(city, lang) {
   const rise = S.moonriseWithinDay(key, city), set = S.moonsetWithinDay(key, city);
   const ill = Math.round(S.illumination(now) * 100);
   const crumbs = breadcrumbs([[t.navToday, url(lang, '/')], [t.navCities, url(lang, '/moonrise/')], [cn]]);
-  const A = { label: t.timeFor(t.moonrise, cn), big: fmtTime(rise, lang), date: fmtDate(key, lang), meta: [`${t.moonset}: ${fmtTime(set, lang)}`, `${t[phaseKey(angle)]} · ${ill}% ${t.lit}`], target: rise || S.istMidnight(key) };
+  const sunR = S.sunrise(key, city), sunS = S.sunset(key, city);
+  const A = { label: t.timeFor(t.moonrise, cn), big: fmtTime(rise, lang), date: fmtDate(key, lang), meta: [`${t.moonset}: ${fmtTime(set, lang)}`, `${t.sunrise}: ${fmtTime(sunR, lang)} · ${t.sunset}: ${fmtTime(sunS, lang)}`, `${t[phaseKey(angle)]} · ${ill}% ${t.lit}`], target: rise || S.istMidnight(key) };
   const picker = cityPicker(lang, { top: false, path: c => cpath(c) }, city);
   let body = hero({ lang, crumbs, eyebrow: t.moonTonight, h1: t.h1City(cn), A, angle, picker,
     extraBtn: `<div class="btn-row"><a class="btn" href="${url('en', '/moon-finder/')}?lat=${city.lat}&lng=${city.lng}">📷 ${esc(t.findMoon)}</a></div>` });
   body += `<div class="wrap">${adSlot()}`;
   const days = Array.from({ length: 7 }, (_, i) => S.addDays(key, i));
-  body += `<section class="section"><h2>${esc(t.next7)}</h2><div class="table-wrap"><table><thead><tr><th>${esc(t.date)}</th><th>${esc(t.moonrise)}</th><th>${esc(t.moonset)}</th><th>${lang === 'hi' ? 'तिथि' : 'Tithi'}</th></tr></thead><tbody>
-${days.map(d => { const sr = S.sunrise(d, city); const T0 = S.tithiAt(sr); return `<tr${d === key ? ' class="hl"' : ''}><td>${esc(fmtDate(d, lang, { year: false }))}</td><td class="t">${esc(fmtTime(S.moonriseWithinDay(d, city), lang))}</td><td>${esc(fmtTime(S.moonsetWithinDay(d, city), lang))}</td><td>${esc(pakshaName(T0, lang) + ' ' + tithiName(T0, lang))}</td></tr>`; }).join('')}
+  body += `<section class="section"><h2>${esc(t.next7)}</h2><div class="table-wrap"><table><thead><tr><th>${esc(t.date)}</th><th>${esc(t.moonrise)}</th><th>${esc(t.moonset)}</th><th>${esc(t.sunrise)}</th><th>${esc(t.sunset)}</th><th>${lang === 'hi' ? 'तिथि' : 'Tithi'}</th></tr></thead><tbody>
+${days.map(d => { const sr = S.sunrise(d, city); const T0 = S.tithiAt(sr); return `<tr${d === key ? ' class="hl"' : ''}><td>${esc(fmtDate(d, lang, { year: false }))}</td><td class="t">${esc(fmtTime(S.moonriseWithinDay(d, city), lang))}</td><td>${esc(fmtTime(S.moonsetWithinDay(d, city), lang))}</td><td>${esc(fmtTime(sr, lang))}</td><td>${esc(fmtTime(S.sunset(d, city), lang))}</td><td>${esc(pakshaName(T0, lang) + ' ' + tithiName(T0, lang))}</td></tr>`; }).join('')}
 </tbody></table></div><p class="muted small">${esc(t.allTimesIST)}. ${lang === 'hi' ? '"—" का मतलब है कि उस तारीख को चाँद उदय या अस्त नहीं होता (यह आधी रात के पार चला जाता है)।' : '"—" means the moon does not rise or set on that calendar date (the event moves past midnight).'}</p></section>`;
 
   // WhatsApp share: today's moonrise for this place (the site is rebuilt every morning, so the text stays current)
@@ -381,14 +395,16 @@ ${ups.map(({ f, o }) => { const link = fcOk(f, city) ? url(lang, fcpath(f, city)
 </tbody></table></div></section>`;
   body += `<section class="section prose"><p class="muted">${lang === 'hi' ? `${cn}, ${esc(city.state)} (${city.lat.toFixed(2)}°N, ${city.lng.toFixed(2)}°E) के लिए गणना। चंद्रोदय वह समय है जब चाँद का ऊपरी किनारा समतल क्षितिज पर आता है। यह पेज रोज़ अपडेट होता है।` : `Calculated for ${cn}, ${city.state} (${city.lat.toFixed(2)}°N, ${city.lng.toFixed(2)}°E). Moonrise is when the top edge of the moon touches a flat horizon. This page is updated every day.`}</p></section>`;
   // Questions in the words people type into search
-  const dToday = fmtDate(key, lang, { weekday: false }), rT = fmtTime(rise, lang), sT = fmtTime(set, lang);
+  const dToday = fmtDate(key, lang, { weekday: false }), rT = fmtTime(rise, lang), sT = fmtTime(set, lang), srT = fmtTime(sunR, lang), ssT = fmtTime(sunS, lang);
   const cityFaq = lang === 'hi' ? [
     [`आज ${cn} में चाँद कितने बजे निकलेगा?`, rise ? `आज (${dToday}) ${cn} में चाँद ${rT} पर निकलेगा${set ? ` और ${sT} पर अस्त होगा` : ''} (IST)।` : `आज (${dToday}) की तारीख में ${cn} में चंद्रोदय नहीं है; चाँद आधी रात के बाद निकलता है। ऊपर अगले 7 दिन का समय देखें।`],
+    [`आज ${cn} में सूर्योदय और सूर्यास्त कितने बजे है?`, `आज (${dToday}) ${cn} में सूर्योदय ${srT} और सूर्यास्त ${ssT} पर है (IST)।`],
     [`आज ${cn} में चाँद कैसा दिखेगा?`, `आज चाँद ${t[phaseKey(angle)]} है, लगभग ${ill}% रोशन।`],
     [`${cn} में अभी चाँद किस दिशा में है?`, 'ऊपर "अभी आसमान में चाँद खोजें" दबाएँ: लाइव फ़ाइंडर चाँद की दिशा और ऊँचाई बताता है और कैमरे से आसमान में दिखाता है।'],
   ] : [
     [`What time will the moon rise in ${cn} today?`, rise ? `Today (${dToday}) the moon rises in ${cn} at ${rT}${set ? ` and sets at ${sT}` : ''} (IST).` : `There is no moonrise in ${cn} on today's date (${dToday}); the moon rises after midnight. See the next 7 days above.`],
     [`Aaj ${cn} mein chand kab niklega?`, rise ? `Aaj (${dToday}) ${cn} mein chand ${rT} par niklega${set ? ` aur ${sT} par ast hoga` : ''}.` : `Aaj ki tareekh mein ${cn} mein chandroday nahin hai; chand aadhi raat ke baad niklega.`],
+    [`What time is sunrise and sunset in ${cn} today?`, `Today (${dToday}) sunrise in ${cn} is at ${srT} and sunset is at ${ssT} (IST).`],
     [`What does the moon look like today in ${cn}?`, `Today's moon is a ${t[phaseKey(angle)]}, about ${ill}% lit.`],
     [`Where is the moon right now in ${cn}?`, 'Tap "Find the moon in the sky now" above: the live moon finder shows the moon\'s direction and height from your location and points to it with your camera.'],
   ];

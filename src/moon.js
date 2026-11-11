@@ -171,4 +171,42 @@ ${days.map(d => { const y = info(d); return `<tr${d === k ? ' class="hl"' : ''}>
   });
 }
 
-module.exports = { tithiToday, moonToday, fullMoon: lang => phasePage('full', lang), newMoon: lang => phasePage('new', lang) };
+/* ---------- Sunrise and sunset today ---------- */
+function sunToday(lang) {
+  const t = T[lang], k = C().today;
+  const dur = (a, b) => { if (!a || !b) return '—'; const m = Math.round((b - a) / 60000); return L(lang, `${Math.floor(m / 60)} h ${m % 60} min`, `${Math.floor(m / 60)} घंटे ${m % 60} मिनट`); };
+  const A = (() => {
+    const c = delhi(), sr = S.sunrise(k, c), ss = S.sunset(k, c), cn = P.nm(c.name, lang);
+    return { label: L(lang, `Sunrise and sunset today in ${cn}`, `${cn} में आज सूर्योदय और सूर्यास्त`), big: `${fmtTime(sr, lang)} → ${fmtTime(ss, lang)}`, date: fmtDate(k, lang), target: sr > C().now ? sr : ss,
+      meta: [`${t.sunrise}: ${fmtTime(sr, lang)} · ${t.sunset}: ${fmtTime(ss, lang)}`, `${L(lang, 'Day length', 'दिन की लंबाई')}: ${dur(sr, ss)}`, `${t.moonrise}: ${fmtTime(S.moonriseWithinDay(k, c), lang)} · ${t.moonset}: ${fmtTime(S.moonsetWithinDay(k, c), lang)}`] };
+  })();
+  const crumbs = breadcrumbs([[t.navToday, url(lang, '/')], [L(lang, 'Sunrise and sunset today', 'आज सूर्योदय और सूर्यास्त')]]);
+  let body = P.hero({ lang, crumbs, eyebrow: L(lang, 'The Sun today', 'आज का सूर्य'), h1: L(lang, 'Sunrise and sunset time today in India', 'आज सूर्योदय और सूर्यास्त का समय'), A, angle: 180,
+    picker: P.cityPicker(lang, { top: false, path: c => P.cpath(c) }) });
+  body += `<div class="wrap">${adSlot()}`;
+  const cities = C().cities.filter(c => c.major);
+  body += `<section class="section"><h2>${L(lang, 'Sunrise and sunset today in major cities', 'बड़े शहरों में आज सूर्योदय और सूर्यास्त')}</h2><p class="muted small">${esc(fmtDate(k, lang))} · ${esc(t.allTimesIST)}</p>
+<input class="filter" type="search" placeholder="${esc(t.filterCities)}" data-filter="#st">
+<div class="table-wrap"><table id="st"><thead><tr><th>${esc(t.city)}</th><th>${esc(t.sunrise)}</th><th>${esc(t.sunset)}</th><th>${L(lang, 'Day length', 'दिन की लंबाई')}</th></tr></thead><tbody>
+${cities.map(c => { const sr = S.sunrise(k, c), ss = S.sunset(k, c); return `<tr><td><a href="${url(lang, P.cpath(c))}">${esc(P.nm(c.name, lang))}</a></td><td class="t">${esc(fmtTime(sr, lang))}</td><td class="t">${esc(fmtTime(ss, lang))}</td><td>${esc(dur(sr, ss))}</td></tr>`; }).join('')}
+</tbody></table></div><p style="margin-top:10px"><a href="${url(lang, '/moonrise/')}">${esc(t.allCities)} →</a></p></section>`;
+  const days = Array.from({ length: 15 }, (_, i) => S.addDays(k, i)), c0 = delhi(), cn0 = P.nm(c0.name, lang);
+  body += `<section class="section"><h2>${L(lang, `Sunrise and sunset in ${cn0} for the next 15 days`, `${cn0} में अगले 15 दिन का सूर्योदय और सूर्यास्त`)}</h2>
+<div class="table-wrap"><table><thead><tr><th>${esc(t.date)}</th><th>${esc(t.sunrise)}</th><th>${esc(t.sunset)}</th><th>${L(lang, 'Day length', 'दिन की लंबाई')}</th></tr></thead><tbody>
+${days.map(d => { const sr = S.sunrise(d, c0), ss = S.sunset(d, c0); return `<tr${d === k ? ' class="hl"' : ''}><td>${esc(fmtDate(d, lang, { year: false }))}</td><td class="t">${esc(fmtTime(sr, lang))}</td><td class="t">${esc(fmtTime(ss, lang))}</td><td>${esc(dur(sr, ss))}</td></tr>`; }).join('')}
+</tbody></table></div><p class="muted small" style="margin-top:10px">${L(lang, 'Sunrise and sunset are for a flat, clear horizon; hills and buildings can change what you see by a few minutes.', 'सूर्योदय और सूर्यास्त समतल, साफ़ क्षितिज के लिए हैं; पहाड़ों और इमारतों से कुछ मिनट का अंतर आ सकता है।')}</p></section>`;
+  const c = delhi(), sr = S.sunrise(k, c), ss = S.sunset(k, c), cn = P.nm(c.name, lang);
+  const faq = [
+    [L(lang, 'What time is sunrise today?', 'आज सूर्योदय कितने बजे है?'), L(lang, `Today (${fmtDate(k, 'en')}) sunrise in ${cn} is at ${fmtTime(sr, 'en')} IST. Sunrise is earlier in the east of India and later in the west; pick your city above for the local time.`, `आज (${fmtDate(k, 'hi')}) ${cn} में सूर्योदय ${fmtTime(sr, 'hi')} (IST) पर है। पूर्वी भारत में सूर्योदय पहले और पश्चिम में बाद में होता है; अपने शहर का समय देखने के लिए ऊपर शहर चुनें।`)],
+    [L(lang, 'What time is sunset today?', 'आज सूर्यास्त कितने बजे है?'), L(lang, `Today sunset in ${cn} is at ${fmtTime(ss, 'en')} IST, and the day is ${dur(sr, ss)} long.`, `आज ${cn} में सूर्यास्त ${fmtTime(ss, 'hi')} (IST) पर है, और दिन ${dur(sr, ss)} लंबा है।`)],
+    [L(lang, 'Why are sunrise and sunset times different in each city?', 'हर शहर में सूर्योदय और सूर्यास्त का समय अलग क्यों होता है?'), L(lang, 'All of India uses one clock (IST), but the Sun reaches eastern cities first. Latitude and the season also change the length of the day.', 'पूरा भारत एक ही घड़ी (IST) मानता है, लेकिन सूर्य पूर्वी शहरों में पहले पहुँचता है। अक्षांश और ऋतु से भी दिन की लंबाई बदलती है।')],
+  ];
+  body += `<section class="section"><h2>${esc(t.faqs)}</h2>${faqHtml(faq)}</section>${moreLinks(lang)}</div>`;
+  return page({
+    lang, path: '/sun-today/', body, navActive: 'today', ld: [faqLd(faq)],
+    title: L(lang, `Sunrise and Sunset Time Today (${fmtDate(k, 'en', { weekday: false })}) in India`, `आज सूर्योदय और सूर्यास्त का समय (${fmtDate(k, 'hi', { weekday: false })})`),
+    desc: L(lang, `Today's sunrise time and sunset time for every city in India, day length, and the next 15 days. In ${cn} sunrise is at ${fmtTime(sr, 'en')} and sunset at ${fmtTime(ss, 'en')}.`, `भारत के हर शहर में आज सूर्योदय और सूर्यास्त का समय, दिन की लंबाई और अगले 15 दिन। ${cn} में सूर्योदय ${fmtTime(sr, 'hi')} और सूर्यास्त ${fmtTime(ss, 'hi')} पर है।`),
+  });
+}
+
+module.exports = { tithiToday, sunToday, moonToday, fullMoon: lang => phasePage('full', lang), newMoon: lang => phasePage('new', lang) };
