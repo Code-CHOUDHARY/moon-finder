@@ -107,7 +107,7 @@ ${hreflang}
 <meta property="og:type" content="website"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${canonical}"><meta property="og:image" content="${CFG.origin}${CFG.base}/assets/og.png"><meta property="og:locale" content="${lang === 'hi' ? 'hi_IN' : 'en_IN'}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#1B1440">
-<link rel="icon" href="${CFG.base}/assets/icon.svg" type="image/svg+xml">
+<link rel="icon" href="${CFG.base}/favicon.ico" sizes="48x48"><link rel="icon" href="${CFG.base}/assets/favicon-96.png" type="image/png" sizes="96x96"><link rel="icon" href="${CFG.base}/assets/icon-192.png" type="image/png" sizes="192x192"><link rel="icon" href="${CFG.base}/assets/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="${CFG.base}/assets/apple-touch-icon.png">
 <link rel="manifest" href="${CFG.base}/manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Yatra+One&display=swap">

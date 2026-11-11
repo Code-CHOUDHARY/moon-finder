@@ -432,7 +432,7 @@ ${['purnima', 'amavasya', 'ekadashi', 'sankashti-chaturthi'].map(s => { const f 
   body += `</div>`;
   return page({ lang, path: '/', title: lang === 'hi' ? 'मून फ़ाइंडर – आज का चाँद, पूर्णिमा और चंद्रोदय का समय | Full Moon Finder' : 'Moon Finder Online – Live Moon Today, Moonrise Time & Full Moon Finder', desc: lang === 'hi' ? 'आज का चाँद, अगली पूर्णिमा और करवा चौथ, संकष्टी, ईद व चंद्र ग्रहण पर आपके शहर में चाँद कब निकलेगा। भारत के हर ज़िले का चंद्रोदय समय और हर राज्य का कैलेंडर।' : 'See the moon today, the next full moon and the moonrise time in your city for Karva Chauth, Sankashti, Purnima and Eid. Every district of India.', body, navActive: 'today',
     ld: [{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'Moon Finder', alternateName: ['Full Moon Finder', 'fullmoonfinder.com', 'मून फ़ाइंडर'], url: abs(lang, '/'), inLanguage: lang === 'hi' ? 'hi-IN' : 'en-IN' },
-      { '@context': 'https://schema.org', '@type': 'Organization', name: 'Moon Finder', alternateName: 'Full Moon Finder', url: abs('en', '/'), logo: `${U.cfg().origin}${U.cfg().base}/assets/og.png` }] });
+      { '@context': 'https://schema.org', '@type': 'Organization', name: 'Moon Finder', alternateName: 'Full Moon Finder', url: abs('en', '/'), logo: `${U.cfg().origin}${U.cfg().base}/assets/logo.png` }] });
 }
 
 function festivalsIndex(lang) {

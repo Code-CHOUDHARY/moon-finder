@@ -93,7 +93,7 @@ write('/404.html', ST.notFound(), { index: false });
 // ---------- Assets ----------
 const A = path.join(OUT, 'assets');
 fs.mkdirSync(A, { recursive: true });
-for (const f of ['style.css', 'finder.js', 'space.js', 'icon.svg', 'og.png']) if (fs.existsSync(path.join(__dirname, 'assets', f))) fs.copyFileSync(path.join(__dirname, 'assets', f), path.join(A, f));
+for (const f of ['style.css', 'finder.js', 'space.js', 'icon.svg', 'og.png', 'favicon-48.png', 'favicon-96.png', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'logo.png']) if (fs.existsSync(path.join(__dirname, 'assets', f))) fs.copyFileSync(path.join(__dirname, 'assets', f), path.join(A, f));
 // Every place for the city picker and 'near me': [slug, lat, lng, hasFestivalPages, English, Hindi, state]; aliases: [English, Hindi, state, slug]
 const cityJs = 'window.MF_CITIES=' + JSON.stringify(CITIES.map(c => [c.slug, c.lat, c.lng, c.top ? 1 : 0, c.name.en, c.name.hi, c.state, c.major ? 1 : 0])) + ';\nwindow.MF_ALIASES=' + JSON.stringify(ALIASES.map(a => [a.name.en, a.name.hi, a.state, a.slug])) + ';\n';
 fs.writeFileSync(path.join(A, 'app.js'), cityJs + fs.readFileSync(path.join(__dirname, 'assets', 'app.src.js'), 'utf8'));
@@ -124,8 +124,10 @@ if (config.adsClient) fs.writeFileSync(path.join(OUT, 'ads.txt'), `google.com, $
 if (!siteUrl.hostname.endsWith('github.io') && config.base === '') fs.writeFileSync(path.join(OUT, 'CNAME'), siteUrl.hostname + '\n');
 fs.writeFileSync(path.join(OUT, 'manifest.webmanifest'), JSON.stringify({
   name: 'Moon Finder', short_name: 'Moon Finder', start_url: config.base + '/', display: 'standalone', background_color: '#1B1440', theme_color: '#1B1440',
-  icons: [{ src: config.base + '/assets/icon.svg', sizes: 'any', type: 'image/svg+xml' }],
+  icons: [{ src: config.base + '/assets/icon-192.png', sizes: '192x192', type: 'image/png' }, { src: config.base + '/assets/icon-512.png', sizes: '512x512', type: 'image/png' }, { src: config.base + '/assets/icon.svg', sizes: 'any', type: 'image/svg+xml' }],
 }));
+// Google and older browsers look for the icon at the site root.
+fs.copyFileSync(path.join(__dirname, 'assets', 'favicon.ico'), path.join(OUT, 'favicon.ico'));
 fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
 
 console.log(`Built ${urls.length} pages into dist/ in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
