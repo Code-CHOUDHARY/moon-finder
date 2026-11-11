@@ -138,3 +138,10 @@
     });
   });
 })();
+
+  // Moon & Sun menu: close when tapping outside, pressing Escape, or choosing a link
+  var menu = document.querySelector('details.menu');
+  if (menu) {
+    document.addEventListener('click', function (e) { if (menu.open && !menu.contains(e.target)) menu.open = false; });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && menu.open) { menu.open = false; menu.querySelector('summary').focus(); } });
+  }

@@ -215,3 +215,18 @@ dl.kv dt { color: var(--muted); } dl.kv dd { margin: 0; text-align: right; }
 .space-read { margin: 12px 0; }
 .space-read dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 8px 0 0; }
 .space-read dt { color: var(--muted); } .space-read dd { margin: 0; font-weight: 700; }
+
+/* Moon & Sun menu (top bar) and tools grid (home) */
+.site-head { z-index: 30; }
+.menu > summary { list-style: none; cursor: pointer; color: #FFE7BD; padding: 6px 10px; border-radius: 999px; font-size: .95rem; white-space: nowrap; }
+.menu > summary::-webkit-details-marker { display: none; }
+.menu > summary:hover, .menu[open] > summary, .menu > summary[aria-current="page"] { background: rgba(255, 211, 110, .16); color: #fff; }
+.menu-panel { position: absolute; left: 0; right: 0; top: 100%; background: var(--night); box-shadow: 0 12px 24px rgba(0, 0, 0, .35); padding: 12px 16px 16px; z-index: 40; }
+.menu-inner { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px 12px; }
+.menu-inner a { display: block; padding: 9px 10px; border-radius: 10px; }
+.tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.tool-card { display: flex; gap: 12px; align-items: flex-start; text-decoration: none; color: var(--ink); }
+.tool-card .ti { font-size: 1.6rem; line-height: 1.2; }
+.tool-card .n { font-weight: 700; }
+.tool-card .d { color: var(--muted); font-size: .9rem; }
+.tool-card:hover { border-color: var(--accent); }

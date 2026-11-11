@@ -81,6 +81,23 @@ function shareButtons(text, href, lang) {
   return `<div class="btn-row"><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(text + ' ' + href)}">${esc(t.share)}</a><button class="btn ghost" type="button" data-copy="${esc(href)}">${esc(t.copyLink)}</button></div>`;
 }
 
+/* ---------- Moon and Sun tools (top menu + home page grid) ---------- */
+function tools(lang) {
+  const hi = lang === 'hi', L = (en, h) => (hi ? h : en);
+  return [
+    ['🌙', L('Moon today', 'आज का चाँद'), L('Phase, rise time, rashi', 'कला, चंद्रोदय, राशि'), url(lang, '/moon-today/')],
+    ['📅', L('Tithi today', 'आज की तिथि'), L('Aaj ki tithi, nakshatra, panchang', 'तिथि, नक्षत्र, पंचांग'), url(lang, '/tithi-today/')],
+    ['🌅', L('Sunrise and sunset', 'सूर्योदय और सूर्यास्त'), L('Today\'s times for every city', 'हर शहर का आज का समय'), url(lang, '/sun-today/')],
+    ['🌕', L('Full moon dates', 'पूर्णिमा की तारीखें'), L('Next Purnima, date and time', 'अगली पूर्णिमा, तारीख और समय'), url(lang, '/full-moon/')],
+    ['🌑', L('New moon dates', 'अमावस्या की तारीखें'), L('Next Amavasya, date and time', 'अगली अमावस्या, तारीख और समय'), url(lang, '/new-moon/')],
+    ['🌘', L('Lunar eclipse', 'चंद्र ग्रहण'), L('Chandra Grahan dates and visibility', 'ग्रहण की तारीख और दृश्यता'), url(lang, '/chandra-grahan/')],
+    ['📷', L('Live moon tracker', 'लाइव मून ट्रैकर'), L('Find the moon with your camera', 'कैमरे से चाँद खोजें'), url('en', '/moon-finder/')],
+    ['🪐', L('3D solar system', '3D सौर मंडल'), L('Planets, Moon orbit, your place on Earth', 'ग्रह, चाँद की कक्षा, पृथ्वी पर आपकी जगह'), url('en', '/solar-system/')],
+  ];
+}
+const toolLinks = lang => tools(lang).map(([i, n, , href]) => `<a href="${href}">${i} ${esc(n)}</a>`).join('');
+const toolCards = lang => `<div class="tool-grid">${tools(lang).map(([i, n, d, href]) => `<a class="card tool-card" href="${href}"><span class="ti" aria-hidden="true">${i}</span><span><span class="n">${esc(n)}</span><br><span class="d">${esc(d)}</span></span></a>`).join('')}</div>`;
+
 /* ---------- Page shell ---------- */
 function page({ lang = 'en', path, title, desc, body, alt, ld = [], noindex = false, navActive = '', skinName = '' }) {
   const t = T[lang];
@@ -121,7 +138,7 @@ ${ld.map(x => `<script type="application/ld+json">${JSON.stringify(x).replace(/<
 <header class="site-head">
   <div class="bar">
     <a class="logo" href="${url(lang, '/')}">${LOGO}<span>${esc(t.siteName)}</span></a>
-    <nav class="nav" aria-label="Main">${nav.map(([k, p, l]) => `<a href="${url(lang, p)}"${navActive === k ? ' aria-current="page"' : ''}>${esc(l)}</a>`).join('')}<a href="${url('en', '/moon-finder/')}"${navActive === 'finder' ? ' aria-current="page"' : ''}>🌙 ${esc(t.navFinder)}</a>${altHref ? `<a href="${altHref}" lang="${altLang}" hreflang="${altLang}">${esc(t.otherLang)}</a>` : ''}</nav>
+    <nav class="nav" aria-label="Main">${nav.map(([k, p, l]) => `<a href="${url(lang, p)}"${navActive === k ? ' aria-current="page"' : ''}>${esc(l)}</a>`).join('')}<details class="menu"><summary${navActive === 'finder' || navActive === 'moon' ? ' aria-current="page"' : ''}>${lang === 'hi' ? 'चाँद और सूर्य' : 'Moon & Sun'} <span aria-hidden="true">▾</span></summary><div class="menu-panel"><div class="menu-inner">${toolLinks(lang)}</div></div></details>${altHref ? `<a href="${altHref}" lang="${altLang}" hreflang="${altLang}">${esc(t.otherLang)}</a>` : ''}</nav>
     <button class="icon-btn" id="themeBtn" type="button" aria-label="Dark mode">◐</button>
   </div>
   ${TORAN}
@@ -161,4 +178,4 @@ ${body}
 </html>`;
 }
 
-module.exports = { esc, setConfig, cfg, url, abs, asset, moonSvg, phaseKey, MOTIFS, motif, skin, skinStyle, countdown, adSlot, breadcrumbs, faqHtml, faqLd, shareButtons, page };
+module.exports = { tools, toolCards, esc, setConfig, cfg, url, abs, asset, moonSvg, phaseKey, MOTIFS, motif, skin, skinStyle, countdown, adSlot, breadcrumbs, faqHtml, faqLd, shareButtons, page };
