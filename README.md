@@ -1,9 +1,11 @@
 # Moon Finder 2.0 — festival moonrise times for India
 
-A static website that answers *"chand kab niklega?"* for every major Indian festival, in **English and Hindi**, for **100 cities**.
+A static website that answers *"chand kab niklega?"* for every major Indian festival, in **English and Hindi**, for every district of India.
 
-- ~27,400 pages generated from templates (every district of India, 56 festivals, including South Indian festivals for Tamil Nadu, Kerala, Karnataka, Andhra Pradesh and Telangana): festivals, festival × city, city moonrise pages, yearly Purnima / Amavasya / Ekadashi / Sankashti / Chandra Darshan lists, monthly moon calendars (all-India and one per state, with that state's festivals), guides and legal pages.
+- ~22,250 pages generated from templates (every district of India, 56 festivals, including South Indian festivals for Tamil Nadu, Kerala, Karnataka, Andhra Pradesh and Telangana): festivals, festival × city, city moonrise pages, yearly Purnima / Amavasya / Ekadashi / Sankashti / Chandra Darshan lists, monthly moon calendars (all-India and one per state, with that state's festivals), guides and legal pages.
 - Festive night-sky design with a colour "skin" per festival (Karva Chauth red-gold, Eid emerald, Diwali gold…), phone-first, light/dark mode.
+- **Regional calendars** (`/hindi-calendar/`, `/marathi-calendar/`, `/gujarati-calendar/`, `/kannada-calendar/`, `/telugu-calendar/`, `/tamil-calendar/`, `/malayalam-calendar/`, `/bengali-calendar/`, `/odia-calendar/`, `/punjabi-calendar/`, `/assamese-calendar/`, `/islamic-calendar/`): a hub page, a page per year and a page per month, with month, weekday and tithi names in the calendar's own script.
+- **Moon pages**: `/moon-today/` (phase, moonrise by city, next 30 days), `/full-moon/` and `/new-moon/` (every date with the exact time).
 - Live **camera finder** (`/moon-finder/`) — the original Moon Finder app, restyled.
 - Rebuilt automatically every morning so "today" pages and countdowns stay current.
 
@@ -18,12 +20,16 @@ A static website that answers *"chand kab niklega?"* for every major Indian fest
 | `src/cities.js` | The original 100 cities (first 60 are "major": shown in festival tables) merged with every district; all places get festival × city pages |
 | `src/districts.js` | All 791 districts of India (English, Hindi, state, HQ coordinates) from Wikidata, checked against per-state counts. Districts whose name matches one of the 100 cities (Mumbai City, Bengaluru Urban…) point to that city's page |
 | `src/data.js` | Works out every festival date and city time |
+| `src/regional.js` | The regional calendars: names in each script, month rules (Amanta/Purnimanta lunar months; solar months by the Tamil, Kerala, Bengal and Odisha sankranti rules; predicted Hijri months), eras and page templates — **edit `CALS` here to add a calendar or correct a name** |
+| `src/moon.js` | Moon today, full moon and new moon pages |
 | `src/pages.js`, `src/static.js`, `src/ui.js`, `src/i18n.js` | Page templates, shared layout, translations |
 | `assets/` | CSS, small site script, camera-finder script, icon, share image |
 
 Festival-day rules (tithi prevailing at sunrise / midday / pradosh / moonrise) follow common North Indian panchang practice. Checked against published dates for 2025–2026: Karva Chauth, Diwali, Holi, Raksha Bandhan, Ganesh Chaturthi, Sharad Purnima, Guru Purnima, Eid al-Fitr and Bakrid all match, and the Karva Chauth 2025 moonrise for Delhi (8:13 PM) and Mumbai (8:55 PM) matches published times. **Before each festival season, spot-check the year's dates against a trusted panchang.** Islamic dates are predictions; committees announce the final date.
 
 South Indian festivals use three more kinds of rule: **solar months** (Sun entering a sidereal sign, Lahiri ayanamsa — Pongal, Tamil New Year and Aadi Perukku count the day if the entry is before sunset; Vishu takes the first sunrise after it), **a nakshatra inside a solar month** (Thai Poosam, Onam, Karthigai Deepam, Arudra Darshan…), and **a tithi inside a solar month** (Vaikunta Ekadasi, Chitra Pournami, Skanda Sashti…). All 28 new festivals were checked against Drik Panchang (New Delhi) and state holiday lists for 2026 and 2027 and match. Temple festivals such as Attukal Pongala are announced by the temple each year.
+
+Regional calendars show the tithi and nakshatra at sunrise in one reference city per calendar (Mumbai for Marathi, Chennai for Tamil, and so on). Checked for 2026: Gudi Padwa/Ugadi year change, Gujarati new year on 10 November (Vikram Samvat 2083), Puthandu 14 April, Chingam 1 on 17 August (Kollam Era 1202), Poila Boishakh 15 April (Bangabda 1433), Pana Sankranti and Vaisakhi 14 April, Ramadan from 19 February. **Names in the regional scripts were typed by hand: ask a native reader to check each calendar once.**
 
 ## Run it locally
 

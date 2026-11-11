@@ -141,6 +141,9 @@ ${body}
         <li><a href="${url(lang, '/chandra-grahan/')}">${lang === 'hi' ? 'चंद्र ग्रहण' : 'Lunar eclipse'}</a></li></ul></div>
       <div><h3>${esc(t.more)}</h3><ul>
         <li><a href="${url(lang, '/calendar/')}">${esc(t.navCalendar)}</a></li>
+        <li><a href="${url(lang, '/moon-today/')}">${lang === 'hi' ? 'आज का चाँद' : 'Moon today'}</a></li>
+        <li><a href="${url(lang, '/full-moon/')}">${lang === 'hi' ? 'पूर्णिमा की तारीखें' : 'Full moon dates'}</a></li>
+        <li><a href="${url(lang, '/hindi-calendar/')}">${lang === 'hi' ? 'हिंदी कैलेंडर' : 'Hindi calendar'}</a></li>
         <li><a href="${url('en', '/learn/')}">${esc(t.learn)}</a></li>
         <li><a href="${url('en', '/about/')}">About</a></li>
         <li><a href="${url('en', '/contact/')}">Contact</a></li>

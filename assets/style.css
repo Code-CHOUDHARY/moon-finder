@@ -196,3 +196,8 @@ dl.kv dt { color: var(--muted); } dl.kv dd { margin: 0; text-align: right; }
 .shop-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); font-weight: 600; padding: 14px 16px; }
 .shop-item span { color: var(--accent); }
 .shop-item:hover { border-color: var(--accent); }
+
+/* Regional calendars: the grid keeps its text on phones, scrolling sideways if needed */
+.rgrid .h { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rgrid .c { overflow: hidden; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .rgrid { gap: 3px; } .rgrid .c { padding: 4px 1px; font-size: .62rem; min-height: 84px; } .rgrid .c .tt { display: block; } .rgrid .h { font-size: .62rem; } }

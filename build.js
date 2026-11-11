@@ -9,6 +9,8 @@ const { CITIES, ALIASES } = require('./src/cities');
 const U = require('./src/ui');
 const P = require('./src/pages');
 const ST = require('./src/static');
+const R = require('./src/regional');
+const M = require('./src/moon');
 
 const t0 = Date.now();
 // Settings: environment variables win; otherwise site.config.json (public IDs only — never put secrets there).
@@ -69,6 +71,15 @@ for (const lang of ['en', 'hi']) {
   for (const c of CITIES) write(P.cpath(c), P.cityPage(c, lang), { lang });
   for (const [y, m] of monthList) write(P.monthPath(y, m), P.monthPage(y, m, lang), { lang });
   for (const st of P.states()) for (const [y, m] of monthList) write(P.stateMonthPath(st, y, m), P.monthPage(y, m, lang, st), { lang });
+  // The moon itself, and the calendars of each language/state
+  write('/moon-today/', M.moonToday(lang), { lang });
+  write('/full-moon/', M.fullMoon(lang), { lang });
+  write('/new-moon/', M.newMoon(lang), { lang });
+  for (const cal of R.CALS) {
+    write(R.calPath(cal), R.hubPage(cal, lang), { lang });
+    for (const y of [String(y0), String(y0 + 1)]) write(R.calYearPath(cal, y), R.yearPage(cal, y, lang), { lang });
+    for (const [y, m] of monthList) write(R.calMonthPath(cal, y, m), R.monthPage(cal, y, m, lang), { lang });
+  }
   console.log(`${lang}: pages done (${Date.now() - t0} ms)`);
 }
 write('/learn/', ST.learnIndex());
