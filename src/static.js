@@ -104,4 +104,57 @@ function finderPage() {
   return page({ lang: 'en', path: '/moon-finder/', alt: false, title: 'Find the Moon Now – Live Moon Position & Camera Finder | Moon Finder', desc: 'Where is the moon right now? Live direction, height, moonrise and moonset for your location, with a camera finder that points you to the moon.', body, navActive: 'finder' });
 }
 
-module.exports = { ARTICLES, learnIndex, learnPage, legalPages, notFound, finderPage };
+// 3D view: Earth globe with your place and the Moon, and the solar system (assets/space.js).
+function spacePage() {
+  const v = cfg().base + '/assets/vendor/', ver = '?v=' + cfg().version;
+  const faq = [
+    ['Is this the real position of the Moon and planets?', 'Yes. Positions are calculated for the date and time shown, using the same astronomy library as the rest of this site. The Earth is turned to the correct angle, so the side facing the Sun is in daylight and your place is where it really is at that moment.'],
+    ['Why do the planets look so close together?', 'Real distances are far too large to draw: Neptune is about 30 times farther from the Sun than the Earth. Distances are squeezed and the planets are drawn much bigger than they are, but every direction and orbit shape is real.'],
+    ['How does the Moon move around the Earth?', 'The Moon goes around the Earth once in about 27.3 days, moving roughly 13° eastward each day. Set the speed to "1 day per second" in the Earth and Moon view to watch a full orbit and the phases change.'],
+    ['What does the line from my place to the Moon mean?', 'It points from your location towards the Moon. It is bright when the Moon is above your horizon and grey when the Earth is in the way. The panel shows the exact height and compass direction.'],
+  ];
+  const body = `<div class="wrap space-main">
+${breadcrumbs([['Today', url('en', '/')], ['3D solar system']])}
+<h1>3D Solar System and Moon Tracker</h1>
+<p class="muted">See where the Moon and the planets are right now, and where your place sits on the turning Earth. Drag to rotate, pinch or scroll to zoom.</p>
+<div class="btn-row space-tabs" role="group" aria-label="View"><button class="btn" type="button" data-mode="earth" aria-pressed="true">🌍 Earth and Moon</button><button class="btn" type="button" data-mode="solar" aria-pressed="false">🪐 Solar system</button></div>
+<div id="space" data-land="${v}land.json${ver}" role="img" aria-label="3D view of the Earth, Moon and planets"></div>
+<p class="muted small" id="spaceMsg" role="status"></p>
+<div class="space-bar">
+  <button class="btn" type="button" id="play">⏸ Pause</button>
+  <label>Speed <select id="speed"><option value="1">Real time</option><option value="600">10 minutes per second</option><option value="3600">1 hour per second</option><option value="21600">6 hours per second</option><option value="86400">1 day per second</option><option value="432000">5 days per second</option><option value="2592000">30 days per second</option><option value="31557600">1 year per second</option></select></label>
+  <label>Date and time <input type="datetime-local" id="when"></label>
+  <button class="btn ghost" type="button" id="now">Now</button>
+</div>
+<p class="space-time"><strong id="rTime">…</strong></p>
+<div data-show="earth">
+  <div class="space-bar">
+    <label>City <select id="city"><option value="">Pick a city…</option></select></label>
+    <button class="btn ghost" type="button" id="near">📍 Use my location</button>
+    <button class="btn ghost" type="button" id="faceMe">Show my place</button>
+    <button class="btn ghost" type="button" id="wholeOrbit">Show Moon's orbit</button>
+    <label class="check"><input type="checkbox" id="trueScale"> True distance (Moon is 60 Earth-radii away)</label>
+  </div>
+  <div class="card space-read"><p><span class="chip" id="rMoonUp">…</span> <span class="muted" id="rPlace"></span></p>
+  <dl class="kv"><dt>Moon height above horizon</dt><dd id="rAlt">–</dd><dt>Moon direction</dt><dd id="rAz">–</dd><dt>Phase</dt><dd id="rPhase">–</dd><dt>Distance from Earth</dt><dd id="rDist">–</dd><dt>At your place it is</dt><dd id="rSun">–</dd></dl></div>
+  <p class="muted small">Red dot: your place. Yellow line: direction from your place to the Moon. The Moon's distance is drawn 10 times closer than real unless you tick "True distance".</p>
+</div>
+<div data-show="solar" hidden>
+  <div class="space-bar"><label>Keep in the centre <select id="focus"><option value="Sun">Sun</option></select></label></div>
+  <div class="table-wrap"><table><thead><tr><th>Planet</th><th>Distance from the Sun</th><th>Distance from the Earth</th></tr></thead><tbody id="planetRows"></tbody></table></div>
+  <p class="muted small">Directions and orbit shapes are real. Distances are squeezed and planet sizes enlarged so everything fits on one screen. 1 AU is the average Earth–Sun distance, about 149.6 million km.</p>
+</div>
+${adSlot()}
+<section class="section"><h2>Questions people ask</h2>${faq.map(([q, a]) => `<details class="faq"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
+<div class="pills"><a href="${url('en', '/moon-today/')}">Moon today</a><a href="${url('en', '/moon-finder/')}">📷 Find the Moon with your camera</a><a href="${url('en', '/full-moon/')}">Full moon dates</a><a href="${url('en', '/chandra-grahan/')}">Lunar eclipse</a></div>
+</div>
+<script type="importmap">{"imports":{"three":"${v}three.module.min.js${ver}","three/addons/controls/OrbitControls.js":"${v}OrbitControls.js${ver}"}}</script>
+<script src="${v}astronomy.browser.min.js${ver}" defer></script>
+<script type="module" src="${cfg().base}/assets/space.js${ver}"></script>`;
+  return page({ lang: 'en', path: '/solar-system/', alt: false, body, navActive: 'finder',
+    title: '3D Solar System Live: Planet Positions, Moon Orbit & Your Place on Earth',
+    desc: 'Live 3D map of the solar system: where every planet is now, how the Moon moves around the Earth, and your own location on a turning 3D globe.',
+    ld: [{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }] });
+}
+
+module.exports = { ARTICLES, learnIndex, learnPage, legalPages, notFound, finderPage, spacePage };

@@ -143,6 +143,7 @@ ${body}
         <li><a href="${url(lang, '/calendar/')}">${esc(t.navCalendar)}</a></li>
         <li><a href="${url(lang, '/moon-today/')}">${lang === 'hi' ? 'आज का चाँद' : 'Moon today'}</a></li>
         <li><a href="${url(lang, '/full-moon/')}">${lang === 'hi' ? 'पूर्णिमा की तारीखें' : 'Full moon dates'}</a></li>
+        <li><a href="${url('en', '/solar-system/')}">${lang === 'hi' ? '3D सौर मंडल' : '3D solar system'}</a></li>
         <li><a href="${url(lang, '/hindi-calendar/')}">${lang === 'hi' ? 'हिंदी कैलेंडर' : 'Hindi calendar'}</a></li>
         <li><a href="${url('en', '/learn/')}">${esc(t.learn)}</a></li>
         <li><a href="${url('en', '/about/')}">About</a></li>

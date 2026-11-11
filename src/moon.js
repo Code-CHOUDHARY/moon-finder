@@ -19,6 +19,7 @@ const moreLinks = lang => `<section class="section"><h2>${L(lang, 'More about th
 <a href="${url(lang, '/moonrise/')}">${L(lang, 'Moonrise in your city', 'आपके शहर में चंद्रोदय')}</a>
 <a href="${url(lang, '/chandra-grahan/')}">${L(lang, 'Lunar eclipse', 'चंद्र ग्रहण')}</a>
 <a href="${url(lang, '/calendar/')}">${esc(T[lang].calendarTitle)}</a>
+<a href="${url('en', '/solar-system/')}">🪐 ${L(lang, '3D solar system', '3D सौर मंडल')}</a>
 <a href="${url('en', '/moon-finder/')}">📷 ${esc(T[lang].findMoon)}</a></div></section>`;
 
 /* ---------- Moon today ---------- */

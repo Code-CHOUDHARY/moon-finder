@@ -86,15 +86,34 @@ write('/learn/', ST.learnIndex());
 for (const a of ST.ARTICLES) write(`/learn/${a.slug}/`, ST.learnPage(a));
 for (const [s, html] of ST.legalPages()) write(`/${s}/`, html);
 write('/moon-finder/', ST.finderPage());
+write('/solar-system/', ST.spacePage());
 write('/404.html', ST.notFound(), { index: false });
 
 // ---------- Assets ----------
 const A = path.join(OUT, 'assets');
 fs.mkdirSync(A, { recursive: true });
-for (const f of ['style.css', 'finder.js', 'icon.svg', 'og.png']) if (fs.existsSync(path.join(__dirname, 'assets', f))) fs.copyFileSync(path.join(__dirname, 'assets', f), path.join(A, f));
+for (const f of ['style.css', 'finder.js', 'space.js', 'icon.svg', 'og.png']) if (fs.existsSync(path.join(__dirname, 'assets', f))) fs.copyFileSync(path.join(__dirname, 'assets', f), path.join(A, f));
 // Every place for the city picker and 'near me': [slug, lat, lng, hasFestivalPages, English, Hindi, state]; aliases: [English, Hindi, state, slug]
 const cityJs = 'window.MF_CITIES=' + JSON.stringify(CITIES.map(c => [c.slug, c.lat, c.lng, c.top ? 1 : 0, c.name.en, c.name.hi, c.state, c.major ? 1 : 0])) + ';\nwindow.MF_ALIASES=' + JSON.stringify(ALIASES.map(a => [a.name.en, a.name.hi, a.state, a.slug])) + ';\n';
 fs.writeFileSync(path.join(A, 'app.js'), cityJs + fs.readFileSync(path.join(__dirname, 'assets', 'app.src.js'), 'utf8'));
+
+// 3D page: libraries are copied from node_modules so nothing loads from another site.
+const V = path.join(A, 'vendor'), NM = path.join(__dirname, 'node_modules');
+fs.mkdirSync(V, { recursive: true });
+fs.copyFileSync(path.join(NM, 'three', 'build', 'three.module.min.js'), path.join(V, 'three.module.min.js'));
+fs.copyFileSync(path.join(NM, 'three', 'examples', 'jsm', 'controls', 'OrbitControls.js'), path.join(V, 'OrbitControls.js'));
+fs.copyFileSync(path.join(NM, 'astronomy-engine', 'astronomy.browser.min.js'), path.join(V, 'astronomy.browser.min.js'));
+// Coastlines for the globe: Natural Earth 1:110m land (public domain) from world-atlas, unpacked from TopoJSON
+// into plain [[ring of [lng, lat]], …] polygons.
+{
+  const topo = JSON.parse(fs.readFileSync(path.join(NM, 'world-atlas', 'land-110m.json'), 'utf8'));
+  const { scale: sc, translate: tr } = topo.transform;
+  const arcs = topo.arcs.map(arc => { let x = 0, y = 0; return arc.map(([dx, dy]) => { x += dx; y += dy; return [Math.round((x * sc[0] + tr[0]) * 100) / 100, Math.round((y * sc[1] + tr[1]) * 100) / 100]; }); });
+  const ring = idxs => idxs.flatMap((i, n) => { const a = i < 0 ? arcs[~i].slice().reverse() : arcs[i]; return n ? a.slice(1) : a; });
+  const polys = [];
+  for (const g of topo.objects.land.geometries) for (const poly of g.type === 'Polygon' ? [g.arcs] : g.arcs) polys.push(poly.map(ring));
+  fs.writeFileSync(path.join(V, 'land.json'), JSON.stringify(polys));
+}
 
 // ---------- Site files ----------
 const root = config.origin + config.base;

@@ -6,6 +6,7 @@ A static website that answers *"chand kab niklega?"* for every major Indian fest
 - Festive night-sky design with a colour "skin" per festival (Karva Chauth red-gold, Eid emerald, Diwali gold…), phone-first, light/dark mode.
 - **Regional calendars** (`/hindi-calendar/`, `/marathi-calendar/`, `/gujarati-calendar/`, `/kannada-calendar/`, `/telugu-calendar/`, `/tamil-calendar/`, `/malayalam-calendar/`, `/bengali-calendar/`, `/odia-calendar/`, `/punjabi-calendar/`, `/assamese-calendar/`, `/islamic-calendar/`): a hub page, a page per year and a page per month, with month, weekday and tithi names in the calendar's own script.
 - **Moon pages**: `/moon-today/` (phase, moonrise by city, next 30 days), `/full-moon/` and `/new-moon/` (every date with the exact time).
+- **3D solar system** (`/solar-system/`): a live 3D view with two modes. *Earth and Moon* shows the turning globe with your place pinned on it, day and night, the Moon on its real orbit and a line from your place to the Moon. *Solar system* shows where every planet is now. Both have play, speed and date controls. Code is in `assets/space.js`; three.js, Astronomy Engine and Natural Earth coastlines are copied from `node_modules` at build time, so nothing loads from another site.
 - Live **camera finder** (`/moon-finder/`) — the original Moon Finder app, restyled.
 - Rebuilt automatically every morning so "today" pages and countdowns stay current.
 
@@ -79,4 +80,4 @@ Edit `site.config.json` in the repo and push; the next build picks the values up
 
 ## Credits
 
-Astronomy Engine (MIT) by Don Cross. Live finder maths adapted from SunCalc (BSD-2-Clause) by Vladimir Agafonkin. City coordinates are approximate city centres.
+three.js (MIT) for the 3D view. Coastlines from Natural Earth (public domain) via world-atlas (ISC). Astronomy Engine (MIT) by Don Cross. Live finder maths adapted from SunCalc (BSD-2-Clause) by Vladimir Agafonkin. City coordinates are approximate city centres.

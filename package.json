@@ -9,7 +9,9 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
-    "astronomy-engine": "^2.1.19"
+    "astronomy-engine": "^2.1.19",
+    "three": "^0.170.0",
+    "world-atlas": "^2.0.2"
   },
   "private": true,
   "engines": {
