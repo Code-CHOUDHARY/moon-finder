@@ -99,9 +99,15 @@ function finderPage() {
 <details class="faq" id="placeBox"><summary>Change place or time</summary><div><p class="muted small" id="loc">–</p><form id="form" class="form"><label>Latitude <input id="lat" type="number" step="any" min="-90" max="90" required inputmode="decimal"></label><label>Longitude <input id="lng" type="number" step="any" min="-180" max="180" required inputmode="decimal"></label><label class="full">Date &amp; time (leave empty for now) <input id="when" type="datetime-local"></label><div class="row"><button class="btn" type="submit">Update</button><button class="btn ghost" type="button" id="useGps">Use my location</button><button class="btn ghost" type="button" id="nowBtn">Now</button></div></form><p id="msg" style="color:var(--warn)"></p></div></details>
 <p class="muted small" style="text-align:center">Times use your device's time zone. Positions are approximate (about 1°).</p>
 <div id="cam" hidden><video id="video" playsinline muted autoplay></video><canvas id="overlay"></canvas><div id="camTop"><div id="camInfo">Starting camera…</div><button type="button" class="icon-btn" id="camClose" aria-label="Close camera" style="background:rgba(0,0,0,.45);color:#fff">✕</button></div><div id="camHint"></div></div>
+<section class="section prose"><h2>Live moon tracker: where is the moon right now?</h2>
+<p>This moon finder works online from your location, with no app to install. It shows the moon's position now: its direction on the compass, its height above the horizon, today's moonrise and moonset time, and the moon phase. Tap the camera button and hold your phone up; an arrow guides you to the moon in the sky.</p>
+<div class="pills"><a href="${url('en', '/moon-today/')}">Moon today</a><a href="${url('en', '/moonrise/')}">Moon rise time in your city</a><a href="${url('en', '/solar-system/')}">Moon position in the solar system (3D)</a><a href="${url('en', '/full-moon/')}">Next full moon</a></div>
+<details class="faq"><summary>Where is the moon right now from my location?</summary><p>Allow location access and the page shows the moon's direction (for example south-east) and height in degrees for this moment. If the moon is below the horizon, it tells you when it rises.</p></details>
+<details class="faq"><summary>How do I find the moon with my phone camera?</summary><p>Tap "Show me with the camera", allow the camera and motion sensors, and turn slowly. The arrow points towards the moon and a ring appears when you are facing it.</p></details>
+<details class="faq"><summary>Does the moon finder work without the internet or an app?</summary><p>It runs in the browser. Once the page has loaded, all calculations happen on your phone.</p></details></section>
 </div>
 <script src="${cfg().base}/assets/finder.js?v=${cfg().version}" defer></script>`;
-  return page({ lang: 'en', path: '/moon-finder/', alt: false, title: 'Find the Moon Now – Live Moon Position & Camera Finder | Moon Finder', desc: 'Where is the moon right now? Live direction, height, moonrise and moonset for your location, with a camera finder that points you to the moon.', body, navActive: 'finder' });
+  return page({ lang: 'en', path: '/moon-finder/', alt: false, title: 'Moon Finder Online: Live Moon Tracker – Where Is the Moon Right Now?', desc: 'Live moon tracker: where is the moon right now from my location? See the moon\'s direction, height, moonrise and moonset, and find it in the sky with your camera and compass.', body, navActive: 'finder' });
 }
 
 // 3D view: Earth globe with your place and the Moon, and the solar system (assets/space.js).
@@ -152,8 +158,8 @@ ${adSlot()}
 <script src="${v}astronomy.browser.min.js${ver}" defer></script>
 <script type="module" src="${cfg().base}/assets/space.js${ver}"></script>`;
   return page({ lang: 'en', path: '/solar-system/', alt: false, body, navActive: 'finder',
-    title: '3D Solar System Live: Planet Positions, Moon Orbit & Your Place on Earth',
-    desc: 'Live 3D map of the solar system: where every planet is now, how the Moon moves around the Earth, and your own location on a turning 3D globe.',
+    title: 'Solar System 3D Live View: Planet Positions Today & Moon Tracker',
+    desc: 'Solar system live 3D view: planet positions today, the Moon\'s position and orbit around the Earth, and your own location on a turning 3D globe.',
     ld: [{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }] });
 }
 

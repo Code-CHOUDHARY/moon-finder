@@ -247,7 +247,7 @@ ${cities.map(c => `<tr><td>${fcOk(f, c) ? `<a href="${url(lang, fcpath(f, c))}">
     });
   }
   return page({
-    lang, path: fpath(f), title: t.titleFestival(fName, yr), desc: o ? t.descFestival(fName, fmtDate(o.key, lang)) : nm(f.intro, lang).slice(0, 150),
+    lang, path: fpath(f), title: f.type === 'eclipse' ? (lang === 'hi' ? `चंद्र ग्रहण ${yr} कब है: तारीख, समय और भारत में कहाँ दिखेगा` : `Lunar Eclipse ${yr} in India: Chandra Grahan Date, Time & Visibility`) : t.titleFestival(fName, yr), desc: o ? t.descFestival(fName, fmtDate(o.key, lang)) : nm(f.intro, lang).slice(0, 150),
     body, ld, navActive: 'festivals', skinName: f.skin,
   });
 }
@@ -360,7 +360,7 @@ function cityPage(city, lang) {
   const crumbs = breadcrumbs([[t.navToday, url(lang, '/')], [t.navCities, url(lang, '/moonrise/')], [cn]]);
   const A = { label: t.timeFor(t.moonrise, cn), big: fmtTime(rise, lang), date: fmtDate(key, lang), meta: [`${t.moonset}: ${fmtTime(set, lang)}`, `${t[phaseKey(angle)]} · ${ill}% ${t.lit}`], target: rise || S.istMidnight(key) };
   const picker = cityPicker(lang, { top: false, path: c => cpath(c) }, city);
-  let body = hero({ lang, crumbs, eyebrow: t.moonTonight, h1: t.titleCity(cn), A, angle, picker,
+  let body = hero({ lang, crumbs, eyebrow: t.moonTonight, h1: t.h1City(cn), A, angle, picker,
     extraBtn: `<div class="btn-row"><a class="btn" href="${url('en', '/moon-finder/')}?lat=${city.lat}&lng=${city.lng}">📷 ${esc(t.findMoon)}</a></div>` });
   body += `<div class="wrap">${adSlot()}`;
   const days = Array.from({ length: 7 }, (_, i) => S.addDays(key, i));
@@ -380,8 +380,20 @@ ${days.map(d => { const sr = S.sunrise(d, city); const T0 = S.tithiAt(sr); retur
 ${ups.map(({ f, o }) => { const link = fcOk(f, city) ? url(lang, fcpath(f, city)) : url(lang, fpath(f)); return `<tr><td><a href="${link}">${esc(occLabel(f, o, lang))}</a></td><td>${esc(fmtDate(o.holiKey || o.key, lang, { year: false }))}</td><td class="t">${f.key === 'eclipse' ? cell(f, o, city, lang) : `${esc(cellHeader(f, lang))}: ${cell(f, o, city, lang)}`}</td></tr>`; }).join('')}
 </tbody></table></div></section>`;
   body += `<section class="section prose"><p class="muted">${lang === 'hi' ? `${cn}, ${esc(city.state)} (${city.lat.toFixed(2)}°N, ${city.lng.toFixed(2)}°E) के लिए गणना। चंद्रोदय वह समय है जब चाँद का ऊपरी किनारा समतल क्षितिज पर आता है। यह पेज रोज़ अपडेट होता है।` : `Calculated for ${cn}, ${city.state} (${city.lat.toFixed(2)}°N, ${city.lng.toFixed(2)}°E). Moonrise is when the top edge of the moon touches a flat horizon. This page is updated every day.`}</p></section>`;
-  body += `</div>`;
-  return page({ lang, path: cpath(city), title: t.titleCity(cn), desc: t.descCity(cn), body, navActive: 'cities' });
+  // Questions in the words people type into search
+  const dToday = fmtDate(key, lang, { weekday: false }), rT = fmtTime(rise, lang), sT = fmtTime(set, lang);
+  const cityFaq = lang === 'hi' ? [
+    [`आज ${cn} में चाँद कितने बजे निकलेगा?`, rise ? `आज (${dToday}) ${cn} में चाँद ${rT} पर निकलेगा${set ? ` और ${sT} पर अस्त होगा` : ''} (IST)।` : `आज (${dToday}) की तारीख में ${cn} में चंद्रोदय नहीं है; चाँद आधी रात के बाद निकलता है। ऊपर अगले 7 दिन का समय देखें।`],
+    [`आज ${cn} में चाँद कैसा दिखेगा?`, `आज चाँद ${t[phaseKey(angle)]} है, लगभग ${ill}% रोशन।`],
+    [`${cn} में अभी चाँद किस दिशा में है?`, 'ऊपर "अभी आसमान में चाँद खोजें" दबाएँ: लाइव फ़ाइंडर चाँद की दिशा और ऊँचाई बताता है और कैमरे से आसमान में दिखाता है।'],
+  ] : [
+    [`What time will the moon rise in ${cn} today?`, rise ? `Today (${dToday}) the moon rises in ${cn} at ${rT}${set ? ` and sets at ${sT}` : ''} (IST).` : `There is no moonrise in ${cn} on today's date (${dToday}); the moon rises after midnight. See the next 7 days above.`],
+    [`Aaj ${cn} mein chand kab niklega?`, rise ? `Aaj (${dToday}) ${cn} mein chand ${rT} par niklega${set ? ` aur ${sT} par ast hoga` : ''}.` : `Aaj ki tareekh mein ${cn} mein chandroday nahin hai; chand aadhi raat ke baad niklega.`],
+    [`What does the moon look like today in ${cn}?`, `Today's moon is a ${t[phaseKey(angle)]}, about ${ill}% lit.`],
+    [`Where is the moon right now in ${cn}?`, 'Tap "Find the moon in the sky now" above: the live moon finder shows the moon\'s direction and height from your location and points to it with your camera.'],
+  ];
+  body += `<div class="wrap"><section class="section"><h2>${esc(t.faqs)}</h2>${faqHtml(cityFaq)}</section></div>`;
+  return page({ lang, path: cpath(city), title: t.titleCity(cn), desc: t.descCity(cn), body, navActive: 'cities', ld: [faqLd(cityFaq)] });
 }
 
 function citiesIndex(lang) {
@@ -389,7 +401,7 @@ function citiesIndex(lang) {
   let body = hero({ lang, eyebrow: t.navCities, h1: t.citiesTitle, sub: t.tagline, angle: S.phaseAngle(S.istAt(C.today, 20)), picker: cityPicker(lang, { top: false, path: c => cpath(c) }) });
   body += `<div class="wrap">${adSlot()}<p class="muted">${lang === 'hi' ? `भारत के सभी ${placeCount()} ज़िले और शहर, राज्य के अनुसार।` : `All ${placeCount()} districts and cities of India, by state.`}</p>${stateLinks(lang, c => cpath(c))}`;
   body += `</div>`;
-  return page({ lang, path: '/moonrise/', title: `${t.citiesTitle} – ${t.siteName}`, desc: t.descCity(lang === 'hi' ? `भारत के सभी ${placeCount()} ज़िलों और शहरों` : `all ${placeCount()} districts and cities of India`), body, navActive: 'cities' });
+  return page({ lang, path: '/moonrise/', title: lang === 'hi' ? `आज चाँद कब निकलेगा: हर शहर का चंद्रोदय समय – ${t.siteName}` : `Moon Rise Time Today in Your City – All ${placeCount()} Places | ${t.siteName}`, desc: lang === 'hi' ? `भारत के सभी ${placeCount()} ज़िलों और शहरों में आज चंद्रोदय और चंद्रास्त का समय, चाँद की कला और अगले 7 दिन।` : `Today's moon rise and moonset time for all ${placeCount()} districts and cities of India, with moon phase and the next 7 days.`, body, navActive: 'cities' });
 }
 
 /* ===================== Home ===================== */
@@ -413,12 +425,12 @@ function home(lang) {
   body += `<section class="section"><h2>${esc(t.calendarTitle)}</h2><div class="pills">
 ${['purnima', 'amavasya', 'ekadashi', 'sankashti-chaturthi'].map(s => { const f = C.festivals.find(x => x.slug === s); return `<a href="${url(lang, `/calendar/${s}-${yr}/`)}">${esc(nm(f.name, lang))} ${yr}</a>`; }).join('')}
 <a href="${url(lang, monthPath(C.today.slice(0, 4), Number(C.today.slice(5, 7)) - 1))}">${esc(t.monthlyCal)}</a></div></section>`;
-  body += `<section class="section"><h2>${lang === 'hi' ? 'आज का चाँद, पूर्णिमा और अमावस्या' : 'Moon today, full moon and new moon'}</h2><div class="pills"><a href="${url(lang, '/moon-today/')}">${lang === 'hi' ? 'आज का चाँद' : 'Moon today'}</a><a href="${url(lang, '/full-moon/')}">${lang === 'hi' ? 'अगली पूर्णिमा कब है' : 'Next full moon'}</a><a href="${url(lang, '/new-moon/')}">${lang === 'hi' ? 'अगली अमावस्या कब है' : 'Next new moon'}</a><a href="${url(lang, '/chandra-grahan/')}">${lang === 'hi' ? 'चंद्र ग्रहण' : 'Lunar eclipse'}</a><a href="${url('en', '/solar-system/')}">🪐 ${lang === 'hi' ? '3D सौर मंडल और चाँद' : '3D solar system and Moon'}</a></div></section>`;
+  body += `<section class="section"><h2>${lang === 'hi' ? 'आज का चाँद, पूर्णिमा और अमावस्या' : 'Moon today, full moon and new moon'}</h2><div class="pills"><a href="${url(lang, '/moon-today/')}">${lang === 'hi' ? 'आज का चाँद' : 'Moon today'}</a><a href="${url(lang, '/tithi-today/')}">${lang === 'hi' ? 'आज की तिथि' : 'Tithi today'}</a><a href="${url('en', '/moon-finder/')}">${lang === 'hi' ? 'लाइव मून ट्रैकर' : 'Live moon tracker'}</a><a href="${url(lang, '/full-moon/')}">${lang === 'hi' ? 'अगली पूर्णिमा कब है' : 'Next full moon'}</a><a href="${url(lang, '/new-moon/')}">${lang === 'hi' ? 'अगली अमावस्या कब है' : 'Next new moon'}</a><a href="${url(lang, '/chandra-grahan/')}">${lang === 'hi' ? 'चंद्र ग्रहण' : 'Lunar eclipse'}</a><a href="${url('en', '/solar-system/')}">🪐 ${lang === 'hi' ? '3D सौर मंडल और चाँद' : '3D solar system and Moon'}</a></div></section>`;
   body += `<section class="section"><h2>${lang === 'hi' ? `हर राज्य का कैलेंडर ${yr}` : `Calendars of every state ${yr}`}</h2>${require('./regional').calLinks(lang)}</section>`;
   body += `<section class="section prose"><h2>${lang === 'hi' ? 'मून फ़ाइंडर क्या है?' : 'What is Moon Finder?'}</h2><p>${lang === 'hi' ? 'मून फ़ाइंडर (fullmoonfinder.com) आज का चाँद, अगली पूर्णिमा और अमावस्या, और भारत के हर ज़िले के लिए चंद्रोदय, चंद्रास्त और त्योहारों पर चाँद का समय बताता है – करवा चौथ, संकष्टी चतुर्थी, शरद पूर्णिमा, ईद का चाँद, चंद्र ग्रहण और भी बहुत कुछ। यहाँ हिंदी, मराठी, गुजराती, कन्नड़, तेलुगु, तमिल, मलयालम, बंगाली और अन्य राज्यों के कैलेंडर भी हैं। कैमरा फ़ाइंडर से आप फ़ोन को आसमान की ओर करके चाँद ढूँढ सकते हैं।' : 'Moon Finder (fullmoonfinder.com) shows the moon today, the next full moon and new moon, and moonrise, moonset and festival moon times for every district of India – Karva Chauth, Sankashti Chaturthi, Sharad Purnima, the Eid moon, lunar eclipses and more. It also has Hindi, Marathi, Gujarati, Kannada, Telugu, Tamil, Malayalam, Bengali and other state calendars. The camera finder points you to the moon when you hold your phone up to the sky.'}</p>
 <p><a href="${url('en', '/learn/')}">${esc(t.learn)} →</a></p></section>`;
   body += `</div>`;
-  return page({ lang, path: '/', title: lang === 'hi' ? 'मून फ़ाइंडर – आज का चाँद, पूर्णिमा और चंद्रोदय का समय | Full Moon Finder' : 'Moon Finder – Full Moon Finder: Moon Today, Moonrise Time & Festivals', desc: lang === 'hi' ? 'आज का चाँद, अगली पूर्णिमा और करवा चौथ, संकष्टी, ईद व चंद्र ग्रहण पर आपके शहर में चाँद कब निकलेगा। भारत के हर ज़िले का चंद्रोदय समय और हर राज्य का कैलेंडर।' : 'See the moon today, the next full moon and the moonrise time in your city for Karva Chauth, Sankashti, Purnima and Eid. Every district of India.', body, navActive: 'today',
+  return page({ lang, path: '/', title: lang === 'hi' ? 'मून फ़ाइंडर – आज का चाँद, पूर्णिमा और चंद्रोदय का समय | Full Moon Finder' : 'Moon Finder Online – Live Moon Today, Moonrise Time & Full Moon Finder', desc: lang === 'hi' ? 'आज का चाँद, अगली पूर्णिमा और करवा चौथ, संकष्टी, ईद व चंद्र ग्रहण पर आपके शहर में चाँद कब निकलेगा। भारत के हर ज़िले का चंद्रोदय समय और हर राज्य का कैलेंडर।' : 'See the moon today, the next full moon and the moonrise time in your city for Karva Chauth, Sankashti, Purnima and Eid. Every district of India.', body, navActive: 'today',
     ld: [{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'Moon Finder', alternateName: ['Full Moon Finder', 'fullmoonfinder.com', 'मून फ़ाइंडर'], url: abs(lang, '/'), inLanguage: lang === 'hi' ? 'hi-IN' : 'en-IN' },
       { '@context': 'https://schema.org', '@type': 'Organization', name: 'Moon Finder', alternateName: 'Full Moon Finder', url: abs('en', '/'), logo: `${U.cfg().origin}${U.cfg().base}/assets/og.png` }] });
 }
@@ -535,4 +547,4 @@ function calendarIndex(lang) {
   return page({ lang, path: '/calendar/', title: lang === 'hi' ? `कैलेंडर ${years[0]}: हिंदी, मराठी, गुजराती, तमिल और सभी राज्यों के पंचांग | ${t.siteName}` : `Calendar ${years[0]}: Hindi, Marathi, Gujarati, Tamil & All State Calendars | ${t.siteName}`, desc: lang === 'hi' ? 'हिंदी, मराठी, गुजराती, कन्नड़, तेलुगु, तमिल, मलयालम, बंगाली और अन्य कैलेंडर; पूर्णिमा, अमावस्या, एकादशी की सूचियाँ और मासिक चंद्र कैलेंडर।' : 'Hindi, Marathi, Gujarati, Kannada, Telugu, Tamil, Malayalam, Bengali and other regional calendars, plus Purnima, Amavasya and Ekadashi lists and monthly moon calendars.', body, navActive: 'calendar' });
 }
 
-module.exports = { ctx: () => C, nm, hero, occLabel, cityPicker, NAK_EN, NAK_HI, init, festivalPage, festCityPage, cityPage, citiesIndex, home, festivalsIndex, seriesYearPage, monthPage, monthPath, calendarIndex, hasCityPages, fcOk, fpath, fcpath, cpath, nextOcc, states, stateMonthPath };
+module.exports = { ctx: () => C, nm, hero, occLabel, cityPicker, NAK_EN, NAK_HI, SIGN_EN, SIGN_HI, init, festivalPage, festCityPage, cityPage, citiesIndex, home, festivalsIndex, seriesYearPage, monthPage, monthPath, calendarIndex, hasCityPages, fcOk, fpath, fcpath, cpath, nextOcc, states, stateMonthPath };

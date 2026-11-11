@@ -1,7 +1,7 @@
 // Pages about the moon itself: the moon today, full moon dates, new moon dates.
 'use strict';
 const S = require('./astro');
-const { T, fmtTime, fmtDate, tithiName, pakshaName } = require('./i18n');
+const { T, fmtTime, fmtDate, fmtDateTime, tithiName, pakshaName } = require('./i18n');
 const U = require('./ui');
 const P = require('./pages');
 const { esc, url, abs, page, adSlot, breadcrumbs, faqHtml, faqLd, phaseKey, shareButtons } = U;
@@ -14,6 +14,7 @@ const MOON_NAMES = ['Wolf Moon', 'Snow Moon', 'Worm Moon', 'Pink Moon', 'Flower 
 
 const moreLinks = lang => `<section class="section"><h2>${L(lang, 'More about the moon', 'चाँद के बारे में और')}</h2><div class="pills">
 <a href="${url(lang, '/moon-today/')}">${L(lang, 'Moon today', 'आज का चाँद')}</a>
+<a href="${url(lang, '/tithi-today/')}">${L(lang, 'Tithi today', 'आज की तिथि')}</a>
 <a href="${url(lang, '/full-moon/')}">${L(lang, 'Full moon dates', 'पूर्णिमा की तारीखें')}</a>
 <a href="${url(lang, '/new-moon/')}">${L(lang, 'New moon dates', 'अमावस्या की तारीखें')}</a>
 <a href="${url(lang, '/moonrise/')}">${L(lang, 'Moonrise in your city', 'आपके शहर में चंद्रोदय')}</a>
@@ -30,10 +31,12 @@ function moonToday(lang) {
   const rise = S.moonriseWithinDay(k, city), set = S.moonsetWithinDay(k, city);
   const full = S.nextPhase(C().now, 180), nw = S.nextPhase(C().now, 0);
   const phase = t[phaseKey(angle)], tithi = `${pakshaName(T0, lang)} ${tithiName(T0, lang)}`;
+  const rashiOf = d => (lang === 'hi' ? P.SIGN_HI : P.SIGN_EN)[Math.floor(S.siderealMoon(d) / 30)];
+  const rashi = rashiOf(sr), rashiNext = rashiOf(S.sunrise(S.addDays(k, 1), city));
   const daysTo = d => Math.round((Date.parse(S.dayKey(d)) - Date.parse(k)) / S.DAY_MS);
   const A = {
     label: L(lang, 'Moon phase today', 'आज चाँद की कला'), big: `${phase} · ${ill}%`, date: fmtDate(k, lang), target: full,
-    meta: [`${L(lang, 'Tithi', 'तिथि')}: ${tithi} · ${L(lang, 'Nakshatra', 'नक्षत्र')}: ${nak}`, `${t.moonrise} ${fmtTime(rise, lang)} · ${t.moonset} ${fmtTime(set, lang)} (${cn})`,
+    meta: [`${L(lang, 'Tithi', 'तिथि')}: ${tithi} · ${L(lang, 'Nakshatra', 'नक्षत्र')}: ${nak} · ${L(lang, 'Moon rashi', 'चंद्र राशि')}: ${rashi}`, `${t.moonrise} ${fmtTime(rise, lang)} · ${t.moonset} ${fmtTime(set, lang)} (${cn})`,
       `${L(lang, 'Next full moon', 'अगली पूर्णिमा')}: ${fmtDate(S.dayKey(full), lang, { year: false })} · ${L(lang, 'Next new moon', 'अगली अमावस्या')}: ${fmtDate(S.dayKey(nw), lang, { year: false })}`],
   };
   const crumbs = breadcrumbs([[t.navToday, url(lang, '/')], [L(lang, 'Moon today', 'आज का चाँद')]]);
@@ -54,6 +57,8 @@ ${days.map(d => { const a = S.istAt(d, 20), an = S.phaseAngle(a), Td = S.tithiAt
   const faq = [
     [L(lang, 'What is the moon phase today?', 'आज चाँद की कौन-सी कला है?'), L(lang, `Today (${fmtDate(k, 'en')}) the moon is a ${phase}, about ${ill}% lit. The tithi at sunrise is ${tithi}.`, `आज (${fmtDate(k, 'hi')}) चाँद ${phase} है, लगभग ${ill}% रोशन। सूर्योदय पर तिथि ${tithi} है।`)],
     [L(lang, 'Is it a full moon tonight?', 'क्या आज पूर्णिमा है?'), daysTo(full) === 0 ? L(lang, `Yes. The moon is full today at ${fmtTime(full, 'en')} IST.`, `हाँ। आज ${fmtTime(full, 'hi')} (IST) पर पूर्णिमा है।`) : L(lang, `No. The next full moon is on ${fmtDate(S.dayKey(full), 'en')} at ${fmtTime(full, 'en')} IST, ${daysTo(full)} days from now.`, `नहीं। अगली पूर्णिमा ${fmtDate(S.dayKey(full), 'hi')} को ${fmtTime(full, 'hi')} (IST) पर है, यानी ${daysTo(full)} दिन बाद।`)],
+    [L(lang, 'Which rashi is the moon in today?', 'आज चंद्रमा किस राशि में है?'), L(lang, `At sunrise today the moon is in ${rashi}${rashiNext !== rashi ? ` and it moves into ${rashiNext} before tomorrow's sunrise` : ''} (sidereal zodiac, Lahiri ayanamsa).`, `आज सूर्योदय पर चंद्रमा ${rashi} राशि में है${rashiNext !== rashi ? ` और कल के सूर्योदय से पहले ${rashiNext} में चला जाएगा` : ''} (निरयण, लाहिरी अयनांश)।`)],
+    [L(lang, 'Where is the moon right now?', 'अभी चाँद कहाँ है?'), L(lang, 'Open the live moon tracker (Find the moon in the sky now, above): it shows the moon\'s direction and height from your location at this moment.', 'ऊपर "अभी आसमान में चाँद खोजें" खोलें: लाइव मून ट्रैकर आपकी लोकेशन से इस समय चाँद की दिशा और ऊँचाई बताता है।')],
     [L(lang, 'What time will the moon rise today?', 'आज चाँद कितने बजे निकलेगा?'), L(lang, `In ${cn} the moon rises at ${fmtTime(rise, 'en')} and sets at ${fmtTime(set, 'en')} today. The time changes from city to city; pick your city above for the exact time.`, `${cn} में आज चंद्रोदय ${fmtTime(rise, 'hi')} और चंद्रास्त ${fmtTime(set, 'hi')} पर है। हर शहर में समय अलग होता है; सटीक समय के लिए ऊपर अपना शहर चुनें।`)],
   ];
   body += `<section class="section"><h2>${esc(t.faqs)}</h2>${faqHtml(faq)}</section>`;
@@ -61,7 +66,7 @@ ${days.map(d => { const a = S.istAt(d, 20), an = S.phaseAngle(a), Td = S.tithiAt
   body += moreLinks(lang) + `</div>`;
   return page({
     lang, path: '/moon-today/', body, navActive: 'today', ld: [faqLd(faq)],
-    title: L(lang, `Moon Today (${fmtDate(k, 'en', { weekday: false })}): Phase, Moonrise Time & Tithi`, `आज का चाँद (${fmtDate(k, 'hi', { weekday: false })}): कला, चंद्रोदय समय और तिथि`),
+    title: L(lang, `Moon Today Live (${fmtDate(k, 'en', { weekday: false })}): Phase, Rise Time, Rashi & Tithi`, `आज का चाँद (${fmtDate(k, 'hi', { weekday: false })}): कला, चंद्रोदय समय और तिथि`),
     desc: L(lang, `Today's moon is a ${phase}, ${ill}% lit. Moonrise and moonset times for Indian cities, today's tithi and nakshatra, and the moon phase for the next 30 days.`, `आज चाँद ${phase} है, ${ill}% रोशन। भारत के शहरों में चंद्रोदय और चंद्रास्त का समय, आज की तिथि और नक्षत्र, और अगले 30 दिन की चंद्र कला।`),
   });
 }
@@ -119,9 +124,51 @@ ${rows.map(x => `<tr${x === next ? ' class="hl"' : ''}><td>${esc(fmtDate(x.key, 
   body += `<section class="section"><h2>${esc(t.faqs)}</h2>${faqHtml(faq)}</section>${moreLinks(lang)}</div>`;
   return page({
     lang, path, body, navActive: 'calendar', ld: [faqLd(faq)],
-    title: full ? L(lang, `Full Moon ${y}: Next Full Moon Date & Time in India (Purnima)`, `पूर्णिमा ${y}: अगली पूर्णिमा कब है – तारीख और समय`) : L(lang, `New Moon ${y}: Next New Moon Date & Time in India (Amavasya)`, `अमावस्या ${y}: अगली अमावस्या कब है – तारीख और समय`),
+    title: full ? L(lang, `Full Moon ${y}: Next Full Moon Day in India – Purnima Kab Hai`, `पूर्णिमा ${y}: अगली पूर्णिमा कब है – तारीख और समय`) : L(lang, `New Moon ${y}: Next Amavasya Date & Time – Amavasya Kab Hai`, `अमावस्या ${y}: अगली अमावस्या कब है – तारीख और समय`),
     desc: L(lang, `The next ${word} is on ${nd} at ${nt} IST. All ${word} dates for ${C().years.join(' and ')} with exact times${full ? ', Purnima names and moonrise' : ' and Amavasya names'}.`, `अगली ${word} ${nd} को ${nt} (IST) पर है। ${C().years.join(' और ')} की सभी ${word} तारीखें, सटीक समय${full ? ', नाम और चंद्रोदय' : ' और नाम'} सहित।`),
   });
 }
 
-module.exports = { moonToday, fullMoon: lang => phasePage('full', lang), newMoon: lang => phasePage('new', lang) };
+/* ---------- Tithi today (aaj ki tithi) ---------- */
+function tithiToday(lang) {
+  const t = T[lang], k = C().today, city = delhi(), cn = P.nm(city.name, lang);
+  const NAK = lang === 'hi' ? P.NAK_HI : P.NAK_EN, SIGN = lang === 'hi' ? P.SIGN_HI : P.SIGN_EN;
+  const info = d => {
+    const sr = S.sunrise(d, city), T0 = S.tithiAt(sr), lm = C().months.find(m => m.start <= sr && sr < m.end);
+    return { sr, T0, lm, start: lm.tithi[T0 - 1], end: lm.tithi[T0], nak: NAK[S.nakshatraAt(sr)], name: `${pakshaName(T0, lang)} ${tithiName(T0, lang)}` };
+  };
+  const x = info(k), nextT = (x.T0 % 30) + 1;
+  const mName = i => (lang === 'hi' ? S.MONTHS_HI : S.MONTHS)[i];
+  const adh = x.lm.adhika ? ` (${t.adhika})` : '';
+  const amanta = mName(x.lm.index) + adh, purni = (x.lm.adhika || x.T0 <= 15 ? mName(x.lm.index) : mName((x.lm.index + 1) % 12)) + adh;
+  const paksha = x.T0 <= 15 ? L(lang, 'Shukla Paksha (waxing moon)', 'शुक्ल पक्ष (बढ़ता चाँद)') : L(lang, 'Krishna Paksha (waning moon)', 'कृष्ण पक्ष (घटता चाँद)');
+  const rashi = SIGN[Math.floor(S.siderealMoon(x.sr) / 30)];
+  const A = {
+    label: L(lang, `Tithi today (at sunrise in ${cn})`, `आज की तिथि (${cn} में सूर्योदय पर)`), big: x.name, date: fmtDate(k, lang), target: null,
+    meta: [`${t.tithiStarts}: ${fmtDateTime(x.start, lang)} · ${t.tithiEnds}: ${fmtDateTime(x.end, lang)}`,
+      `${L(lang, 'Month', 'मास')}: ${purni} (${L(lang, 'North India', 'उत्तर भारत')})${purni !== amanta ? ` · ${amanta} (${L(lang, 'Amanta', 'अमांत')})` : ''} · ${paksha}`,
+      `${L(lang, 'Nakshatra', 'नक्षत्र')}: ${x.nak} · ${L(lang, 'Moon rashi', 'चंद्र राशि')}: ${rashi}`,
+      `${t.sunrise} ${fmtTime(x.sr, lang)} · ${t.sunset} ${fmtTime(S.sunset(k, city), lang)} · ${t.moonrise} ${fmtTime(S.moonriseWithinDay(k, city), lang)}`],
+  };
+  const crumbs = breadcrumbs([[t.navToday, url(lang, '/')], [t.navCalendar, url(lang, '/calendar/')], [L(lang, 'Tithi today', 'आज की तिथि')]]);
+  let body = P.hero({ lang, crumbs, eyebrow: L(lang, "Today's panchang", 'आज का पंचांग'), h1: L(lang, 'Tithi today: aaj ki tithi, nakshatra and panchang', 'आज की तिथि क्या है: आज का पंचांग, नक्षत्र और पक्ष'), A, angle: S.phaseAngle(S.istAt(k, 20)) });
+  body += `<div class="wrap">${adSlot()}`;
+  const days = Array.from({ length: 15 }, (_, i) => S.addDays(k, i));
+  body += `<section class="section"><h2>${L(lang, 'Tithi for the next 15 days', 'अगले 15 दिन की तिथि')}</h2><div class="table-wrap"><table><thead><tr><th>${esc(t.date)}</th><th>${L(lang, 'Tithi at sunrise', 'सूर्योदय पर तिथि')}</th><th>${esc(t.tithiEnds)}</th><th>${L(lang, 'Nakshatra', 'नक्षत्र')}</th></tr></thead><tbody>
+${days.map(d => { const y = info(d); return `<tr${d === k ? ' class="hl"' : ''}><td>${esc(fmtDate(d, lang, { year: false }))}</td><td>${esc(y.name)}</td><td>${esc(fmtDateTime(y.end, lang))}</td><td>${esc(y.nak)}</td></tr>`; }).join('')}
+</tbody></table></div><p class="muted small" style="margin-top:10px">${L(lang, `The tithi shown is the one running at sunrise in ${cn} (udaya tithi), which is the tithi of the day for most observances. Tithi start and end times are the same across India.`, `दिखाई गई तिथि ${cn} में सूर्योदय के समय की है (उदया तिथि), जो ज़्यादातर व्रत-पर्वों के लिए उस दिन की तिथि मानी जाती है। तिथि के आरंभ और समाप्ति का समय पूरे भारत में एक ही होता है।`)}</p></section>`;
+  const faq = [
+    [L(lang, 'Aaj ki tithi kya hai? What is the tithi today?', 'आज की तिथि क्या है?'), L(lang, `Today, ${fmtDate(k, 'en')}, the tithi is ${x.name} of ${purni} month. It ends at ${fmtDateTime(x.end, 'en')} IST, after which ${pakshaName(nextT, 'en')} ${tithiName(nextT, 'en')} begins.`, `आज, ${fmtDate(k, 'hi')}, ${purni} मास की ${x.name} तिथि है। यह ${fmtDateTime(x.end, 'hi')} (IST) पर समाप्त होगी, उसके बाद ${pakshaName(nextT, 'hi')} ${tithiName(nextT, 'hi')} शुरू होगी।`)],
+    [L(lang, 'Is today Shukla Paksha or Krishna Paksha?', 'आज शुक्ल पक्ष है या कृष्ण पक्ष?'), L(lang, `Today is ${paksha}.`, `आज ${paksha} है।`)],
+    [L(lang, 'Which nakshatra is today?', 'आज कौन-सा नक्षत्र है?'), L(lang, `At sunrise today the nakshatra is ${x.nak} and the moon is in ${rashi} rashi.`, `आज सूर्योदय पर ${x.nak} नक्षत्र है और चंद्रमा ${rashi} राशि में है।`)],
+  ];
+  body += `<section class="section"><h2>${esc(t.faqs)}</h2>${faqHtml(faq)}</section>
+<section class="section"><h2>${L(lang, 'Panchang calendars by language', 'भाषा के अनुसार पंचांग कैलेंडर')}</h2>${require('./regional').calLinks(lang)}</section>${moreLinks(lang)}</div>`;
+  return page({
+    lang, path: '/tithi-today/', body, navActive: 'calendar', ld: [faqLd(faq)],
+    title: L(lang, `Tithi Today (${fmtDate(k, 'en', { weekday: false })}): Aaj Ki Tithi, Nakshatra & Panchang`, `आज की तिथि क्या है (${fmtDate(k, 'hi', { weekday: false })}) – आज का पंचांग, नक्षत्र`),
+    desc: L(lang, `Aaj ki tithi: ${x.name}, ${purni} month, ending ${fmtDateTime(x.end, 'en')} IST. Today's panchang with nakshatra, moon rashi, sunrise and the tithi for the next 15 days.`, `आज की तिथि: ${purni} ${x.name}, ${fmtDateTime(x.end, 'hi')} तक। आज का पंचांग: नक्षत्र, चंद्र राशि, सूर्योदय और अगले 15 दिन की तिथि।`),
+  });
+}
+
+module.exports = { tithiToday, moonToday, fullMoon: lang => phasePage('full', lang), newMoon: lang => phasePage('new', lang) };

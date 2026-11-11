@@ -73,6 +73,7 @@ for (const lang of ['en', 'hi']) {
   for (const st of P.states()) for (const [y, m] of monthList) write(P.stateMonthPath(st, y, m), P.monthPage(y, m, lang, st), { lang });
   // The moon itself, and the calendars of each language/state
   write('/moon-today/', M.moonToday(lang), { lang });
+  write('/tithi-today/', M.tithiToday(lang), { lang });
   write('/full-moon/', M.fullMoon(lang), { lang });
   write('/new-moon/', M.newMoon(lang), { lang });
   for (const cal of R.CALS) {

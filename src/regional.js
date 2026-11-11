@@ -448,7 +448,7 @@ ${adSlot()}
 ${otherCals(cal, lang)}</div>`;
   return page({
     lang, path: calPath(cal), body, navActive: 'calendar', ld: [faqLd(f)],
-    title: L(lang, `${cal.name.en} Calendar ${y} – ${cal.native}: Today's ${cal.kind === 'hijri' ? 'Date' : 'Tithi'} & Festivals`, `${cal.name.hi} कैलेंडर ${y} – ${cal.native}: आज की ${cal.kind === 'hijri' ? 'तारीख' : 'तिथि'} और त्योहार`),
+    title: L(lang, `${cal.slug === 'hindi' ? 'Hindu Calendar ' + y + ' (Hindi Panchang)' : cal.name.en + ' Calendar ' + y} – ${cal.native}: Today's ${cal.kind === 'hijri' ? 'Date' : 'Tithi'} & Festivals`, `${cal.name.hi} कैलेंडर ${y} – ${cal.native}: आज की ${cal.kind === 'hijri' ? 'तारीख' : 'तिथि'} और त्योहार`),
     desc: L(lang, `${cal.name.en} calendar ${y} (${cal.alt.en}): today is ${dateText(cal, r, 'en')}${era ? ', ' + era : ''}. Monthly calendars with tithi, nakshatra and ${cal.region.en} festivals.`, `${cal.name.hi} कैलेंडर ${y} (${cal.alt.hi}): आज ${dateText(cal, r, 'hi')}${era ? ', ' + era : ''} है। तिथि, नक्षत्र और ${cal.region.hi} के त्योहारों सहित मासिक कैलेंडर।`),
   });
 }
