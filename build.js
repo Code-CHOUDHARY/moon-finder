@@ -74,6 +74,7 @@ for (const lang of ['en', 'hi']) {
   // The moon itself, and the calendars of each language/state
   write('/moon-today/', M.moonToday(lang), { lang });
   write('/sun-today/', M.sunToday(lang), { lang });
+  for (const c of CITIES) write(M.sunPath(c), M.sunToday(lang, c), { lang });
   write('/tithi-today/', M.tithiToday(lang), { lang });
   write('/full-moon/', M.fullMoon(lang), { lang });
   write('/new-moon/', M.newMoon(lang), { lang });
