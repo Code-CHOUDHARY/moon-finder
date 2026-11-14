@@ -1,0 +1,30 @@
+/* Star Finder page only (loaded by /star-finder/; the Moon Finder does not use this file) */
+.sky-main { max-width: 980px; }
+.sky-box { position: relative; height: min(72vh, 640px); min-height: 380px; border-radius: var(--radius); overflow: hidden; background: #060A1C; color: #fff; touch-action: none; user-select: none; -webkit-user-select: none; }
+.sky-box.live { position: fixed; inset: 0; height: auto; min-height: 0; border-radius: 0; z-index: 60; }
+body.sky-lock { overflow: hidden; }
+#skyVideo, #skyCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#skyVideo { object-fit: cover; }
+#skyCanvas { cursor: grab; }
+.sky-top { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 12px 14px; background: linear-gradient(rgba(0, 0, 0, .65), transparent); pointer-events: none; }
+.sky-top > * { pointer-events: auto; }
+#skyInfo { font-size: .9rem; text-shadow: 0 1px 3px #000; }
+.sky-btns { display: flex; gap: 6px; flex-shrink: 0; }
+.sky-btns button { background: rgba(0, 0, 0, .45); color: #fff; border: 1px solid rgba(255, 255, 255, .3); border-radius: 10px; padding: 6px 10px; font: inherit; font-size: .9rem; cursor: pointer; }
+.sky-box:not(.live) #skyClose, .sky-box.live #skyFull { display: none; }
+#skyHint { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 14px 20px; text-align: center; font-weight: 600; background: linear-gradient(transparent, rgba(0, 0, 0, .75)); text-shadow: 0 1px 3px #000; pointer-events: none; }
+.sky-box.live #skyHint { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+#skyTip { position: absolute; left: 12px; bottom: 64px; max-width: min(320px, 80%); padding: 10px 12px; border-radius: 12px; background: rgba(10, 14, 40, .85); border: 1px solid rgba(255, 215, 106, .5); font-size: .9rem; }
+#skyTip[hidden] { display: none; }
+#alignBtn { position: absolute; right: 12px; top: 58px; }
+#alignBtn[hidden] { display: none; }
+.sky-box:not(.live) #alignBtn { display: none; }
+.sky-controls { display: grid; gap: 10px; margin: 12px 0; }
+.sky-controls .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sky-controls form { display: flex; gap: 8px; flex: 1 1 260px; }
+.sky-controls input[type=search] { flex: 1; min-width: 0; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; }
+.sky-controls input[type=range] { flex: 1 1 200px; accent-color: var(--accent); }
+.sky-controls label.check { display: inline-flex; gap: 6px; align-items: center; font-size: .95rem; }
+.sky-controls .btn.small { padding: 8px 12px; font-size: .9rem; }
+#camBtn { width: 100%; padding: 15px; }
+button.linkish { background: none; border: 0; padding: 0; color: var(--link); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }

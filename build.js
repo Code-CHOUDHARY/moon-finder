@@ -90,12 +90,13 @@ for (const a of ST.ARTICLES) write(`/learn/${a.slug}/`, ST.learnPage(a));
 for (const [s, html] of ST.legalPages()) write(`/${s}/`, html);
 write('/moon-finder/', ST.finderPage());
 write('/solar-system/', ST.spacePage());
+write('/star-finder/', ST.starPage());
 write('/404.html', ST.notFound(), { index: false });
 
 // ---------- Assets ----------
 const A = path.join(OUT, 'assets');
 fs.mkdirSync(A, { recursive: true });
-for (const f of ['style.css', 'finder.js', 'space.js', 'icon.svg', 'og.png', 'favicon-48.png', 'favicon-96.png', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'logo.png']) if (fs.existsSync(path.join(__dirname, 'assets', f))) fs.copyFileSync(path.join(__dirname, 'assets', f), path.join(A, f));
+for (const f of ['style.css', 'finder.js', 'space.js', 'sky.js', 'sky.css', 'sky.json', 'icon.svg', 'og.png', 'favicon-48.png', 'favicon-96.png', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'logo.png']) if (fs.existsSync(path.join(__dirname, 'assets', f))) fs.copyFileSync(path.join(__dirname, 'assets', f), path.join(A, f));
 // Every place for the city picker and 'near me': [slug, lat, lng, hasFestivalPages, English, Hindi, state]; aliases: [English, Hindi, state, slug]
 const cityJs = 'window.MF_CITIES=' + JSON.stringify(CITIES.map(c => [c.slug, c.lat, c.lng, c.top ? 1 : 0, c.name.en, c.name.hi, c.state, c.major ? 1 : 0])) + ';\nwindow.MF_ALIASES=' + JSON.stringify(ALIASES.map(a => [a.name.en, a.name.hi, a.state, a.slug])) + ';\n';
 fs.writeFileSync(path.join(A, 'app.js'), cityJs + fs.readFileSync(path.join(__dirname, 'assets', 'app.src.js'), 'utf8'));

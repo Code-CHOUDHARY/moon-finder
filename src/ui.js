@@ -93,6 +93,7 @@ function tools(lang) {
     ['🌘', L('Lunar eclipse', 'चंद्र ग्रहण'), L('Chandra Grahan dates and visibility', 'ग्रहण की तारीख और दृश्यता'), url(lang, '/chandra-grahan/')],
     ['📷', L('Live moon tracker', 'लाइव मून ट्रैकर'), L('Find the moon with your camera', 'कैमरे से चाँद खोजें'), url('en', '/moon-finder/')],
     ['🪐', L('3D solar system', '3D सौर मंडल'), L('Planets, Moon orbit, your place on Earth', 'ग्रह, चाँद की कक्षा, पृथ्वी पर आपकी जगह'), url('en', '/solar-system/')],
+    ['✨', L('Star Finder', 'तारे और नक्षत्र खोजें'), L('Constellations and planets with your camera', 'कैमरे से तारामंडल और ग्रह देखें'), url('en', '/star-finder/')],
   ];
 }
 const toolLinks = lang => tools(lang).map(([i, n, , href]) => `<a href="${href}">${i} ${esc(n)}</a>`).join('');
@@ -163,6 +164,7 @@ ${body}
         <li><a href="${url(lang, '/tithi-today/')}">${lang === 'hi' ? 'आज की तिथि' : 'Tithi today'}</a></li>
         <li><a href="${url(lang, '/full-moon/')}">${lang === 'hi' ? 'पूर्णिमा की तारीखें' : 'Full moon dates'}</a></li>
         <li><a href="${url('en', '/solar-system/')}">${lang === 'hi' ? '3D सौर मंडल' : '3D solar system'}</a></li>
+        <li><a href="${url('en', '/star-finder/')}">${lang === 'hi' ? 'तारे खोजें (स्टार फ़ाइंडर)' : 'Star Finder'}</a></li>
         <li><a href="${url(lang, '/hindi-calendar/')}">${lang === 'hi' ? 'हिंदी कैलेंडर' : 'Hindi calendar'}</a></li>
         <li><a href="${url('en', '/learn/')}">${esc(t.learn)}</a></li>
         <li><a href="${url('en', '/about/')}">About</a></li>

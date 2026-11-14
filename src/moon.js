@@ -115,6 +115,7 @@ ${rows.map(x => `<tr${x === next ? ' class="hl"' : ''}><td>${esc(fmtDate(x.key, 
   const nd = fmtDate(next.key, lang), nt = fmtTime(next.at, lang);
   const faq = full ? [
     [L(lang, 'When is the next full moon?', 'अगली पूर्णिमा कब है?'), L(lang, `The next full moon is on ${nd} at ${nt} IST (${hindu(next)}).`, `अगली पूर्णिमा ${nd} को ${nt} (IST) पर है (${hindu(next)})।`)],
+    [L(lang, 'How do I find the full moon from my location?', 'अपनी जगह से पूर्णिमा का चाँद कैसे खोजें?'), L(lang, `Choose your city above for the full moon date and moonrise time where you are. On the night, open the free live Moon Finder (${abs('en', '/moon-finder/')}) and allow location: it shows where the moon is in your sky and points you to it with the camera.`, `ऊपर अपना शहर चुनें, वहाँ पूर्णिमा की तारीख और चंद्रोदय का समय दिखेगा। उस रात मुफ़्त लाइव मून फ़ाइंडर (${abs('en', '/moon-finder/')}) खोलें और लोकेशन की अनुमति दें: यह आपके आसमान में चाँद की जगह दिखाता है और कैमरे से उसकी ओर ले जाता है।`)],
     [L(lang, 'How often is there a full moon?', 'पूर्णिमा कितने दिन में आती है?'), L(lang, 'About every 29.5 days, so most years have 12 full moons and some have 13.', 'लगभग हर 29.5 दिन में, इसलिए ज़्यादातर वर्षों में 12 और कुछ में 13 पूर्णिमा होती हैं।')],
     [L(lang, 'What time does the full moon rise?', 'पूर्णिमा का चाँद कितने बजे निकलता है?'), L(lang, `Close to sunset. On ${nd} the moon rises in ${cn} at ${fmtTime(riseOf(next), lang)}; choose your city above for the local time.`, `सूर्यास्त के आस-पास। ${nd} को ${cn} में चंद्रोदय ${fmtTime(riseOf(next), lang)} पर है; अपने शहर का समय देखने के लिए ऊपर शहर चुनें।`)],
   ] : [
@@ -124,7 +125,7 @@ ${rows.map(x => `<tr${x === next ? ' class="hl"' : ''}><td>${esc(fmtDate(x.key, 
   body += `<section class="section"><h2>${esc(t.faqs)}</h2>${faqHtml(faq)}</section>${moreLinks(lang)}</div>`;
   return page({
     lang, path, body, navActive: 'calendar', ld: [faqLd(faq)],
-    title: full ? L(lang, `Full Moon ${y}: Next Full Moon Day in India – Purnima Kab Hai`, `पूर्णिमा ${y}: अगली पूर्णिमा कब है – तारीख और समय`) : L(lang, `New Moon ${y}: Next Amavasya Date & Time – Amavasya Kab Hai`, `अमावस्या ${y}: अगली अमावस्या कब है – तारीख और समय`),
+    title: full ? L(lang, `Full Moon Finder ${y}: Next Full Moon Date & Time from Your Location – Purnima Kab Hai`, `पूर्णिमा ${y}: अगली पूर्णिमा कब है – तारीख और समय`) : L(lang, `New Moon ${y}: Next Amavasya Date & Time – Amavasya Kab Hai`, `अमावस्या ${y}: अगली अमावस्या कब है – तारीख और समय`),
     desc: L(lang, `The next ${word} is on ${nd} at ${nt} IST. All ${word} dates for ${C().years.join(' and ')} with exact times${full ? ', Purnima names and moonrise' : ' and Amavasya names'}.`, `अगली ${word} ${nd} को ${nt} (IST) पर है। ${C().years.join(' और ')} की सभी ${word} तारीखें, सटीक समय${full ? ', नाम और चंद्रोदय' : ' और नाम'} सहित।`),
   });
 }

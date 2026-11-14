@@ -9,6 +9,7 @@ A static website that answers *"chand kab niklega?"* for every major Indian fest
 - **3D solar system** (`/solar-system/`): a live 3D view with two modes. *Earth and Moon* shows the turning globe with your place pinned on it, day and night, the Moon on its real orbit and a line from your place to the Moon. *Solar system* shows where every planet is now. Both have play, speed and date controls. Code is in `assets/space.js`; three.js, Astronomy Engine and Natural Earth coastlines are copied from `node_modules` at build time, so nothing loads from another site.
 - **Sun-based festivals** (`src/festivals-sun.js`): Chhath Puja, Lohri, Vaisakhi, Poila Boishakh, Pana Sankranti and Bohag Bihu, with city pages in the states that observe them, plus `/sun-today/` and sunrise/sunset on every city page.
 - Live **camera finder** (`/moon-finder/`) — the original Moon Finder app, restyled.
+- **Star Finder** (`/star-finder/`): a live sky map of ~2,800 stars, the 88 constellations (lines and names, with Indian names such as Saptarishi, Mriga, Dhruva tara and the 12 rashis), the Moon and the five naked-eye planets for your place and time. Drag to look around, or point the phone camera at the sky and the map follows it; "Fix alignment" corrects a wrong compass using a bright object. Code in `assets/sky.js` and `assets/sky.css` (loaded only on that page, so the Moon Finder is untouched); star data in `assets/sky.json`, made once from d3-celestial data (BSD) by `tools/make-sky-data.js`.
 - Rebuilt automatically every morning so "today" pages and countdowns stay current.
 
 ## How it works
@@ -25,7 +26,8 @@ A static website that answers *"chand kab niklega?"* for every major Indian fest
 | `src/regional.js` | The regional calendars: names in each script, month rules (Amanta/Purnimanta lunar months; solar months by the Tamil, Kerala, Bengal and Odisha sankranti rules; predicted Hijri months), eras and page templates — **edit `CALS` here to add a calendar or correct a name** |
 | `src/moon.js` | Moon today, full moon and new moon pages |
 | `src/pages.js`, `src/static.js`, `src/ui.js`, `src/i18n.js` | Page templates, shared layout, translations |
-| `assets/` | CSS, small site script, camera-finder script, icon, share image |
+| `assets/` | CSS, small site script, camera-finder script, Star Finder (`sky.js`, `sky.css`, `sky.json`), icon, share image |
+| `tools/make-sky-data.js` | Rebuilds `assets/sky.json` from d3-celestial data (only needed if the star data changes) |
 
 Festival-day rules (tithi prevailing at sunrise / midday / pradosh / moonrise) follow common North Indian panchang practice. Checked against published dates for 2025–2026: Karva Chauth, Diwali, Holi, Raksha Bandhan, Ganesh Chaturthi, Sharad Purnima, Guru Purnima, Eid al-Fitr and Bakrid all match, and the Karva Chauth 2025 moonrise for Delhi (8:13 PM) and Mumbai (8:55 PM) matches published times. **Before each festival season, spot-check the year's dates against a trusted panchang.** Islamic dates are predictions; committees announce the final date.
 

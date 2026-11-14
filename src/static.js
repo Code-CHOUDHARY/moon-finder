@@ -1,6 +1,6 @@
 // Learn articles, legal pages, the live Moon Finder tool and 404.
 'use strict';
-const { esc, url, page, breadcrumbs, moonSvg, cfg, adSlot } = require('./ui');
+const { esc, url, abs, page, breadcrumbs, moonSvg, cfg, adSlot, faqHtml, faqLd } = require('./ui');
 
 const simpleHero = (h1, sub, crumbs, angle = 120) => `<section class="hero"><div class="wrap"><div>${crumbs || ''}<h1>${esc(h1)}</h1>${sub ? `<p class="sub">${esc(sub)}</p>` : ''}</div>${moonSvg(angle)}</div></section>`;
 
@@ -87,9 +87,18 @@ function notFound() {
 }
 
 // The live tool: the original single-page Moon Finder, restyled.
+const FINDER_FAQ = [
+  ['Where is the moon right now from my location?', 'Allow location access and the page shows the moon\'s direction (for example south-east) and its height in degrees for this moment. If the moon is below the horizon, it tells you when it rises.'],
+  ['Can I see a live view of the moon from my location?', 'Yes. Tap "Show me with the camera" and your phone camera shows the live sky with the moon\'s position marked, so you can find it even when it is low, faint or behind clouds.'],
+  ['How do I find the next full moon from my location?', 'The page shows the date of the next full moon and today\'s moonrise for where you are. The full moon page lists every full moon of the year with its exact time and the moonrise in your city.'],
+  ['Is this moon finder free?', 'Yes. It is free, runs in your browser and needs no app or account. Your location stays on your phone; it is only used to work out the moon\'s position.'],
+  ['How do I find the moon with my phone camera?', 'Tap "Show me with the camera", allow the camera and motion sensors, and turn slowly. The arrow points towards the moon and a ring appears when you are facing it.'],
+  ['Does the moon finder work without the internet or an app?', 'It runs in the browser. Once the page has loaded, all calculations happen on your phone.'],
+];
 function finderPage() {
   const body = `<div class="wrap finder-main">
-<h1 style="margin-top:18px">Find the Moon now</h1>
+<h1 style="margin-top:18px">Live moon view from your location</h1>
+<p class="muted" style="text-align:center;margin:4px 0 0">Free online moon finder: see where the moon is right now, and when the next full moon is.</p>
 <div style="text-align:center"><svg id="moon" viewBox="0 0 200 200" width="180" height="180" class="moon-glow" role="img" aria-label="Moon phase"></svg>
 <p style="font-size:1.5rem;font-weight:700;margin:6px 0 0" id="phaseName">Loading…</p><p class="muted" id="illum" style="margin:0"></p></div>
 <div class="card" style="margin:16px 0 12px;text-align:center"><span class="chip" id="visible">…</span><p style="font-size:1.2rem;font-weight:700;margin:10px 0 2px" id="look">Finding your location…</p><p class="muted" id="lookSub" style="margin:0"></p></div>
@@ -99,15 +108,14 @@ function finderPage() {
 <details class="faq" id="placeBox"><summary>Change place or time</summary><div><p class="muted small" id="loc">–</p><form id="form" class="form"><label>Latitude <input id="lat" type="number" step="any" min="-90" max="90" required inputmode="decimal"></label><label>Longitude <input id="lng" type="number" step="any" min="-180" max="180" required inputmode="decimal"></label><label class="full">Date &amp; time (leave empty for now) <input id="when" type="datetime-local"></label><div class="row"><button class="btn" type="submit">Update</button><button class="btn ghost" type="button" id="useGps">Use my location</button><button class="btn ghost" type="button" id="nowBtn">Now</button></div></form><p id="msg" style="color:var(--warn)"></p></div></details>
 <p class="muted small" style="text-align:center">Times use your device's time zone. Positions are approximate (about 1°).</p>
 <div id="cam" hidden><video id="video" playsinline muted autoplay></video><canvas id="overlay"></canvas><div id="camTop"><div id="camInfo">Starting camera…</div><button type="button" class="icon-btn" id="camClose" aria-label="Close camera" style="background:rgba(0,0,0,.45);color:#fff">✕</button></div><div id="camHint"></div></div>
-<section class="section prose"><h2>Live moon tracker: where is the moon right now?</h2>
-<p>This moon finder works online from your location, with no app to install. It shows the moon's position now: its direction on the compass, its height above the horizon, today's moonrise and moonset time, and the moon phase. Tap the camera button and hold your phone up; an arrow guides you to the moon in the sky.</p>
-<div class="pills"><a href="${url('en', '/moon-today/')}">Moon today</a><a href="${url('en', '/moonrise/')}">Moon rise time in your city</a><a href="${url('en', '/solar-system/')}">Moon position in the solar system (3D)</a><a href="${url('en', '/full-moon/')}">Next full moon</a></div>
-<details class="faq"><summary>Where is the moon right now from my location?</summary><p>Allow location access and the page shows the moon's direction (for example south-east) and height in degrees for this moment. If the moon is below the horizon, it tells you when it rises.</p></details>
-<details class="faq"><summary>How do I find the moon with my phone camera?</summary><p>Tap "Show me with the camera", allow the camera and motion sensors, and turn slowly. The arrow points towards the moon and a ring appears when you are facing it.</p></details>
-<details class="faq"><summary>Does the moon finder work without the internet or an app?</summary><p>It runs in the browser. Once the page has loaded, all calculations happen on your phone.</p></details></section>
+<section class="section prose"><h2>Live moon view and moon finder: where is the moon right now?</h2>
+<p>This free moon finder works online from your location, with no app to install and no sign-up. It shows the moon's position now: its direction on the compass, its height above the horizon, today's moonrise and moonset time, the moon phase and the date of the next full moon. Tap the camera button and hold your phone up for a live view of the sky; an arrow guides you to the moon and a ring marks it when you are facing it.</p>
+<div class="pills"><a href="${url('en', '/moon-today/')}">Moon today</a><a href="${url('en', '/moonrise/')}">Moon rise time in your city</a><a href="${url('en', '/full-moon/')}">Full moon finder: next full moon</a><a href="${url('en', '/solar-system/')}">Moon position in the solar system (3D)</a><a href="${url('en', '/star-finder/')}">✨ Star Finder: constellations and planets</a></div>
+${faqHtml(FINDER_FAQ)}</section>
 </div>
 <script src="${cfg().base}/assets/finder.js?v=${cfg().version}" defer></script>`;
-  return page({ lang: 'en', path: '/moon-finder/', alt: false, title: 'Moon Finder Online: Live Moon Tracker – Where Is the Moon Right Now?', desc: 'Live moon tracker: where is the moon right now from my location? See the moon\'s direction, height, moonrise and moonset, and find it in the sky with your camera and compass.', body, navActive: 'finder' });
+  return page({ lang: 'en', path: '/moon-finder/', alt: false, title: 'Live Moon View from My Location – Free Online Moon Finder & Tracker', desc: 'Free live moon finder: where is the moon right now from my location? See its direction and height, moonrise, moonset, the next full moon, and a live camera view that points you to the moon.', body, navActive: 'finder',
+    ld: [faqLd(FINDER_FAQ), { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Moon Finder – live moon view from your location', url: abs('en', '/moon-finder/'), applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (runs in the browser)', isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' }, description: 'Find the moon in the sky from your location: direction, height, moonrise, moonset, next full moon and a live camera view.' }] });
 }
 
 // 3D view: Earth globe with your place and the Moon, and the solar system (assets/space.js).
@@ -152,7 +160,7 @@ ${breadcrumbs([['Today', url('en', '/')], ['3D solar system']])}
 </div>
 ${adSlot()}
 <section class="section"><h2>Questions people ask</h2>${faq.map(([q, a]) => `<details class="faq"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
-<div class="pills"><a href="${url('en', '/moon-today/')}">Moon today</a><a href="${url('en', '/moon-finder/')}">📷 Find the Moon with your camera</a><a href="${url('en', '/full-moon/')}">Full moon dates</a><a href="${url('en', '/chandra-grahan/')}">Lunar eclipse</a></div>
+<div class="pills"><a href="${url('en', '/moon-today/')}">Moon today</a><a href="${url('en', '/moon-finder/')}">📷 Find the Moon with your camera</a><a href="${url('en', '/star-finder/')}">✨ Star Finder</a><a href="${url('en', '/full-moon/')}">Full moon dates</a><a href="${url('en', '/chandra-grahan/')}">Lunar eclipse</a></div>
 </div>
 <script type="importmap">{"imports":{"three":"${v}three.module.min.js${ver}","three/addons/controls/OrbitControls.js":"${v}OrbitControls.js${ver}"}}</script>
 <script src="${v}astronomy.browser.min.js${ver}" defer></script>
@@ -163,4 +171,54 @@ ${adSlot()}
     ld: [{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }] });
 }
 
-module.exports = { ARTICLES, learnIndex, learnPage, legalPages, notFound, finderPage, spacePage };
+// Star Finder: live sky map of stars, constellations and planets, with an optional camera view (assets/sky.js).
+// A separate page and script, so the Moon Finder (/moon-finder/, assets/finder.js) is not affected.
+const STAR_FAQ = [
+  ['How do I find constellations from my location with my phone?', 'Open this page, allow location, tap "Point your camera at the sky" and allow the camera and motion sensors. Hold your phone up: the stars, constellation lines and planets are drawn over the camera picture, in the direction you are pointing.'],
+  ['Which planets can I see tonight?', 'The table above lists the Moon, Mercury, Venus, Mars, Jupiter and Saturn with where they are now and their next rise and set times for your place. Venus and Jupiter are the easiest: they shine brighter than any star.'],
+  ['Why can\'t I see the stars on the map in the real sky?', 'In the daytime and in twilight, sunlight hides the stars. City lights and haze also hide faint stars, so in a city you may only see the brightest few and the planets. Try a dark place about an hour after sunset.'],
+  ['The map does not line up with the sky. What can I do?', 'Phone compasses are often off by 10° or more, especially near metal or magnets. Point the middle of the screen at the Moon, a planet or a very bright star and tap "Fix alignment". Moving the phone in a figure-8 also recalibrates the compass.'],
+  ['What are the Indian names of the stars and constellations?', 'Where a well-known Indian name exists it is shown next to the international one, for example Saptarishi (Big Dipper), Mriga (Orion), Dhruva tara (Polaris), Rohini (Aldebaran) and Chitra (Spica), and the twelve rashi constellations from Mesh to Meen.'],
+  ['Is the Star Finder free and does it need an app?', 'It is free and works in your phone or computer browser. Your location is used only on your device to work out the sky; nothing is sent to us.'],
+];
+function starPage() {
+  const v = cfg().base + '/assets/', ver = '?v=' + cfg().version;
+  const body = `<link rel="stylesheet" href="${v}sky.css${ver}">
+<div class="wrap sky-main">
+${breadcrumbs([['Today', url('en', '/')], ['Star Finder']])}
+<h1>Star Finder: live sky map from your location</h1>
+<p class="muted">See the stars, constellations and planets in your sky right now. Drag to look around, or point your phone camera at the sky and the map follows it. Free, no app.</p>
+<div id="skyBox" class="sky-box" data-sky="${v}sky.json${ver}" role="application" aria-label="Live sky map: drag to look around, tap a star to name it">
+  <video id="skyVideo" playsinline muted autoplay hidden></video>
+  <canvas id="skyCanvas"></canvas>
+  <div class="sky-top"><span id="skyInfo">Loading the sky…</span><span class="sky-btns"><button type="button" id="skyFull" aria-label="Full screen">⛶ Full screen</button><button type="button" id="skyClose" aria-label="Close">✕</button></span></div>
+  <div id="skyTip" role="status" hidden></div>
+  <button type="button" class="btn small" id="alignBtn" hidden>🎯 Fix alignment</button>
+  <div id="skyHint" role="status"></div>
+</div>
+<div class="sky-controls">
+  <button class="btn" id="camBtn" type="button">📷 Point your camera at the sky</button>
+  <div class="row"><form id="skyFind" role="search"><input type="search" id="skyQ" list="skyList" placeholder="Find Jupiter, Orion, Saptarishi, Sirius…" aria-label="Find a star, planet or constellation" autocomplete="off"><button class="btn small" type="submit">Find</button></form><datalist id="skyList"></datalist></div>
+  <div class="row"><label for="skyTime">Time</label><input type="range" id="skyTime" min="-1440" max="1440" step="10" value="0"><strong id="skyWhen">Now</strong><button class="btn ghost small" type="button" id="skyNow">Now</button><button class="btn ghost small" type="button" id="skyTonight">Tonight 9 PM</button></div>
+  <div class="row"><label class="check"><input type="checkbox" id="optLines" checked> Constellation lines</label><label class="check"><input type="checkbox" id="optNames" checked> Names</label><label class="check"><input type="checkbox" id="optFaint"> Faint stars</label></div>
+  <p class="muted small" style="margin:0">Sky for <span id="skyPlace">your location…</span> <button type="button" class="linkish" id="skyGps">📍 Use my location</button></p>
+</div>
+<section class="section"><h2>Planets and the Moon tonight</h2>
+<div class="table-wrap"><table><thead><tr><th>Object</th><th>Now</th><th>Next rise</th><th>Next set</th></tr></thead><tbody id="planetRows"><tr><td colspan="4">Working out your sky…</td></tr></tbody></table></div>
+<p class="muted small">Times are in your device's time zone. Tap a name to find it on the map.</p></section>
+${adSlot()}
+<section class="section prose"><h2>See constellations and planets with your phone camera</h2>
+<p>This star finder shows the night sky from your location: about 2,800 stars, all 88 constellations with their lines and names, the Moon and the five planets you can see with your eyes. Point your phone at the sky and the map moves with it, drawn over the live camera picture, so you can put a name to the bright star you are looking at or find Saptarishi and Dhruva tara. On a computer, drag the sky to look around and use the time slider to see tonight's sky in advance.</p>
+<div class="pills"><a href="${url('en', '/moon-finder/')}">📷 Find the Moon</a><a href="${url('en', '/solar-system/')}">🪐 3D solar system</a><a href="${url('en', '/moon-today/')}">Moon today</a><a href="${url('en', '/full-moon/')}">Next full moon</a></div>
+${faqHtml(STAR_FAQ)}
+<p class="muted small">Star positions: Hipparcos (XHIP) via <a href="https://github.com/ofrohn/d3-celestial">d3-celestial</a> data (BSD licence, Olaf Frohn); constellation lines and names after the IAU. Planet positions: Astronomy Engine (MIT).</p></section>
+</div>
+<script src="${v}vendor/astronomy.browser.min.js${ver}" defer></script>
+<script src="${v}sky.js${ver}" defer></script>`;
+  return page({ lang: 'en', path: '/star-finder/', alt: false, body, navActive: 'finder',
+    title: 'Star Finder Online: Live Sky Map from My Location – Constellations & Planets with Camera',
+    desc: 'Free star finder: point your phone camera at the sky to see the stars, constellations and planets from your location right now, with Indian names like Saptarishi and Dhruva tara.',
+    ld: [faqLd(STAR_FAQ), { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Star Finder – live sky map from your location', url: abs('en', '/star-finder/'), applicationCategory: 'EducationalApplication', operatingSystem: 'Any (runs in the browser)', isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' }, description: 'Live sky map of stars, constellations and planets for your place and time, with an optional camera view.' }] });
+}
+
+module.exports = { ARTICLES, learnIndex, learnPage, legalPages, notFound, finderPage, spacePage, starPage };
