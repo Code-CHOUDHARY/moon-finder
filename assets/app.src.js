@@ -39,7 +39,16 @@
   // (English or Hindi). The <select> stays as a fallback when JavaScript is off.
   var ALIASES = window.MF_ALIASES || [];
   var norm = function (x) { return (x || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ऀ-ॿ]+/g, ' ').trim(); };
-  var MAJOR = {}; CITIES.forEach(function (c) { if (c[7]) MAJOR[c[0]] = 1; });
+  var MAJOR = {}, TOP = {}; CITIES.forEach(function (c) { if (c[7]) MAJOR[c[0]] = 1; if (c[3]) TOP[c[0]] = 1; });
+  // Pickers with data-fb send places that have no page of that kind (districts, smaller cities) to the fallback URL
+  // (their moonrise page). data-has="major": festival × city pages exist for major cities, plus the other cities
+  // in a regional festival's states; data-has="top": pages exist for the 100 cities.
+  function hasPage(el, slug, st) {
+    if (el.getAttribute('data-has') !== 'major') return !!TOP[slug];
+    var s = el.getAttribute('data-states');
+    return !!(MAJOR[slug] || (s && TOP[slug] && s.split('|').indexOf(st) >= 0));
+  }
+  function placeUrl(el, slug, st) { var fb = el.getAttribute('data-fb'); return (fb && !hasPage(el, slug, st) ? fb : el.getAttribute('data-tpl') || el.getAttribute('data-near')).replace('__CITY__', slug); }
   var PLACES = CITIES.map(function (c) { return { slug: c[0], en: c[4], hi: c[5], st: c[6] }; })
     .concat(ALIASES.map(function (a) { return { slug: a[3], en: a[0], hi: a[1], st: a[2] }; }));
   // Regional festivals list their states in data-states; only those places (plus major cities) have pages.
@@ -87,7 +96,7 @@
       });
       list.hidden = false; inp.setAttribute('aria-expanded', 'true');
     }
-    function go(p) { location.href = tpl.replace('__CITY__', p.slug); }
+    function go(p) { location.href = placeUrl(s, p.slug, p.st); }
     function mark() { Array.prototype.forEach.call(list.children, function (li, i) { li.className = i === active ? 'on' : ''; if (i === active) li.scrollIntoView({ block: 'nearest' }); }); }
     inp.addEventListener('input', render);
     inp.addEventListener('focus', render);
@@ -106,14 +115,13 @@
       if (!navigator.geolocation) return;
       var label = b.textContent; b.textContent = '…';
       navigator.geolocation.getCurrentPosition(function (p) {
-        var lat = p.coords.latitude, lng = p.coords.longitude, best = null, bd = Infinity, onlyTop = b.getAttribute('data-top') === '1', ok = allowed(b);
+        var lat = p.coords.latitude, lng = p.coords.longitude, best = null, bd = Infinity, ok = allowed(b);
         CITIES.forEach(function (c) {
-          if (onlyTop && !c[3]) return;
           if (ok && !ok(c[0], c[6])) return;
           var dx = (c[2] - lng) * Math.cos(lat * Math.PI / 180), dy = c[1] - lat, dd = dx * dx + dy * dy;
           if (dd < bd) { bd = dd; best = c; }
         });
-        if (best) location.href = b.getAttribute('data-near').replace('__CITY__', best[0]);
+        if (best) location.href = placeUrl(b, best[0], best[6]);
         else b.textContent = label;
       }, function () { b.textContent = label; }, { timeout: 10000, maximumAge: 600000 });
     });

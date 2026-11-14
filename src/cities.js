@@ -107,7 +107,10 @@ const RAW = [
   ['port-blair', 'Sri Vijaya Puram (Port Blair)', 'श्री विजयपुरम (पोर्ट ब्लेयर)', 'Andaman and Nicobar', 11.6234, 92.7265],
 ];
 // The original 100 cities. `major` (first 60) = shown in festival tables and the no-JS city picker.
-// Every place gets festival × city pages (`top`).
+// `top` = these 100 cities: per-city sunrise pages, and festival × city pages for regional festivals in their state
+// (all-India festivals only get festival × city pages for the 60 `major` cities; see fcOk in pages.js). Every place,
+// districts included, has a moonrise page listing all its festival times for the next 12 months, so visitors still
+// see everything without ~19,000 near-identical festival × district pages.
 const CITIES = RAW.map(([slug, en, hi, state, lat, lng], i) => ({ slug, name: { en, hi }, state, lat, lng, top: true, major: i < 60 }));
 
 /* ---------- Every district of India (src/districts.js) ----------
@@ -140,6 +143,6 @@ for (const [en, hi, st, lat, lng] of DISTRICTS) {
   // Same name as another place (e.g. Aurangabad in Bihar and Maharashtra): add the state to the slug and the name.
   if (used.has(slug)) { slug = `${slug}-${slugify(state)}`; name = { en: `${en} (${state})`, hi: `${hi} (${state})` }; }
   used.add(slug);
-  CITIES.push({ slug, name, state, lat, lng, top: true, major: false, district: true });
+  CITIES.push({ slug, name, state, lat, lng, top: false, major: false, district: true });
 }
 module.exports = { CITIES, ALIASES };

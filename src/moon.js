@@ -100,7 +100,7 @@ function phasePage(kind, lang) {
   const crumbs = breadcrumbs([[t.navToday, url(lang, '/')], [L(lang, 'Moon today', 'आज का चाँद'), url(lang, '/moon-today/')], [Word]]);
   let body = P.hero({ lang, crumbs, eyebrow: full ? L(lang, 'Purnima calendar', 'पूर्णिमा कैलेंडर') : L(lang, 'Amavasya calendar', 'अमावस्या कैलेंडर'),
     h1: full ? L(lang, `Full moon ${y}: when is the next full moon?`, `पूर्णिमा ${y}: अगली पूर्णिमा कब है?`) : L(lang, `New moon ${y}: when is the next new moon?`, `अमावस्या ${y}: अगली अमावस्या कब है?`), A, angle: full ? 180 : 0,
-    picker: full ? P.cityPicker(lang, { top: true, path: c => `/purnima/${c.slug}/` }) : '' });
+    picker: full ? P.cityPicker(lang, { top: true, path: c => `/purnima/${c.slug}/`, has: 'major', fb: c => P.cpath(c) + '#festivals' }) : '' });
   body += `<div class="wrap">${adSlot()}`;
   for (const yy of C().years) {
     const rows = list.filter(x => x.key.startsWith(yy));
@@ -186,7 +186,7 @@ function sunToday(lang, place) {
   const h1 = place ? L(lang, `Sunrise and sunset time today in ${cn}`, `${cn} में आज सूर्योदय और सूर्यास्त का समय`) : L(lang, 'Sunrise and sunset time today in India', 'आज सूर्योदय और सूर्यास्त का समय');
   // The picker and "Use my location" open the sunrise page of the chosen place, not its moonrise page.
   let body = P.hero({ lang, crumbs, eyebrow: L(lang, 'The Sun today', 'आज का सूर्य'), h1, A, angle: 180,
-    picker: P.cityPicker(lang, { top: false, path: sunPath }, place) });
+    picker: P.cityPicker(lang, { top: false, path: sunPath, fb: c => P.cpath(c) }, place) });
   body += `<div class="wrap">${adSlot()}`;
   const days = Array.from({ length: 15 }, (_, i) => S.addDays(k, i));
   const nextDays = `<section class="section"><h2>${L(lang, `Sunrise and sunset in ${cn} for the next 15 days`, `${cn} में अगले 15 दिन का सूर्योदय और सूर्यास्त`)}</h2>

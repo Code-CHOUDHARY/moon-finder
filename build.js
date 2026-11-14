@@ -70,11 +70,12 @@ for (const lang of ['en', 'hi']) {
   }
   for (const c of CITIES) write(P.cpath(c), P.cityPage(c, lang), { lang });
   for (const [y, m] of monthList) write(P.monthPath(y, m), P.monthPage(y, m, lang), { lang });
-  for (const st of P.states()) for (const [y, m] of monthList) write(P.stateMonthPath(st, y, m), P.monthPage(y, m, lang, st), { lang });
+  for (const st of P.states()) for (const [y, m] of P.stateMonths()) write(P.stateMonthPath(st, y, m), P.monthPage(y, m, lang, st), { lang });
   // The moon itself, and the calendars of each language/state
   write('/moon-today/', M.moonToday(lang), { lang });
   write('/sun-today/', M.sunToday(lang), { lang });
-  for (const c of CITIES) write(M.sunPath(c), M.sunToday(lang, c), { lang });
+  // Districts' sunrise/sunset is on their moonrise page (7-day table), so sun pages are for the 100 cities only.
+  for (const c of CITIES.filter(c => c.top)) write(M.sunPath(c), M.sunToday(lang, c), { lang });
   write('/tithi-today/', M.tithiToday(lang), { lang });
   write('/full-moon/', M.fullMoon(lang), { lang });
   write('/new-moon/', M.newMoon(lang), { lang });
@@ -91,7 +92,7 @@ for (const [s, html] of ST.legalPages()) write(`/${s}/`, html);
 write('/moon-finder/', ST.finderPage());
 write('/solar-system/', ST.spacePage());
 write('/star-finder/', ST.starPage());
-write('/404.html', ST.notFound(), { index: false });
+write('/404.html', ST.notFound(CITIES.filter(c => !c.major).map(c => c.slug)), { index: false });
 
 // ---------- Assets ----------
 const A = path.join(OUT, 'assets');

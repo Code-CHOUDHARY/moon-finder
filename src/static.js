@@ -81,8 +81,12 @@ function legalPages() {
   ].map(([s, t, h]) => [s, legal(s, t, h)]);
 }
 
-function notFound() {
-  const body = simpleHero('Page not found', 'This page has drifted out of orbit.', '', 30) + `<div class="wrap"><p><a class="btn" href="${url('en', '/')}">Go to the home page</a></p></div>`;
+// Old festival × district and district sunrise URLs (removed Nov 2026; shared links may still point there) are sent
+// to the district's moonrise page, which now lists every festival time for that district.
+function notFound(districtSlugs = []) {
+  const home = url('en', '/').replace(/\/$/, '');
+  const redirect = districtSlugs.length ? `<script>(function(){var D=${JSON.stringify(districtSlugs.join(' '))}.split(' '),b=${JSON.stringify(home)},q=location.pathname.slice(b.length).split('/').filter(Boolean),hi=q[0]==='hi'?'hi/':'';if(hi)q.shift();if(q.length===2&&q[0]!=='moonrise'&&D.indexOf(q[1])>=0)location.replace(b+'/'+hi+'moonrise/'+q[1]+'/'+(q[0]==='sun-today'?'':'#festivals'));})();</script>` : '';
+  const body = redirect + simpleHero('Page not found', 'This page has drifted out of orbit.', '', 30) + `<div class="wrap"><p><a class="btn" href="${url('en', '/')}">Go to the home page</a></p></div>`;
   return page({ lang: 'en', path: '/404.html', alt: false, noindex: true, title: 'Page not found | Moon Finder', desc: 'Page not found.', body });
 }
 
