@@ -151,6 +151,21 @@
     label(); c.collapse();
     (table.closest('.table-wrap') || table).insertAdjacentElement('afterend', btn);
   });
+  // Phones: tables with 3+ columns become stacked cards (CSS .stack, ≤600px). Each cell gets its column name as
+  // data-label so it can be shown beside the value. #cf has its own card layout.
+  document.querySelectorAll('main table').forEach(function (t) {
+    var head = t.querySelector('thead tr');
+    if (!head || head.children.length < 3 || t.id === 'cf') return;
+    var labels = [].map.call(head.children, function (th) { return th.textContent.trim(); });
+    t.classList.add('stack');
+    t.querySelectorAll('tbody tr').forEach(function (tr) {
+      [].forEach.call(tr.children, function (td, i) {
+        if (labels[i]) td.setAttribute('data-label', labels[i]);
+        // Keep multi-part cells (script + transliteration, name + nickname) together as one value.
+        if (i > 0 && td.childNodes.length > 1) { var v = document.createElement('span'); v.className = 'v'; while (td.firstChild) v.appendChild(td.firstChild); td.appendChild(v); }
+      });
+    });
+  });
   var ctlFor = function (t) { return ctl.filter(function (c) { return c.table === t; })[0]; };
   document.querySelectorAll('input[data-filter]').forEach(function (inp) {
     var table = document.querySelector(inp.getAttribute('data-filter'));

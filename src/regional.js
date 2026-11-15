@@ -343,7 +343,7 @@ function monthGrid(cal, y, m, lang) {
 }
 function dayTable(cal, g, lang) {
   const cn = P.nm(cityOf(cal).name, lang);
-  return `<div class="table-wrap"><table><thead><tr><th>${esc(T[lang].date)}</th><th>${esc(calName(cal, lang))}</th><th>${cal.kind === 'lunar' ? L(lang, 'Nakshatra', 'नक्षत्र') : L(lang, 'Tithi · Nakshatra', 'तिथि · नक्षत्र')}</th><th>${esc(T[lang].moonrise)} (${esc(cn)})</th><th>${esc(T[lang].navFestivals)}</th></tr></thead><tbody>${g.rows.join('')}</tbody></table></div>`;
+  return `<div class="table-wrap"><table class="cal-days"><thead><tr><th>${esc(T[lang].date)}</th><th>${esc(calName(cal, lang))}</th><th>${cal.kind === 'lunar' ? L(lang, 'Nakshatra', 'नक्षत्र') : L(lang, 'Tithi · Nakshatra', 'तिथि · नक्षत्र')}</th><th>${esc(T[lang].moonrise)} (${esc(cn)})</th><th>${esc(T[lang].navFestivals)}</th></tr></thead><tbody>${g.rows.join('')}</tbody></table></div>`;
 }
 const otherCals = (cal, lang) => `<section class="section"><h2>${L(lang, 'Calendars of other states and languages', 'अन्य राज्यों और भाषाओं के कैलेंडर')}</h2><div class="pills">${CALS.filter(c => c !== cal).map(c => `<a href="${url(lang, calPath(c))}">${esc(calName(c, lang))}</a>`).join('')}</div></section>`;
 const monthPills = (cal, y, lang) => `<div class="pills">${C().monthList.filter(([a]) => a === y).map(([a, b]) => `<a href="${url(lang, calMonthPath(cal, a, b))}">${esc((lang === 'hi' ? MONTH_HI : MONTH_EN)[b])} ${a}</a>`).join('')}</div>`;

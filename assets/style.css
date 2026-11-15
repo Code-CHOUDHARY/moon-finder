@@ -123,7 +123,7 @@ table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nu
 th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
 th { background: var(--surface-2); font-size: .85rem; color: var(--muted); font-weight: 600; position: sticky; top: 0; }
 tr:last-child td { border-bottom: 0; }
-td:first-child { white-space: normal; min-width: 110px; }
+td:first-child { white-space: normal; min-width: 150px; }
 td.t { font-weight: 700; }
 tr.hl td { background: color-mix(in srgb, var(--gold) 18%, transparent); }
 .more-hidden { display: none; }
@@ -243,3 +243,24 @@ dl.kv dt { color: var(--muted); } dl.kv dd { margin: 0; text-align: right; }
   #cf td:nth-child(2) { white-space: nowrap; color: var(--muted, inherit); }
   #cf td.t { grid-column: 1 / -1; }
 }
+
+/* Table text wraps instead of pushing the table wider than the screen; time cells (.t) stay on one line. */
+td { white-space: normal; }
+td.t, th { white-space: nowrap; }
+@media (max-width: 600px) {
+  th, td { padding: 9px 10px; }
+  td.t, th { white-space: normal; }
+  /* 3+ column tables → one card per row: first cell is the title, the rest are "label … value" lines. */
+  table.stack thead { display: none; }
+  table.stack tr { display: block; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  table.stack tr[hidden], table.stack tr.more-hidden { display: none; }
+  table.stack td { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 3px 0; border: 0; text-align: right; min-width: 0; }
+  table.stack td::before { content: attr(data-label); color: var(--muted); font-weight: 500; font-size: .85rem; text-align: left; flex: 0 0 auto; max-width: 45%; }
+  table.stack td:first-child { display: block; text-align: left; font-weight: 700; padding-bottom: 4px; }
+  table.stack td:first-child::before { content: none; }
+  table.stack td:empty { display: none; }
+  table.stack td > .v { display: block; }
+}
+@media (max-width: 600px) { td:first-child { min-width: 0; } }
+/* Regional day-by-day calendars: room for the regional-script date so it doesn't wrap word by word. */
+@media (min-width: 601px) { .cal-days td:nth-child(2) { min-width: 220px; } }
