@@ -252,32 +252,14 @@ ${cities.map(c => `<tr><td>${fcOk(f, c) ? `<a href="${url(lang, fplace(f, c))}">
   body += relatedFestivals(f, lang);
   body += `</div>`;
 
+  // No Event markup: Google's event results are only for bookable events at a venue (guidelines updated June 2025),
+  // and a festival date isn't one. Marking it as an Event (with a made-up free ticket, organizer or performer) risks a
+  // structured-data manual action, so festival pages only carry FAQPage (+ breadcrumbs from page()).
   const ld = [faqLd(f.faqs[lang])];
-  if (o) {
-    const pageUrl = abs(lang, fpath(f));
-    ld.push({
-      '@context': 'https://schema.org', '@type': 'Event', name: `${fName} ${yr}`, startDate: o.key, endDate: o.key,
-      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode', eventStatus: 'https://schema.org/EventScheduled',
-      location: { '@type': 'Place', name: 'India', address: { '@type': 'PostalAddress', addressCountry: 'IN' } },
-      description: nm(f.intro, lang).slice(0, 300),
-      image: [`${U.cfg().origin}${U.cfg().base}/assets/og.png`],
-      url: pageUrl,
-      // Festivals are free and open to everyone: a zero-price offer is how Google expects free events to be marked.
-      // validFrom: the day after the previous occurrence (when this one became the next), or the build date.
-      offers: { '@type': 'Offer', price: 0, priceCurrency: 'INR', availability: 'https://schema.org/InStock', url: pageUrl, validFrom: `${validFrom(f, o)}T00:00:00+05:30` },
-    });
-  }
   return page({
     lang, path: fpath(f), title: f.type === 'eclipse' ? (lang === 'hi' ? `चंद्र ग्रहण ${yr} कब है: तारीख, समय और भारत में कहाँ दिखेगा` : `Lunar Eclipse ${yr} in India: Chandra Grahan Date, Time & Visibility`) : t.titleFestival(fName, yr), desc: o ? t.descFestival(fName, fmtDate(o.key, lang)) : nm(f.intro, lang).slice(0, 150),
     body, ld, navActive: 'festivals', skinName: f.skin,
   });
-}
-
-// Day after the occurrence before `o`; falls back to today when there is none in the computed range.
-function validFrom(f, o) {
-  const prev = (C.occ[f.slug] || []).filter(x => x.key < o.key).pop();
-  const k = prev ? S.addDays(prev.key, 1) : C.today;
-  return k < C.today ? k : C.today;
 }
 
 function eclipseDetails(e, lang) {
