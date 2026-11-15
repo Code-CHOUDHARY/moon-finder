@@ -126,6 +126,9 @@ tr:last-child td { border-bottom: 0; }
 td:first-child { white-space: normal; min-width: 110px; }
 td.t { font-weight: 700; }
 tr.hl td { background: color-mix(in srgb, var(--gold) 18%, transparent); }
+.more-hidden { display: none; }
+.more-btn { display: block; width: 100%; margin-top: 10px; }
+.more-btn[hidden] { display: none; }
 .filter { width: 100%; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; margin-bottom: 10px; }
 
 /* FAQ */
@@ -230,3 +233,13 @@ dl.kv dt { color: var(--muted); } dl.kv dd { margin: 0; text-align: right; }
 .tool-card .n { font-weight: 700; }
 .tool-card .d { color: var(--muted); font-size: .9rem; }
 .tool-card:hover { border-color: var(--accent); }
+/* Place pages' 12-month festival table: on phones each row becomes a small card (name + date, time below),
+   so the time isn't cut off at the right edge. */
+@media (max-width: 600px) {
+  #cf thead { display: none; }
+  #cf tr { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; row-gap: 2px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  #cf tr[hidden], #cf tr.more-hidden { display: none; }
+  #cf td { padding: 0; border: 0; }
+  #cf td:nth-child(2) { white-space: nowrap; color: var(--muted, inherit); }
+  #cf td.t { grid-column: 1 / -1; }
+}

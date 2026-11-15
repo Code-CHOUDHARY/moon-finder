@@ -128,13 +128,49 @@
   });
 
   // Table filter
+  // Long tables (> 15 rows: city tables, festival lists, day-by-day calendars) show 10 rows plus a "Show all" button.
+  // Every row stays in the HTML (search engines and no-JS visitors see all of them). If a row is highlighted (today
+  // in a calendar), the 10 shown start just before it. A filter box (input[data-filter]) searches every row.
+  var HI = document.documentElement.lang === 'hi', SHOW = 10, LONG = 15, ctl = [];
+  document.querySelectorAll('main table, .wrap table').forEach(function (table) {
+    if (ctl.some(function (c) { return c.table === table; })) return;
+    var rows = [].slice.call(table.querySelectorAll('tbody tr'));
+    var c = { table: table, rows: rows, open: false, btn: null };
+    ctl.push(c);
+    if (rows.length <= LONG) return;
+    var hl = rows.findIndex(function (tr) { return tr.classList.contains('hl'); });
+    var start = hl > 1 ? Math.min(hl - 1, rows.length - SHOW) : 0;
+    c.collapse = function () { rows.forEach(function (tr, i) { tr.classList.toggle('more-hidden', !c.open && (i < start || i >= start + SHOW)); }); };
+    var btn = c.btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'btn ghost more-btn';
+    var label = function () { btn.textContent = c.open ? (HI ? 'कम दिखाएँ ↑' : 'Show fewer ↑') : (HI ? 'सभी ' + rows.length + ' दिखाएँ ↓' : 'Show all ' + rows.length + ' ↓'); };
+    btn.addEventListener('click', function () {
+      c.open = !c.open; c.collapse(); label();
+      if (!c.open) table.scrollIntoView({ block: 'nearest' });
+    });
+    label(); c.collapse();
+    (table.closest('.table-wrap') || table).insertAdjacentElement('afterend', btn);
+  });
+  var ctlFor = function (t) { return ctl.filter(function (c) { return c.table === t; })[0]; };
   document.querySelectorAll('input[data-filter]').forEach(function (inp) {
     var table = document.querySelector(inp.getAttribute('data-filter'));
-    if (!table) return;
+    var c = table && ctlFor(table);
+    if (!c) return;
+    var rows = c.rows;
     inp.addEventListener('input', function () {
       var q = inp.value.trim().toLowerCase();
-      table.querySelectorAll('tbody tr').forEach(function (tr) { tr.hidden = q && tr.textContent.toLowerCase().indexOf(q) < 0; });
+      rows.forEach(function (tr) { tr.hidden = q && tr.textContent.toLowerCase().indexOf(q) < 0; if (q) tr.classList.remove('more-hidden'); });
+      if (!q && c.collapse) c.collapse();
+      if (c.btn) c.btn.hidden = !!q;
     });
+    // ?f=<festival-slug> (links from a festival page to a district's page): show just that festival's rows.
+    var want = (location.search.match(/[?&]f=([a-z0-9-]+)/) || [])[1];
+    var hits = want ? rows.filter(function (tr) { return tr.getAttribute('data-f') === want; }) : [];
+    if (hits.length) {
+      inp.value = hits[0].querySelector('td').textContent.replace(/\s*\d{4}\s*$/, '').trim();
+      rows.forEach(function (tr) { var on = hits.indexOf(tr) >= 0; tr.hidden = !on; if (on) tr.classList.remove('more-hidden'); });
+      if (c.btn) c.btn.hidden = true;
+    }
   });
 
   // Copy link

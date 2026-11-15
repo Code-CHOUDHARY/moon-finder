@@ -100,7 +100,7 @@ function phasePage(kind, lang) {
   const crumbs = breadcrumbs([[t.navToday, url(lang, '/')], [L(lang, 'Moon today', 'आज का चाँद'), url(lang, '/moon-today/')], [Word]]);
   let body = P.hero({ lang, crumbs, eyebrow: full ? L(lang, 'Purnima calendar', 'पूर्णिमा कैलेंडर') : L(lang, 'Amavasya calendar', 'अमावस्या कैलेंडर'),
     h1: full ? L(lang, `Full moon ${y}: when is the next full moon?`, `पूर्णिमा ${y}: अगली पूर्णिमा कब है?`) : L(lang, `New moon ${y}: when is the next new moon?`, `अमावस्या ${y}: अगली अमावस्या कब है?`), A, angle: full ? 180 : 0,
-    picker: full ? P.cityPicker(lang, { top: true, path: c => `/purnima/${c.slug}/`, has: 'major', fb: c => P.cpath(c) + '#festivals' }) : '' });
+    picker: full ? P.cityPicker(lang, { top: true, path: c => `/purnima/${c.slug}/`, has: 'major', fb: c => `${P.cpath(c)}?f=purnima#festivals` }) : '' });
   body += `<div class="wrap">${adSlot()}`;
   for (const yy of C().years) {
     const rows = list.filter(x => x.key.startsWith(yy));
