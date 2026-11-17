@@ -306,7 +306,84 @@ add({
     hi: 'कार्तिक पूर्णिमा साल की सबसे पवित्र पूर्णिमाओं में से है। वाराणसी में देव दीपावली पर घाटों पर लाखों दीये जलाए जाते हैं, और सिख समुदाय इसी दिन गुरु नानक जयंती (गुरपुरब) मनाता है।',
   },
   rituals: { en: ['Holy dip (Kartik snan) in the Ganga or other rivers.', 'Deep daan: floating or lighting diyas on the ghats in the evening.', 'Prabhat pheris and langar for Gurpurab.'], hi: ['गंगा या अन्य नदियों में कार्तिक स्नान।', 'शाम को घाटों पर दीपदान।', 'गुरपुरब पर प्रभात फेरी और लंगर।'] },
-  faqs: { en: [['Is Guru Nanak Jayanti always on Kartik Purnima?', 'Yes, Gurpurab is celebrated on the full moon of Kartik.']], hi: [['क्या गुरु नानक जयंती हमेशा कार्तिक पूर्णिमा को होती है?', 'हाँ, गुरपुरब कार्तिक पूर्णिमा को मनाया जाता है।']] },
+  more: {
+    en: [
+      ['Why Kartik Purnima is special', 'Kartik Purnima ends the holy month of Kartik, when many families bathe before sunrise every day and light a diya in the evening. It is also called Tripurari Purnima, after Lord Shiva\'s victory over the demon Tripurasura, and is remembered as the day of Vishnu\'s Matsya (fish) avatar. Tulsi Vivah, which starts on Dev Uthani Ekadashi, ends on this day.'],
+      ['Kartik Purnima across India', 'Varanasi celebrates Dev Deepawali on the ghats. The Pushkar camel fair in Rajasthan ends with a holy dip in Pushkar Lake, and the Sonepur fair in Bihar begins with a bath where the Gandak meets the Ganga. In Odisha, people float small boats for Boita Bandana to remember the old sea traders, and in Tamil Nadu, Karthigai Deepam lamps are lit on the Krittika nakshatra, often in the same days.'],
+    ],
+    hi: [
+      ['कार्तिक पूर्णिमा क्यों खास है', 'कार्तिक पूर्णिमा पवित्र कार्तिक मास का अंतिम दिन है, जिसमें कई परिवार रोज़ सूर्योदय से पहले स्नान करते हैं और शाम को दीया जलाते हैं। इसे त्रिपुरारी पूर्णिमा भी कहते हैं, क्योंकि इस दिन भगवान शिव ने त्रिपुरासुर का वध किया था। यह भगवान विष्णु के मत्स्य अवतार का दिन भी माना जाता है। देवउठनी एकादशी से शुरू हुआ तुलसी विवाह इसी दिन पूरा होता है।'],
+      ['पूरे भारत में कार्तिक पूर्णिमा', 'वाराणसी में घाटों पर देव दीपावली मनाई जाती है। राजस्थान का पुष्कर मेला पुष्कर सरोवर में स्नान के साथ पूरा होता है, और बिहार में सोनपुर मेला गंडक–गंगा संगम पर स्नान से शुरू होता है। ओडिशा में पुराने समुद्री व्यापारियों की याद में बोइत बंदाण पर छोटी नावें बहाई जाती हैं, और तमिलनाडु में कृत्तिका नक्षत्र पर कार्तिगई दीपम जलाए जाते हैं, जो अक्सर इन्हीं दिनों में पड़ता है।'],
+    ],
+  },
+  faqs: {
+    en: [['Is Guru Nanak Jayanti always on Kartik Purnima?', 'Yes, Gurpurab is celebrated on the full moon of Kartik. See the Guru Nanak Jayanti page for the day\'s customs.'], ['Is Dev Deepawali on the same day as Kartik Purnima?', 'Usually yes. Dev Deepawali is celebrated in the evening when Purnima is running at sunset, so in some years it falls one day before the morning Kartik snan.'], ['When should I take the Kartik Purnima snan?', 'The holy dip is taken in the early morning, before or around sunrise, on the day Purnima is running at sunrise.']],
+    hi: [['क्या गुरु नानक जयंती हमेशा कार्तिक पूर्णिमा को होती है?', 'हाँ, गुरपुरब कार्तिक पूर्णिमा को मनाया जाता है। इस दिन की परंपराओं के लिए गुरु नानक जयंती का पेज देखें।'], ['क्या देव दीपावली और कार्तिक पूर्णिमा एक ही दिन होती हैं?', 'आमतौर पर हाँ। देव दीपावली उस शाम मनाई जाती है जब सूर्यास्त के समय पूर्णिमा तिथि हो, इसलिए कुछ वर्षों में यह सुबह के कार्तिक स्नान से एक दिन पहले पड़ती है।'], ['कार्तिक पूर्णिमा का स्नान कब करें?', 'पवित्र स्नान सुबह जल्दी, सूर्योदय से पहले या उसके आसपास, उस दिन किया जाता है जिस दिन सूर्योदय के समय पूर्णिमा तिथि हो।']],
+  },
+});
+
+add({
+  slug: 'dev-deepawali', type: 'hindu', month: 7, tithi: 15, rule: 'pradosh', key: 'deepdaan', skin: 'diwali', priority: 3, city: 'varanasi',
+  name: { en: 'Dev Deepawali', hi: 'देव दीपावली' },
+  title: { en: 'Dev Deepawali {y}: Date, Deep Daan Time & Varanasi Ghats Guide', hi: 'देव दीपावली {y}: तारीख, दीपदान का समय और वाराणसी घाट' },
+  desc: { en: 'Dev Deepawali is on {d}. Sunset (deep daan) time for Varanasi and your city, Purnima tithi timings, the story, and tips for seeing the ghats.', hi: 'देव दीपावली {d} को है। वाराणसी और आपके शहर में सूर्यास्त (दीपदान) का समय, पूर्णिमा तिथि, कथा और घाट देखने के सुझाव।' },
+  alt: { en: 'Diwali of the gods · Varanasi ghats', hi: 'देवताओं की दीवाली · वाराणसी के घाट' },
+  lunar: { en: 'Kartik Purnima evening', hi: 'कार्तिक पूर्णिमा की शाम' },
+  intro: {
+    en: 'Dev Deepawali, the "Diwali of the gods", is celebrated in Varanasi on the evening of Kartik Purnima, fifteen days after Diwali. It is believed that the gods come down to bathe in the Ganga on this night, and the city welcomes them by lighting lakhs of diyas on its ghats from sunset. The headline time above is sunset in Varanasi, when the lamps are lit.',
+    hi: 'देव दीपावली, यानी "देवताओं की दीवाली", दीवाली के पंद्रह दिन बाद कार्तिक पूर्णिमा की शाम वाराणसी में मनाई जाती है। माना जाता है कि इस रात देवता गंगा स्नान के लिए धरती पर आते हैं, और शहर सूर्यास्त से अपने घाटों पर लाखों दीये जलाकर उनका स्वागत करता है। ऊपर दिया गया समय वाराणसी में सूर्यास्त का है, जब दीये जलाए जाते हैं।',
+  },
+  rituals: {
+    en: ['Kartik snan (holy dip) in the Ganga in the morning.', 'Diyas are lit on the ghats, steps and river from sunset (Pradosh Kaal).', 'Ganga aarti in the evening, the grandest at Dashashwamedh Ghat.', 'Deep daan: floating a lamp on the river, also done at home by lighting diyas near water or a tulsi plant.'],
+    hi: ['सुबह गंगा में कार्तिक स्नान।', 'सूर्यास्त (प्रदोष काल) से घाटों, सीढ़ियों और नदी पर दीये जलाए जाते हैं।', 'शाम को गंगा आरती, सबसे भव्य दशाश्वमेध घाट पर।', 'दीपदान: नदी में दीया प्रवाहित करना; घर पर पानी या तुलसी के पास दीया जलाकर भी किया जाता है।'],
+  },
+  more: {
+    en: [
+      ['The story of Dev Deepawali', 'On Kartik Purnima, Lord Shiva destroyed the three demon cities of Tripurasura with a single arrow, which is why the day is also called Tripurari Purnima. The gods celebrated by lighting lamps in Kashi, Shiva\'s own city, and Varanasi has marked the night with diyas ever since.'],
+      ['Seeing Dev Deepawali in Varanasi', 'More than 80 ghats, from Ravidas Ghat to Raj Ghat, are lit, and the best view is from a boat on the river. Boats and riverside rooftops are booked weeks ahead, the ghats are crowded from the afternoon, and vehicles are usually stopped well before the river, so plan to walk the last part. Reach the ghats before sunset to see the lamps being lit.'],
+      ['Celebrating at home', 'If you are not in Varanasi, light diyas at home after sunset, ideally near a tulsi plant or a source of water, and offer a lamp at a nearby temple or river. Many families also donate lamps, food or warm clothes on this day.'],
+    ],
+    hi: [
+      ['देव दीपावली की कथा', 'कार्तिक पूर्णिमा पर भगवान शिव ने एक ही बाण से त्रिपुरासुर के तीनों नगर नष्ट किए थे, इसीलिए इस दिन को त्रिपुरारी पूर्णिमा भी कहते हैं। देवताओं ने शिव की नगरी काशी में दीये जलाकर उत्सव मनाया, और तब से वाराणसी यह रात दीयों से रोशन करता है।'],
+      ['वाराणसी में देव दीपावली कैसे देखें', 'रविदास घाट से राजघाट तक 80 से ज़्यादा घाट रोशन होते हैं, और सबसे अच्छा नज़ारा नदी में नाव से दिखता है। नावें और घाट किनारे की छतें हफ़्तों पहले बुक हो जाती हैं, दोपहर से घाटों पर भीड़ रहती है, और गाड़ियाँ आमतौर पर नदी से काफ़ी पहले रोक दी जाती हैं, इसलिए आखिरी हिस्सा पैदल चलने की तैयारी रखें। दीये जलते देखने के लिए सूर्यास्त से पहले घाट पहुँचें।'],
+      ['घर पर कैसे मनाएँ', 'अगर आप वाराणसी में नहीं हैं, तो सूर्यास्त के बाद घर पर दीये जलाएँ, हो सके तो तुलसी या पानी के पास, और पास के मंदिर या नदी पर दीपदान करें। कई परिवार इस दिन दीये, भोजन या गर्म कपड़ों का दान भी करते हैं।'],
+    ],
+  },
+  faqs: {
+    en: [['What time are the diyas lit on Dev Deepawali?', 'From sunset, the start of Pradosh Kaal. The sunset time for Varanasi and other cities is shown above.'], ['Is Dev Deepawali the same as Kartik Purnima?', 'It is the evening festival of Kartik Purnima. It is kept on the evening when Purnima is running at sunset, so in some years it falls one day before the Kartik Purnima snan.'], ['Where is the best place to see Dev Deepawali?', 'From a boat on the Ganga in Varanasi, or from Dashashwamedh, Assi or Raj Ghat. Book a boat early, as they sell out weeks before.']],
+    hi: [['देव दीपावली पर दीये कब जलाए जाते हैं?', 'सूर्यास्त से, यानी प्रदोष काल की शुरुआत से। वाराणसी और दूसरे शहरों का सूर्यास्त ऊपर दिया गया है।'], ['क्या देव दीपावली और कार्तिक पूर्णिमा एक ही हैं?', 'देव दीपावली कार्तिक पूर्णिमा का शाम का पर्व है। यह उस शाम मनाई जाती है जब सूर्यास्त के समय पूर्णिमा तिथि हो, इसलिए कुछ वर्षों में यह कार्तिक पूर्णिमा स्नान से एक दिन पहले पड़ती है।'], ['देव दीपावली देखने की सबसे अच्छी जगह कौन-सी है?', 'वाराणसी में गंगा पर नाव से, या दशाश्वमेध, अस्सी या राजघाट से। नाव जल्दी बुक करें, क्योंकि हफ़्तों पहले भर जाती हैं।']],
+  },
+});
+
+add({
+  slug: 'guru-nanak-jayanti', type: 'hindu', month: 7, tithi: 15, rule: 'sunrise', key: 'gurpurab', skin: 'gurpurab', priority: 3, city: 'amritsar',
+  name: { en: 'Guru Nanak Jayanti', hi: 'गुरु नानक जयंती' },
+  title: { en: 'Guru Nanak Jayanti {y}: Gurpurab Date, Prakash Purab & Celebrations', hi: 'गुरु नानक जयंती {y}: गुरपुरब की तारीख, प्रकाश पर्व और परंपराएँ' },
+  desc: { en: 'Guru Nanak Jayanti (Gurpurab) is on {d}. Purnima timings, sunrise for prabhat pheri in your city, customs, teachings and FAQs.', hi: 'गुरु नानक जयंती (गुरपुरब) {d} को है। पूर्णिमा तिथि, आपके शहर में प्रभात फेरी के लिए सूर्योदय, परंपराएँ, शिक्षाएँ और सवाल-जवाब।' },
+  alt: { en: 'Gurpurab · Prakash Purab', hi: 'गुरपुरब · प्रकाश पर्व' },
+  lunar: { en: 'Kartik Purnima', hi: 'कार्तिक पूर्णिमा' },
+  intro: {
+    en: 'Guru Nanak Jayanti, also called Gurpurab or Prakash Purab, celebrates the birth of Guru Nanak Dev Ji, the founder of Sikhism and the first of the ten Sikh Gurus. He was born in 1469 at Rai Bhoi di Talwandi, now Nankana Sahib in Pakistan. The day is kept on Kartik Purnima and is a national holiday in India.',
+    hi: 'गुरु नानक जयंती, जिसे गुरपुरब या प्रकाश पर्व भी कहते हैं, सिख धर्म के संस्थापक और दस सिख गुरुओं में पहले, गुरु नानक देव जी के जन्म का उत्सव है। उनका जन्म 1469 में राय भोई दी तलवंडी में हुआ था, जो आज पाकिस्तान में ननकाना साहिब है। यह पर्व कार्तिक पूर्णिमा को मनाया जाता है और भारत में राष्ट्रीय अवकाश है।',
+  },
+  rituals: {
+    en: ['Akhand Path: a 48-hour reading of the Guru Granth Sahib, ending on the morning of Gurpurab.', 'Prabhat Pheris: early-morning processions singing shabads in the days before.', 'Nagar Kirtan the day before, led by the Panj Pyare with the Guru Granth Sahib.', 'Asa di Var and kirtan at dawn, katha, and langar for everyone at the gurdwara.', 'Gurdwaras, homes and the Golden Temple are lit with lamps and lights at night.'],
+    hi: ['अखंड पाठ: गुरु ग्रंथ साहिब का 48 घंटे का लगातार पाठ, जो गुरपुरब की सुबह पूरा होता है।', 'प्रभात फेरी: पहले के दिनों में सुबह-सुबह शबद गाते हुए फेरी।', 'एक दिन पहले पंज प्यारों की अगुवाई में गुरु ग्रंथ साहिब के साथ नगर कीर्तन।', 'सुबह आसा दी वार और कीर्तन, कथा, और गुरुद्वारे में सबके लिए लंगर।', 'रात में गुरुद्वारे, घर और स्वर्ण मंदिर दीयों और रोशनी से सजते हैं।'],
+  },
+  more: {
+    en: [
+      ['Guru Nanak\'s teachings', 'Guru Nanak taught that there is one God (Ik Onkar), present in everyone, and that all people are equal whatever their caste, religion or gender. His three core teachings are Naam Japna (remembering God), Kirat Karni (earning an honest living) and Vand Chakna (sharing with others). The langar, a free kitchen where everyone sits together, grew from these teachings.'],
+      ['Gurpurab in Amritsar and Nankana Sahib', 'At the Golden Temple in Amritsar, the complex is lit with lamps and lights and fireworks follow in the evening. Large Nagar Kirtans are held in Punjab, Delhi, Patna Sahib and wherever Sikhs live, and many pilgrims travel to Nankana Sahib, his birthplace, for the day.'],
+    ],
+    hi: [
+      ['गुरु नानक जी की शिक्षाएँ', 'गुरु नानक जी ने सिखाया कि ईश्वर एक है (इक ओंकार) और सब में मौजूद है, और जाति, धर्म या लिंग से परे सभी लोग बराबर हैं। उनकी तीन मूल शिक्षाएँ हैं: नाम जपना (ईश्वर को याद करना), किरत करनी (ईमानदारी से कमाना) और वंड छकना (दूसरों से बाँटना)। लंगर, जहाँ सब साथ बैठकर भोजन करते हैं, इन्हीं शिक्षाओं से निकला।'],
+      ['अमृतसर और ननकाना साहिब में गुरपुरब', 'अमृतसर के स्वर्ण मंदिर में पूरा परिसर दीयों और रोशनी से सजता है और शाम को आतिशबाज़ी होती है। पंजाब, दिल्ली, पटना साहिब और जहाँ भी सिख रहते हैं, वहाँ बड़े नगर कीर्तन निकलते हैं, और कई श्रद्धालु इस दिन उनके जन्मस्थान ननकाना साहिब जाते हैं।'],
+    ],
+  },
+  faqs: {
+    en: [['Why does the date of Guru Nanak Jayanti change every year?', 'It follows the lunar calendar: Gurpurab is on the full moon of Kartik, which falls in October or November.'], ['Which Prakash Purab is it this year?', 'Counting from his birth in 1469, the 2026 celebration is Guru Nanak Dev Ji\'s 557th Prakash Purab.'], ['Is Guru Nanak Jayanti a holiday?', 'Yes. It is a gazetted (national) holiday, so central government offices, banks and most schools are closed.']],
+    hi: [['गुरु नानक जयंती की तारीख हर साल क्यों बदलती है?', 'यह चंद्र पंचांग से तय होती है: गुरपुरब कार्तिक पूर्णिमा को होता है, जो अक्टूबर या नवंबर में पड़ती है।'], ['इस साल कौन-सा प्रकाश पर्व है?', '1469 में जन्म से गिनें तो 2026 में गुरु नानक देव जी का 557वाँ प्रकाश पर्व है।'], ['क्या गुरु नानक जयंती पर छुट्टी होती है?', 'हाँ। यह राजपत्रित (राष्ट्रीय) अवकाश है, इसलिए केंद्र सरकार के दफ़्तर, बैंक और ज़्यादातर स्कूल बंद रहते हैं।']],
+  },
 });
 
 add({
@@ -460,6 +537,7 @@ const SKINS = {
   deepam: { a: '#5A1E0A', b: '#FFB627', motif: 'diya' },
   murugan: { a: '#8B1E3F', b: '#F59E0B', motif: 'vel' },
   shiva: { a: '#1E2A5A', b: '#A9BCFF', motif: 'fullmoon' },
+  gurpurab: { a: '#1C3F8C', b: '#F4A300', motif: 'diya' },
 };
 
 module.exports = { FESTIVALS: F, ekadashiName, SKINS };

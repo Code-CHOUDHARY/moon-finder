@@ -116,6 +116,18 @@ function answer(f, o, city, lang) {
       A.meta.push(`${t.sunset} ${fmtTime(x.primary, lang)} · ${t.moonrise} ${fmtTime(x.moonrise, lang)}`);
       if (o.sankranti) A.meta.push(sankrantiLine(f, o, lang));
       break;
+    // Dev Deepawali: deep daan on the ghats from sunset
+    case 'deepdaan':
+      A.label = `${lang === 'hi' ? 'दीपदान' : 'Deep daan'} – ${t.sunset} (${cn})`; A.big = fmtTime(x.primary, lang);
+      A.meta.push(`${t.sunset} ${fmtTime(x.primary, lang)} · ${t.moonrise} ${fmtTime(x.moonrise, lang)}`);
+      if (o.tithiStart) A.meta.push(`${t.tithiStarts}: ${fmtDateTime(o.tithiStart, lang)} · ${t.tithiEnds}: ${fmtDateTime(o.tithiEnd, lang)}`);
+      break;
+    case 'gurpurab':
+      A.label = lang === 'hi' ? 'प्रकाश पर्व' : 'Prakash Purab'; A.big = fmtDate(o.key, lang, { year: false });
+      A.date = `${t.sunrise} (${cn}): ${fmtTime(x.primary, lang)} · ${t.sunset}: ${fmtTime(x.sunset, lang)}`;
+      if (o.tithiStart) A.meta.push(`${t.tithiStarts}: ${fmtDateTime(o.tithiStart, lang)} · ${t.tithiEnds}: ${fmtDateTime(o.tithiEnd, lang)}`);
+      A.target = S.istMidnight(o.key);
+      break;
     case 'sankranti':
       A.label = lang === 'hi' ? 'तारीख' : 'Date'; A.big = fmtDate(o.key, lang, { year: false });
       A.big = fmtDate(o.key, lang); A.date = `${t.sunrise} (${cn}): ${fmtTime(x.primary, lang)}`;
@@ -137,12 +149,13 @@ function cell(f, o, city, lang) {
     case 'eclipse': return x.status === 'visible' ? `<span class="chip good">${t.eclipseVisible}</span>` : x.status === 'partly' ? `<span class="chip warn">${t.eclipsePartly}</span>` : `<span class="chip bad">${t.eclipseNot}</span>`;
     case 'crescent': return `${fmtTime(x.primary, lang)} → ${fmtTime(x.moonset, lang)}`;
     case 'chhath': return `${fmtTime(x.primary, lang)} → ${fmtTime(x.nextSunrise, lang)}`;
+    case 'gurpurab': return `${fmtTime(x.primary, lang)} → ${fmtTime(x.sunset, lang)}`;
     default: return fmtTime(x.primary, lang);
   }
 }
 const cellHeader = (f, lang) => {
   const t = T[lang];
-  return { moonrise: t.moonrise, tithi: t.moonrise, sankranti: t.sunrise, chhath: lang === 'hi' ? 'संध्या अर्घ्य (सूर्यास्त) → उषा अर्घ्य (सूर्योदय)' : 'Sandhya Arghya (sunset) → Usha Arghya (sunrise)', bonfire: t.sunset, avoid: t.moonset, holi: t.sunset, amavasya: t.sunset, crescent: `${t.sunset} → ${t.moonset}`, eclipse: lang === 'hi' ? 'दृश्यता' : 'Visibility' }[f.key] || t.time;
+  return { moonrise: t.moonrise, tithi: t.moonrise, sankranti: t.sunrise, chhath: lang === 'hi' ? 'संध्या अर्घ्य (सूर्यास्त) → उषा अर्घ्य (सूर्योदय)' : 'Sandhya Arghya (sunset) → Usha Arghya (sunrise)', bonfire: t.sunset, deepdaan: t.sunset, gurpurab: `${t.sunrise} → ${t.sunset}`, avoid: t.moonset, holi: t.sunset, amavasya: t.sunset, crescent: `${t.sunset} → ${t.moonset}`, eclipse: lang === 'hi' ? 'दृश्यता' : 'Visibility' }[f.key] || t.time;
 };
 
 function hero({ f, lang, crumbs, eyebrow, h1, sub, A, angle, picker, extraBtn = '' }) {
@@ -245,6 +258,9 @@ ${cities.map(c => `<tr><td>${fcOk(f, c) ? `<a href="${url(lang, fplace(f, c))}">
 
   body += `<section class="section prose"><h2>${esc(t.about)}</h2><p class="lead">${esc(nm(f.intro, lang))}</p>
 <h3>${esc(t.rituals)}</h3><ul class="ritual">${f.rituals[lang].map(r => `<li>${esc(r)}</li>`).join('')}</ul></section>`;
+  // Optional per-festival SEO text (not about moonrise): f.title with {y}, f.desc with {d}.
+  // Optional extra sections: f.more = { en: [[heading, paragraph], …], hi: […] }
+  if (f.more) for (const [h, p] of f.more[lang] || f.more.en) body += `<section class="section prose"><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`;
   body += shopBlock(f, lang);
   body += adSlot();
 
@@ -259,7 +275,7 @@ ${cities.map(c => `<tr><td>${fcOk(f, c) ? `<a href="${url(lang, fplace(f, c))}">
   // structured-data manual action, so festival pages only carry FAQPage (+ breadcrumbs from page()).
   const ld = [faqLd(f.faqs[lang])];
   return page({
-    lang, path: fpath(f), title: f.type === 'eclipse' ? (lang === 'hi' ? `चंद्र ग्रहण ${yr} कब है: तारीख, समय और भारत में कहाँ दिखेगा` : `Lunar Eclipse ${yr} in India: Chandra Grahan Date, Time & Visibility`) : t.titleFestival(fName, yr), desc: o ? t.descFestival(fName, fmtDate(o.key, lang)) : nm(f.intro, lang).slice(0, 150),
+    lang, path: fpath(f), title: f.type === 'eclipse' ? (lang === 'hi' ? `चंद्र ग्रहण ${yr} कब है: तारीख, समय और भारत में कहाँ दिखेगा` : `Lunar Eclipse ${yr} in India: Chandra Grahan Date, Time & Visibility`) : f.title ? nm(f.title, lang).replace('{y}', yr) : t.titleFestival(fName, yr), desc: o ? (f.desc ? nm(f.desc, lang).replace('{d}', fmtDate(o.key, lang)) : t.descFestival(fName, fmtDate(o.key, lang))) : nm(f.intro, lang).slice(0, 150),
     body, ld, navActive: 'festivals', skinName: f.skin,
   });
 }
