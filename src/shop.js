@@ -68,4 +68,13 @@ const SHOP = {
   'bohag-bihu': [['Assamese gamosa', 'असमिया गमोसा', 'assamese gamosa'], ['Mekhela chador', 'मेखेला चादर', 'mekhela chador'], ['Dhol for Bihu', 'बिहू ढोल', 'bihu dhol']],
 };
 const shopUrl = (q, tag) => `https://www.amazon.in/s?k=${encodeURIComponent(q)}&tag=${encodeURIComponent(tag)}`;
-module.exports = { SHOP, shopUrl };
+// Product photos from Amazon's Product Advertising API, fetched just before the build by tools/fetch-products.js.
+// Amazon allows keeping this data for 24 hours, so an older file is ignored and the shop falls back to text links.
+let PRODUCTS = {};
+try {
+  const p = require('path').join(__dirname, '..', '.cache', 'products.json');
+  const data = JSON.parse(require('fs').readFileSync(p, 'utf8'));
+  if (Date.now() - Date.parse(data.fetchedAt) < 24 * 3600e3) PRODUCTS = data.items || {};
+} catch (e) { /* no products file: text links only */ }
+const productFor = q => PRODUCTS[q] || null;
+module.exports = { SHOP, shopUrl, productFor };

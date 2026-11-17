@@ -51,6 +51,13 @@ npm run preview        # builds for http://localhost:8080 and serves dist/
 2. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 3. The workflow in `.github/workflows/deploy.yml` builds and publishes on every push and every morning at 05:45 IST. Run it once by hand from the **Actions** tab.
 
+### Shop photos (optional)
+
+Festival pages show a shopping column (right side on desktop, a swipeable row on phones). Product photos come from Amazon's **Creators API**, which Amazon only opens after enough qualifying sales. Until then the cards are text links. Once Associates Central gives you Creators API credentials (version 3.x):
+
+1. Repo **Settings → Secrets and variables → Actions → Secrets** → add `AMAZON_CREATORS_CLIENT_ID` and `AMAZON_CREATORS_CLIENT_SECRET`. Never put them in `site.config.json` or the code.
+2. Re-run the workflow. `tools/fetch-products.js` fetches one product per shop item for festivals in the next 60 days and writes `.cache/products.json`, which the build uses only if it is under 24 hours old (Amazon's caching limit).
+
 ### When you buy the domain (e.g. moonfinder.in)
 
 1. Repo **Settings → Secrets and variables → Actions → Variables** → add `SITE_URL` = `https://moonfinder.in`.

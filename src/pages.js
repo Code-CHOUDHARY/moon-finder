@@ -4,7 +4,7 @@ const S = require('./astro');
 const { T, fmtTime, fmtDate, fmtShort, fmtDateTime, tithiName, pakshaName, MONTH_EN, MONTH_HI, WD_EN, WD_HI } = require('./i18n');
 const U = require('./ui');
 const { cityTimes } = require('./data');
-const { SHOP, shopUrl } = require('./shop');
+const { SHOP, shopUrl, productFor } = require('./shop');
 const { esc, url, abs, page, moonSvg, phaseKey, motif, skin, countdown, adSlot, breadcrumbs, faqHtml, faqLd, shareButtons } = U;
 
 let C; // context, set by init()
@@ -208,15 +208,32 @@ function stateLinks(lang, path, open = false, keep = null) {
 }
 const placeCount = () => C.cities.length + C.aliases.length;
 
-// Affiliate shopping links (only when an Amazon Associates tag is configured).
-function shopBlock(f, lang) {
+// Affiliate shopping (only when an Amazon Associates tag is configured). On wide screens it is a sticky column on the
+// right (shopAside); on phones the same items are a swipeable row of cards after the first table (shopInline).
+// Photos come from Amazon's Product Advertising API (see tools/fetch-products.js); without them the cards are text links.
+function shopCards(f, lang) {
   const tag = U.cfg().amazonTag, items = SHOP[f.slug];
-  if (!tag || !items) return '';
+  if (!tag || !items) return null;
   const hi = lang === 'hi';
-  return `<section class="section"><h2>${hi ? 'त्योहार की खरीदारी' : 'Festival shopping'}</h2>
-<div class="shop">${items.map(([en, h, q]) => `<a class="card shop-item" href="${esc(shopUrl(q, tag))}" target="_blank" rel="sponsored nofollow noopener">${esc(hi ? h : en)} <span aria-hidden="true">→</span></a>`).join('')}</div>
-<p class="muted small">${hi ? 'ये Amazon के एफ़िलिएट लिंक हैं। Amazon एसोसिएट के रूप में हम योग्य खरीदारी से कमाई करते हैं, आपके लिए कीमत वही रहती है।' : 'These are Amazon affiliate links. As an Amazon Associate we earn from qualifying purchases, at no extra cost to you.'}</p></section>`;
+  return items.map(([en, h, q]) => {
+    const p = productFor(q), label = esc(hi ? h : en);
+    const href = esc(p ? p.url : shopUrl(q, tag));
+    const pic = p ? `<img src="${esc(p.img)}" alt="${esc(p.title || (hi ? h : en))}" width="${p.w || 160}" height="${p.h || 160}" loading="lazy" decoding="async">` : '';
+    return `<a class="card shop-item${p ? ' has-pic' : ''}" href="${href}" target="_blank" rel="sponsored nofollow noopener">${pic}<span class="shop-name">${label}</span><span class="shop-cta">${hi ? 'Amazon पर देखें' : 'View on Amazon'} <span aria-hidden="true">→</span></span></a>`;
+  }).join('');
 }
+const shopNote = lang => `<p class="muted small shop-note">${lang === 'hi' ? 'ये Amazon के एफ़िलिएट लिंक हैं। Amazon एसोसिएट के रूप में हम योग्य खरीदारी से कमाई करते हैं, आपके लिए कीमत वही रहती है।' : 'These are Amazon affiliate links. As an Amazon Associate we earn from qualifying purchases, at no extra cost to you.'}</p>`;
+const shopTitle = lang => lang === 'hi' ? 'त्योहार की खरीदारी' : 'Festival shopping';
+function shopAside(f, lang) {
+  const cards = shopCards(f, lang);
+  return cards ? `<aside class="shop-aside" aria-label="${shopTitle(lang)}"><h2>${shopTitle(lang)}</h2><div class="shop">${cards}</div>${shopNote(lang)}</aside>` : '';
+}
+function shopInline(f, lang) {
+  const cards = shopCards(f, lang);
+  return cards ? `<section class="section shop-inline"><h2>${shopTitle(lang)}</h2><div class="shop">${cards}</div>${shopNote(lang)}</section>` : '';
+}
+// Page body with the shop column: <div class="wrap has-aside"><div class="main-col">…</div><aside>…</aside></div>
+const withShop = (f, lang, inner) => { const aside = shopAside(f, lang); return aside ? `<div class="wrap has-aside"><div class="main-col">${inner}</div>${aside}</div>` : `<div class="wrap">${inner}</div>`; };
 
 /* ===================== Festival page ===================== */
 function festivalPage(f, lang) {
@@ -231,7 +248,7 @@ function festivalPage(f, lang) {
   const crumbs = breadcrumbs([[t.navToday, url(lang, '/')], [t.navFestivals, url(lang, '/festivals/')], [fName]]);
   const picker = cityPages ? cityPicker(lang, { top: true, f, path: c => fcpath(f, c), fb: c => `${cpath(c)}?f=${f.slug}#festivals` }) : '';
   let body = hero({ f, lang, crumbs, eyebrow: nm(f.lunar, lang), h1: `${fName} ${yr}`, sub: f.alt ? nm(f.alt, lang) : '', A, angle, picker });
-  body += `<div class="wrap">`;
+  const head = body; body = ''; // main column; wrapped with the shop column below
   body += adSlot();
 
   // City table
@@ -247,6 +264,7 @@ ${cities.map(c => `<tr><td>${fcOk(f, c) ? `<a href="${url(lang, fplace(f, c))}">
 </tbody></table></div></section>`;
   }
 
+  body += shopInline(f, lang);
   if (o && cityPages && !f.states) body += `<section class="section"><h2>${lang === 'hi' ? 'हर ज़िले का समय' : 'Every district'}</h2><p class="muted small">${lang === 'hi' ? `भारत के सभी ${placeCount()} ज़िले और शहर, राज्य के अनुसार।` : `All ${placeCount()} districts and cities of India, by state.`}</p>${stateLinks(lang, c => fplace(f, c))}</section>`;
   if (o && cityPages && f.states) body += `<section class="section"><h2>${lang === 'hi' ? 'हर ज़िले का समय' : 'Every district'}</h2><p class="muted small">${lang === 'hi' ? 'जिन राज्यों में यह पर्व मुख्य रूप से मनाया जाता है, वहाँ के सभी ज़िले।' : 'All districts in the states where this festival is mainly observed.'}</p>${stateLinks(lang, c => fplace(f, c), false, p => f.states.includes(p.state || (cityBySlug(p.slug) || {}).state))}</section>`;
 
@@ -261,14 +279,14 @@ ${cities.map(c => `<tr><td>${fcOk(f, c) ? `<a href="${url(lang, fplace(f, c))}">
   // Optional per-festival SEO text (not about moonrise): f.title with {y}, f.desc with {d}.
   // Optional extra sections: f.more = { en: [[heading, paragraph], …], hi: […] }
   if (f.more) for (const [h, p] of f.more[lang] || f.more.en) body += `<section class="section prose"><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`;
-  body += shopBlock(f, lang);
+  // (shop: right column on wide screens, after the city table on phones)
   body += adSlot();
 
   if (f.type !== 'series') body += allDatesTable(f, lang);
   body += `<section class="section"><h2>${esc(t.faqs)}</h2>${faqHtml(f.faqs[lang])}</section>`;
   if (o && A) body += shareButtons(`${fName}: ${A.big} – ${A.label}, ${A.date}`, abs(lang, fpath(f)), lang);
   body += relatedFestivals(f, lang);
-  body += `</div>`;
+  body = head + withShop(f, lang, body);
 
   // No Event markup: Google's event results are only for bookable events at a venue (guidelines updated June 2025),
   // and a festival date isn't one. Marking it as an Event (with a made-up free ticket, organizer or performer) risks a
@@ -347,13 +365,15 @@ function festCityPage(f, city, lang) {
   const h1 = f.key === 'moonrise' || f.key === 'crescent' ? (lang === 'hi' ? `${fName} ${yr}: ${cn} में चाँद कब निकलेगा?` : `${fName} ${yr}: Moon time in ${cn}`) : `${fName} ${yr} – ${cn}`;
   const picker = cityPicker(lang, { top: true, f, path: c => fcpath(f, c), fb: c => `${cpath(c)}?f=${f.slug}#festivals` }, city);
   let body = hero({ f, lang, crumbs, eyebrow: nm(f.lunar, lang), h1, A, angle, picker });
-  body += `<div class="wrap">${adSlot()}`;
+  const head = body; body = adSlot();
 
   // Upcoming occurrences in this city
   const ups = (f.type === 'series' ? upcomingOccs(f, 12) : (C.occ[f.slug] || []).filter(x => x.key >= S.addDays(C.today, -400)));
   body += `<section class="section"><h2>${esc(f.type === 'series' ? t.upcoming : t.allDates)} – ${esc(cn)}</h2><div class="table-wrap"><table><thead><tr><th>${esc(t.date)}</th>${f.type === 'series' ? `<th>${esc(t.notes)}</th>` : ''}<th>${esc(cellHeader(f, lang))}</th></tr></thead><tbody>
 ${ups.map(x => `<tr${x === o ? ' class="hl"' : ''}><td>${esc(fmtDate(x.key, lang))}</td>${f.type === 'series' ? `<td>${esc(occLabel(f, x, lang))}</td>` : ''}<td class="t">${cell(f, x, city, lang)}</td></tr>`).join('')}
 </tbody></table></div></section>`;
+
+  body += shopInline(f, lang);
 
   // Nearby cities
   const near = C.cities.filter(c => fcOk(f, c) && c.slug !== city.slug).map(c => ({ c, d: (c.lat - city.lat) ** 2 + ((c.lng - city.lng) * Math.cos(city.lat * Math.PI / 180)) ** 2 })).sort((a, b) => a.d - b.d).slice(0, 6).map(x => x.c);
@@ -363,11 +383,11 @@ ${near.map(c => `<tr><td><a href="${url(lang, fcpath(f, c))}">${esc(nm(c.name, l
 
   body += `<section class="section prose"><h2>${esc(t.about)}</h2><p>${esc(nm(f.intro, lang))}</p><h3>${esc(t.rituals)}</h3><ul class="ritual">${f.rituals[lang].map(r => `<li>${esc(r)}</li>`).join('')}</ul>
 <p class="muted small">${lang === 'hi' ? `${cn} (${esc(city.state)}) के निर्देशांक: ${city.lat.toFixed(2)}°N, ${city.lng.toFixed(2)}°E। समतल क्षितिज मानकर गणना; ऊँची इमारतों या पहाड़ों के पीछे चाँद कुछ मिनट बाद दिख सकता है।` : `Calculated for ${cn}, ${city.state} (${city.lat.toFixed(2)}°N, ${city.lng.toFixed(2)}°E) with a flat horizon. Behind buildings or hills the moon can appear a few minutes later.`}</p></section>`;
-  body += shopBlock(f, lang);
+  // (shop: right column on wide screens, after the dates table on phones)
   body += `<section class="section"><h2>${esc(t.faqs)}</h2>${faqHtml(f.faqs[lang])}</section>`;
   body += shareButtons(t.whatsappText(fName, cn, `${A.big} (${A.date})`), abs(lang, fcpath(f, city)), lang);
   body += `<div class="btn-row"><a class="btn" href="${url('en', '/moon-finder/')}?lat=${city.lat}&lng=${city.lng}">📷 ${esc(t.findMoon)}</a></div>`;
-  body += `</div>`;
+  body = head + withShop(f, lang, body);
   const noMoon = !['moonrise', 'crescent'].includes(f.key);
   return page({
     lang, path: fcpath(f, city),

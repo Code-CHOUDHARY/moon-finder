@@ -4,7 +4,7 @@
   "description": "Festival moonrise times for India – static site generator",
   "main": "build.js",
   "scripts": {
-    "build": "node build.js",
+    "build": "node tools/fetch-products.js && node build.js",
     "preview": "SITE_URL=http://localhost:8080 node build.js && cd dist && python3 -m http.server 8080"
   },
   "license": "UNLICENSED",

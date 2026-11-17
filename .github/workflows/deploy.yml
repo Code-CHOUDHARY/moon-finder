@@ -28,6 +28,13 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Product photos for the festival shop (Amazon Creators API). Optional: without the two secrets the shop shows
+      # text links. Add them under Settings → Secrets and variables → Actions → Secrets (never commit them).
+      - name: Fetch shop products
+        run: node tools/fetch-products.js
+        env:
+          AMAZON_CREATORS_CLIENT_ID: ${{ secrets.AMAZON_CREATORS_CLIENT_ID }}
+          AMAZON_CREATORS_CLIENT_SECRET: ${{ secrets.AMAZON_CREATORS_CLIENT_SECRET }}
       - name: Build site
         run: node build.js
         env:
