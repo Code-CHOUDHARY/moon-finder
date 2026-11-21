@@ -16,10 +16,12 @@ const CITY_KEYS = ['moonrise', 'avoid', 'holi', 'crescent', 'eclipse', 'chhath',
 const hasCityPages = f => !f.noCityPages && CITY_KEYS.includes(f.key);
 const fpath = f => `/${f.slug}/`;
 const fcpath = (f, c) => `/${f.slug}/${c.slug}/`;
-// Festival × city pages: all-India festivals for the 60 major cities; regional festivals (with a `states` list) also
-// for the other cities (of the 100) in those states. Every other place links to its own moonrise page instead.
+// Festival × city pages: all-India festivals for the 60 major cities. Regional festivals (with a `states` list) for
+// the cities (of the 100) in those states only, except `diaspora` festivals (Karva Chauth, Ahoi Ashtami, Chhath),
+// which people also look up from other metros, so they keep all major cities too. Google declined to index pages like
+// "Karthigai Deepam in Chandigarh" (Search Console, Nov 2026), so other regional festivals stay in-state.
 const cityBySlug = slug => C.cities.find(c => c.slug === slug);
-const fcOk = (f, c) => { if (!hasCityPages(f)) return false; const x = c.state ? c : cityBySlug(c.slug); if (!x || !x.top) return false; return !!x.major || (!!f.states && f.states.includes(x.state)); };
+const fcOk = (f, c) => { if (!hasCityPages(f)) return false; const x = c.state ? c : cityBySlug(c.slug); if (!x || !x.top) return false; if (!f.states) return !!x.major; return f.states.includes(x.state) || (!!f.diaspora && !!x.major); };
 const cpath = c => `/moonrise/${c.slug}/`;
 // Festival link for any place: its festival × city page if it has one, otherwise the place's own moonrise page,
 // which lists every festival time for that place (#festivals).
@@ -184,13 +186,15 @@ ${angle !== undefined ? moonSvg(angle) : ''}
 // district, grouped by state, from one shared file, so ~800 options are not repeated on every page.
 function cityPicker(lang, target, current) {
   const t = T[lang];
-  const only = target.f && target.f.states ? ` data-states="${esc(target.f.states.join('|'))}"` : '';
+  const only = target.f && target.f.states ? ` data-states="${esc(target.f.states.join('|'))}"${target.f.diaspora ? ' data-diaspora="1"' : ''}` : '';
   const tpl = url(lang, target.path({ slug: '__CITY__' }));
   // Places without a page of this kind (districts) go to their moonrise page instead.
   // data-has: which places have a page of this kind ('major' = festival × city pages, see fcOk; 'top' = the 100 cities).
   const fb = target.fb ? ` data-fb="${esc(url(lang, target.fb({ slug: '__CITY__' })))}" data-has="${target.f || target.has === 'major' ? 'major' : 'top'}"` : '';
-  const list = C.cities.filter(c => c.major || (current && c.slug === current.slug));
-  const opts = list.slice().sort((a, b) => nm(a.name, lang).localeCompare(nm(b.name, lang), lang)).map(c => `<option value="${url(lang, target.path(c))}"${current && current.slug === c.slug ? ' selected' : ''}>${esc(nm(c.name, lang))}</option>`).join('');
+  // Regional festivals: the no-JS list holds only places in the festival's states (+ major cities if `diaspora`).
+  const f0 = target.f;
+  const list = C.cities.filter(c => (current && c.slug === current.slug) || (c.major && (!f0 || !f0.states || f0.diaspora)) || (f0 && f0.states && c.top && f0.states.includes(c.state)));
+  const opts = list.slice().sort((a, b) => nm(a.name, lang).localeCompare(nm(b.name, lang), lang)).map(c => `<option value="${url(lang, f0 ? fplace(f0, c) : target.path(c))}"${current && current.slug === c.slug ? ' selected' : ''}>${esc(nm(c.name, lang))}</option>`).join('');
   return `<div class="picker"><select aria-label="${esc(t.pickCity)}" data-nav data-tpl="${esc(tpl)}" data-lang="${lang}" data-current="${current ? esc(current.slug) : ''}"${only}${fb}><option value="">${esc(t.pickCity)}</option>${opts}</select>
 <button class="btn ghost" type="button" data-near="${esc(tpl)}"${only}${fb}>📍 ${esc(t.nearMe)}</button></div>`;
 }

@@ -92,7 +92,7 @@ for (const [s, html] of ST.legalPages()) write(`/${s}/`, html);
 write('/moon-finder/', ST.finderPage());
 write('/solar-system/', ST.spacePage());
 write('/star-finder/', ST.starPage());
-write('/404.html', ST.notFound(CITIES.filter(c => !c.major).map(c => c.slug)), { index: false });
+write('/404.html', ST.notFound(CITIES.map(c => c.slug)), { index: false });
 
 // ---------- Assets ----------
 const A = path.join(OUT, 'assets');

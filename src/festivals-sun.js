@@ -7,7 +7,7 @@
 
 module.exports = function addSun(add) {
   add({
-    slug: 'chhath-puja', states: ['Bihar', 'Jharkhand', 'Uttar Pradesh', 'Delhi', 'West Bengal', 'Chhattisgarh'], type: 'hindu', month: 7, tithi: 6, rule: 'sunset', key: 'chhath', skin: 'ganesh', priority: 1, city: 'patna',
+    slug: 'chhath-puja', diaspora: true, states: ['Bihar', 'Jharkhand', 'Uttar Pradesh', 'Delhi', 'West Bengal', 'Chhattisgarh'], type: 'hindu', month: 7, tithi: 6, rule: 'sunset', key: 'chhath', skin: 'ganesh', priority: 1, city: 'patna',
     name: { en: 'Chhath Puja', hi: 'छठ पूजा' },
     alt: { en: 'Surya Shashthi · Dala Chhath · Chhathi Maiya', hi: 'सूर्य षष्ठी · डाला छठ · छठी मैया' },
     lunar: { en: 'Kartika Shukla Shashthi · Bihar, Jharkhand, eastern Uttar Pradesh', hi: 'कार्तिक शुक्ल षष्ठी · बिहार, झारखंड, पूर्वी उत्तर प्रदेश' },

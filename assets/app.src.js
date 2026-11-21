@@ -46,13 +46,15 @@
   function hasPage(el, slug, st) {
     if (el.getAttribute('data-has') !== 'major') return !!TOP[slug];
     var s = el.getAttribute('data-states');
-    return !!(MAJOR[slug] || (s && TOP[slug] && s.split('|').indexOf(st) >= 0));
+    if (!s) return !!MAJOR[slug];
+    return !!((TOP[slug] && s.split('|').indexOf(st) >= 0) || (el.getAttribute('data-diaspora') && MAJOR[slug]));
   }
   function placeUrl(el, slug, st) { var fb = el.getAttribute('data-fb'); return (fb && !hasPage(el, slug, st) ? fb : el.getAttribute('data-tpl') || el.getAttribute('data-near')).replace('__CITY__', slug); }
   var PLACES = CITIES.map(function (c) { return { slug: c[0], en: c[4], hi: c[5], st: c[6] }; })
     .concat(ALIASES.map(function (a) { return { slug: a[3], en: a[0], hi: a[1], st: a[2] }; }));
-  // Regional festivals list their states in data-states; only those places (plus major cities) have pages.
-  function allowed(el) { var s = el.getAttribute('data-states'); if (!s) return null; s = s.split('|'); return function (slug, st) { return MAJOR[slug] || s.indexOf(st) >= 0; }; }
+  // Regional festivals list their states in data-states: only places in those states are offered (plus the major
+  // cities for data-diaspora festivals such as Karva Chauth and Chhath).
+  function allowed(el) { var s = el.getAttribute('data-states'); if (!s) return null; s = s.split('|'); var d = !!el.getAttribute('data-diaspora'); return function (slug, st) { return (d && MAJOR[slug]) || s.indexOf(st) >= 0; }; }
   PLACES.forEach(function (p) { p.key = norm(p.en) + ' | ' + norm(p.hi) + ' | ' + norm(p.st); p.n = norm(p.en); p.nh = norm(p.hi); });
   function search(q, ok) {
     q = norm(q); if (!q) return [];
